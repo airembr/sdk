@@ -340,6 +340,14 @@ class Observation(BaseModel):
 
         return 2629746  # Month
 
+    def get_chat_compression_trigger(self, default=102400) -> Optional[int]:
+        if isinstance(self.session, Session) and self.session.chat:
+            if self.session.chat.compress_after is None:
+                return default
+            return self.session.chat.compress_after
+
+        return 102400  # 100KB
+
     def _get_chat_ttl_type(self, default='keep') -> Optional[str]:
         if isinstance(self.session, Session) and self.session.chat:
             if self.session.chat.ttl_type is None:
