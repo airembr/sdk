@@ -1,5 +1,7 @@
 import re
 from pydantic import ValidationInfo
+from pydantic_core import core_schema
+from pydantic import GetCoreSchemaHandler, GetJsonSchemaHandler
 
 class InstanceLink(str):
     _pattern = re.compile(r"""
@@ -68,3 +70,28 @@ class InstanceLink(str):
             "link": self.link,
             "role": self.role
         }
+
+    @classmethod
+    def __get_pydantic_core_schema__(cls, source_type, handler: GetCoreSchemaHandler):
+        """
+        Defines how Pydantic validates and serializes this custom type.
+        """
+        return core_schema.no_info_after_validator_function(
+            cls.validate,  # your existing validate method
+            core_schema.str_schema(),
+            serialization=core_schema.to_string_ser_schema(),
+        )
+
+    @classmethod
+    def __get_pydantic_json_schema__(cls, core_schema, handler: GetJsonSchemaHandler):
+        """
+        Defines how this type appears in OpenAPI / Swagger docs.
+        """
+        json_schema = handler(core_schema)
+        json_schema.update(
+            type="string",
+            title="InstanceLink",
+            description="String of the form `<link>` or `<link>:<role>`",
+            examples=["user", "user:author", "project:maintainer"]
+        )
+        return json_schema
