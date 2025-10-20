@@ -4,6 +4,8 @@ from uuid import uuid4
 
 from durable_dot_dict.dotdict import DotDict
 from pydantic import ValidationInfo
+from pydantic_core import core_schema
+from pydantic import GetCoreSchemaHandler, GetJsonSchemaHandler
 
 # Compile the regex pattern once
 OBJECT_TAG_PATTERN = re.compile(
@@ -187,4 +189,34 @@ class Instance(str):
         if self.role:
             return self.role
         return self.kind
+
+
+    @classmethod
+    def __get_pydantic_core_schema__(cls, source_type, handler: GetCoreSchemaHandler):
+        """
+        Tells Pydantic how to validate and serialize this custom type.
+        """
+        return core_schema.no_info_after_validator_function(
+            cls.validate,  # your existing validate() function
+            core_schema.str_schema(),  # base schema
+            serialization=core_schema.to_string_ser_schema(),
+        )
+
+    @classmethod
+    def __get_pydantic_json_schema__(cls, core_schema, handler: GetJsonSchemaHandler):
+        """
+        Defines how it should appear in JSON Schema (for OpenAPI docs).
+        """
+        json_schema = handler(core_schema)
+        json_schema.update(
+            type="string",
+            title="Instance",
+            description="Custom string pattern: *kind:role#id or variants",
+            examples=[
+                "*user:author#$id",
+                "task:owner#123",
+                "project#abc.#",
+            ],
+        )
+        return json_schema
 
