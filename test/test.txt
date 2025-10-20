@@ -1,0 +1,92 @@
+Write email, please id shared google docs with contract. Make comment on the contract if needed.  Please go through the document again as as our legal makege soem changes pay attention to the following paraghraphs, 9(c) 14-16 Please state values for ordert, eg. the Use limited to country: Turkey, Iran, Irak, 11. License Agreement Periods ...
+---[NEXT]---
+Here’s a polished version of your email:
+
+Subject: Review and Comments on Contract Document
+
+Hi [Name],
+
+I’ve shared the Google Docs file containing the contract. Please review it and add comments directly in the document if needed.
+
+Our legal team has made some recent updates, so please pay special attention to the following paragraphs:
+
+9(c)
+
+14–16
+
+Additionally, please specify the values for the following sections:
+
+Order details, e.g. “Use limited to country: Turkey, Iran, Iraq”
+
+11. License Agreement Periods
+
+Thank you for taking the time to review this carefully.
+
+Best regards,
+[Your Name]
+
+Would you like me to make it a bit more formal or keep this neutral/professional tone?
+
+---[NEXT]---
+
+note that the links to shared document should be sent in separte email
+
+---[NEXT]---
+
+Here’s the updated version including that note:
+
+Subject: Review and Comments on Contract Document
+
+Hi [Name],
+
+I’ve shared the Google Docs file containing the contract — the link will be sent to you in a separate email.
+
+Please review the document again carefully, as there have been some recent changes made by our legal team. Add comments directly in the document if needed.
+
+Please pay special attention to the following paragraphs:
+
+9(c)
+
+14–16
+
+Additionally, please specify the values for the following sections:
+
+Order details, e.g. “Use limited to country: Turkey, Iran, Iraq”
+
+11. License Agreement Periods
+
+Thank you for taking the time to review this thoroughly.
+
+Best regards,
+[Your Name]
+
+Would you like me to make a short version for internal colleagues too (e.g. a quick note-style version)?
+
+---[NEXT]---
+
+Here’s a concise internal version of the email:
+
+Subject: Contract – Review Needed
+
+Hi [Name],
+
+Please recheck the contract — legal has made some updates.
+Focus on:
+
+9(c)
+
+14–16
+
+Also confirm values for:
+
+Order details (e.g. Use limited to country: Turkey, Iran, Iraq)
+
+License Agreement Periods
+
+The Google Docs link will be sent in a separate email.
+Add comments directly in the document if needed.
+
+Thanks,
+[Your Name]
+
+Would you like me to make it even more informal (e.g. for a quick internal message or Slack post)?
