@@ -6,17 +6,14 @@ class Topics:
     def __init__(self):
         self.config = TopicConfig()
 
-    @property
-    def system_function_topic(self):
-        return f"{self.config.tenant}-{self.config.system_namespace}-{self.config.function_topic}"
+    def system_function_topic(self, queue_tenant: str):
+        return f"{queue_tenant}-{self.config.system_namespace}-{self.config.function_topic}"
 
-    @property
-    def collector_function_topic(self):
-        return f"{self.config.tenant}-{self.config.system_namespace}-{self.config.collector_topic}"
+    def collector_function_topic(self, queue_tenant: str):
+        return f"{queue_tenant}-{self.config.system_namespace}-{self.config.collector_topic}"
 
-    @property
-    def workflow_function_topic(self):
-        return f"{self.config.tenant}-{self.config.system_namespace}-{self.config.workflow_topic}"
+    def workflow_function_topic(self, queue_tenant: str):
+        return f"{queue_tenant}-{self.config.system_namespace}-{self.config.workflow_topic}"
 
 
 kafka_topics = Topics()

@@ -1,4 +1,4 @@
-from typing import Tuple, List
+from typing import Tuple, List, Optional
 
 from pulsar import ConsumerType, InitialPosition
 from pulsar.schema import JsonSchema, Schema, String, Record, Float
@@ -45,7 +45,8 @@ class ObservationSerializer(SerializerProtocol):
     def schema(self):
         return self._schema
 
-    def serialize(self, data: WorkerCapsule, event_name: str, context: TransportContext) -> Tuple[ObservationRecord, Schema]:
+    def serialize(self, data: WorkerCapsule, event_name: str, context: TransportContext) -> Tuple[
+        ObservationRecord, Schema]:
         context_dict = context.model_dump()
 
         if len(data.args) != 2:
@@ -65,7 +66,6 @@ class ObservationSerializer(SerializerProtocol):
         ), _schema
 
     def deserialize(self, record: ObservationRecord) -> Tuple[Tuple[dict, List[dict]], dict, dict]:
-
         headers = _default_serializer.deserialize(record.headers) if record.headers else {}
         observations = _default_serializer.deserialize(record.observations) if record.observations else []
 
@@ -78,14 +78,15 @@ class ObservationSerializer(SerializerProtocol):
 
 # This is the definition of DataBus that configs the subscriber, schema and topic.
 
-collector_json_bus = lambda subscription, consumer_name: DataBus(
-    topic=pulsar_topics.collector_function_topic,  # system/collectors
-    factory=ObservationSerializer(schema=JsonSchema(ObservationRecord)),
-    subscription=DataBusSubscription(
-        subscription_name=subscription,
-        consumer_name=consumer_name,
-        consumer_type=ConsumerType.Shared,
-        initial_position=InitialPosition.Earliest,
-        receiver_queue_size=2500
+def collector_json_bus(subscription, consumer_name, queue_tenant: str):
+    return DataBus(
+        topic=pulsar_topics.collector_function_topic(queue_tenant),  # system/collectors
+        factory=ObservationSerializer(schema=JsonSchema(ObservationRecord)),
+        subscription=DataBusSubscription(
+            subscription_name=subscription,
+            consumer_name=consumer_name,
+            consumer_type=ConsumerType.Shared,
+            initial_position=InitialPosition.Earliest,
+            receiver_queue_size=2500
+        )
     )
-)

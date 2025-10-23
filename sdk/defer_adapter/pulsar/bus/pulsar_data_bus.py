@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, Optional
 
 from pulsar import ConsumerType, InitialPosition
 from pulsar.schema import String, Record, Float, Schema, JsonSchema
@@ -64,14 +64,15 @@ class FunctionSerializer(SerializerProtocol):
         return args, kwargs, context
 
 
-function_data_bus = DataBus(
-    topic=pulsar_topics.system_function_topic,  # system/functions
-    factory=FunctionSerializer(schema=JsonSchema(FunctionRecord)),
-    subscription=DataBusSubscription(
-        subscription_name="background-worker",
-        consumer_name="background",
-        consumer_type=ConsumerType.Shared,
-        initial_position=InitialPosition.Earliest,
-        receiver_queue_size=2500
+def function_data_bus(queue_tenant: str):
+    return DataBus(
+        topic=pulsar_topics.system_function_topic(queue_tenant),  # system/functions
+        factory=FunctionSerializer(schema=JsonSchema(FunctionRecord)),
+        subscription=DataBusSubscription(
+            subscription_name="background-worker",
+            consumer_name="background",
+            consumer_type=ConsumerType.Shared,
+            initial_position=InitialPosition.Earliest,
+            receiver_queue_size=2500
+        )
     )
-)

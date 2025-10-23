@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, Optional
 
 from sdk.defer_adapter.kafka.kafka_topics import kafka_topics
 from sdk.defer.model.data_bus import DataBus, DataBusSubscription
@@ -49,8 +49,9 @@ class KafkaFunctionSerializer(SerializerProtocol):
         # return record.get('args', tuple()), record.get('kwargs', {}), record.get('context', {})
 
 
-kafka_data_bus = DataBus(
-        topic=kafka_topics.system_function_topic,  # system-functions,
+def kafka_data_bus(kafka_tenant: str):
+    return DataBus(
+        topic=kafka_topics.system_function_topic(kafka_tenant),  # system-functions,
         factory=KafkaFunctionSerializer(schema=None),
         subscription=DataBusSubscription(
             subscription_name="collector",

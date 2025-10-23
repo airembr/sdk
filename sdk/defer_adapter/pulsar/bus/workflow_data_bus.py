@@ -11,8 +11,9 @@ _default_serializer = PickleSerializer
 
 # This is the definition of DataBus that configs the subscriber, schema and topic.
 
-workflow_data_bus = DataBus(
-    topic=pulsar_topics.workflow_function_topic,  # system/workflows
+def workflow_data_bus(queue_tenant:str):
+    return DataBus(
+    topic=pulsar_topics.workflow_function_topic(queue_tenant),  # system/workflows
     factory=FunctionSerializer(schema=JsonSchema(FunctionRecord)),
     subscription=DataBusSubscription(
         subscription_name=f"workflow",

@@ -1,13 +1,11 @@
 import os
 
 from sdk.defer.service.singleton import Singleton
-from system.configuration.version import VERSION, APP_NAME
 
 class TopicConfig(metaclass=Singleton):
     def __init__(self):
         env = os.environ
         self.topic_type = env.get('PULSAR_TOPIC_TYPE', 'persistent')
-        self.tenant = env.get('PULSAR_TENANT', f'{APP_NAME}-{VERSION}')
 
         self.system_namespace = env.get('PULSAR_SYSTEM_NAMESPACE', 'system')
         self.function_topic = env.get('PULSAR_FUNCTION_TOPIC', 'functions')
