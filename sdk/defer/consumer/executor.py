@@ -2,7 +2,7 @@ import inspect
 
 from time import time
 from pickle import UnpicklingError
-from typing import Optional, List, Tuple, Callable, Dict, Any, Awaitable
+from typing import Optional, List, Tuple, Callable, Dict, Any, Awaitable, Union
 
 import sdk.defer.service.logger.extra_info as ExtraInfo
 from sdk.defer.consumer.batcher import BatcherMetadata, BatchStatus, Batcher
@@ -17,6 +17,7 @@ from sdk.defer.service.invokers import async_invoke, raw_func_invoke
 from sdk.defer.service.logger.log_handler import get_logger, log_handler, DeferLogHandler
 from sdk.defer.service.profiler import profiler
 from sdk.defer.transport.default import DefaultSerializer
+from sdk.defer_adapter.adaper_selector import DeferAdapterSelector
 
 logger = get_logger(__name__)
 ack_the_whole_batch = True
@@ -402,3 +403,39 @@ async def start_worker(inactivity_time_out=3000,
                 # reset counters
                 _start_time = time()
                 no_of_messages = 0
+
+
+def get_consumer_adapter(queue_tenant,
+                         subscription_name: str,
+                         consumer_name: str,
+                         queue_type_name: str,
+                         function: Union[Tuple[str, str],Callable],
+                         batch_function: Optional[Tuple[Optional[str], Optional[str], int, int, int]] = None,
+                         init_function: Optional[Tuple[str, str]] = None):
+
+    adapter = DeferAdapterSelector().get(queue_type_name, queue_tenant)
+
+    if init_function is not None:
+        adapter.init_function = init_function
+
+    data_bus = adapter.adapter_protocol.data_bus()
+    data_bus.subscription.subscription_name = subscription_name
+    data_bus.subscription.consumer_name = consumer_name
+
+    if isinstance(function, Callable):
+        function = (function.__module__, function.__name__)
+
+    adapter.override_function = function
+
+    if not batch_function:
+        adapter.override_batcher = (
+            None, # package
+            None, # function
+            0,  # min size
+            0,  # Max size
+            0  # timeout
+        )
+    else:
+        adapter.override_batcher = batch_function
+
+    return adapter
