@@ -1,0 +1,3 @@
+pydantic
+python-dateutil
+requests
