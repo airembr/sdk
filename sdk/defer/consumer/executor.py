@@ -292,8 +292,7 @@ async def start_worker(inactivity_time_out=3000,
                                 f"UNACK: Could not load functions {msg_protocol.properties()}. Details: {str(e)}.", e,
                                 extra=ExtraInfo.exact(origin="function-worker"))
                             # Not Ack
-                            consumer.acknowledge(msg_protocol)
-                            # consumer.negative_acknowledge(msg_protocol)
+                            consumer.negative_acknowledge(msg_protocol)
                             continue
 
                     with profiler() as exec_timer:
