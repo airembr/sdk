@@ -272,12 +272,37 @@ async def start_worker(inactivity_time_out=3000,
                              batcher_module, batcher_function, metadata) = _get_metadata(msg_protocol,
                                                                                          adapter.serializers)
                             if adapter.override_function:
-                                function_module, function_name = adapter.override_function
+                                # Run only if a function override is set
+                                if isinstance(adapter.override_function, tuple):
+                                    function_module, function_name = adapter.override_function
+                                elif isinstance(adapter.override_function, Callable):
+                                    # Run as a router
+                                    result = adapter.override_function(f"{function_module}.{function_name}")
+                                    if result:
+                                        function_module, function_name = result
+                                    else:
+                                        logger.info(f"Execution of message with function {function_module}.{function_name} is skipped.")
+                                        continue
+                                else:
+                                    raise ValueError(f"Unknown override function {adapter.override_function}. Expected tuple or callable.")
+
                             if adapter.override_batcher:
-                                (batcher_module, batcher_function,
-                                 metadata.min_batch_size,
-                                 metadata.max_batch_size,
-                                 metadata.max_time_without_flash) = adapter.override_batcher
+                                # Run only if batcher override is set
+                                if isinstance(adapter.override_batcher, tuple):
+                                    (batcher_module, batcher_function,
+                                     metadata.min_batch_size,
+                                     metadata.max_batch_size,
+                                     metadata.max_time_without_flash) = adapter.override_batcher
+                                elif isinstance(adapter.override_batcher, Callable):
+                                    # Run as a router
+                                    result = adapter.override_batcher(f"{batcher_module}.{batcher_function}")
+                                    if result:
+                                        (batcher_module, batcher_function,
+                                         metadata.min_batch_size,
+                                         metadata.max_batch_size,
+                                         metadata.max_time_without_flash) = result
+                                else:
+                                    raise ValueError(f"Unknown batcher override function {adapter.override_function}. Expected tuple or callable.")
 
                         except (RecursionError, UnpicklingError) as e:
                             logger.critical(
@@ -409,8 +434,8 @@ def get_consumer_adapter(queue_tenant,
                          subscription_name: str,
                          consumer_name: str,
                          queue_type_name: str,
-                         function: Union[Tuple[str, str],Callable],
-                         batch_function: Optional[Tuple[Optional[str], Optional[str], int, int, int]] = None,
+                         message_function: Union[Callable,Tuple[str, str]],
+                         batch_function: Union[Callable, Optional[Tuple[Optional[str], Optional[str], int, int, int]]] = None,
                          init_function: Optional[Tuple[str, str]] = None):
 
     adapter = DeferAdapterSelector().get(queue_type_name, queue_tenant)
@@ -422,10 +447,7 @@ def get_consumer_adapter(queue_tenant,
     data_bus.subscription.subscription_name = subscription_name
     data_bus.subscription.consumer_name = consumer_name
 
-    if isinstance(function, Callable):
-        function = (function.__module__, function.__name__)
-
-    adapter.override_function = function
+    adapter.override_function = message_function
 
     if not batch_function:
         adapter.override_batcher = (
@@ -439,3 +461,9 @@ def get_consumer_adapter(queue_tenant,
         adapter.override_batcher = batch_function
 
     return adapter
+
+
+def get_consumer_function_setting(function):
+    if not isinstance(function, Callable):
+        raise ValueError("Function must be callable.")
+    return (function.__module__, function.__name__)
