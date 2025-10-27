@@ -1,6 +1,6 @@
 from typing import List, Tuple, Optional
 
-from sdk.airembr.model.fact import Fact, EntityObject, Event, Metadata
+from sdk.airembr.model.fact import Fact, EntityObject, Event, Metadata, Semantic
 from sdk.airembr.service.time.time import now_in_utc
 from sdk.airembr.transport.flat_fact import FlatFact
 from sdk.airembr.transport.flat_observation_entity import ObservationEntity
@@ -32,7 +32,7 @@ def _get_entity(fact, object_entities):
 
 def _get_context_entity(entity):
     return EntityObject(
-        id=entity[ObservationEntity.ENTITY_ID],
+        id=str(entity[ObservationEntity.ENTITY_ID]),
         pk=entity[ObservationEntity.ENTITY_PK],
         type=entity[ObservationEntity.ENTITY_TYPE],
         data_hash=entity[ObservationEntity.DATA_HASH],
@@ -67,6 +67,16 @@ def _get_event(fact, event_entities, object_entities):
             data_hash=fact[FlatFact.OBJECT_DATA_HASH],
             traits=object_traits.get('entity.traits', {})
         )
+
+    # Semantic description
+
+    if FlatFact.SEMANTIC_DESCRIPTION in fact or FlatFact.SEMANTIC_SUMMARY in fact:
+        semantic = Semantic(
+            summary=fact.get(FlatFact.SEMANTIC_SUMMARY, None),
+            description=fact.get(FlatFact.SEMANTIC_DESCRIPTION, None)
+        )
+        event.semantic = semantic
+
 
     return event
 
@@ -162,7 +172,7 @@ def _group_by_observation_id(data):
     return list(groups.values())
 
 
-def convert_to_agg_facts(
+def convert_to_agg_facts_by_observation_id(
         storage_payload: List[List[Tuple[DotDict, FlatRelation, List[DotDict], Optional[DotDict]]]]):
     if not storage_payload:
         return

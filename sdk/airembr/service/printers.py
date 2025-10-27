@@ -1,19 +1,20 @@
-from typing import Any
+from typing import Any, Dict
+from sdk.airembr.model.fact import Fact
 
-def format_facts(facts: dict) -> str:
+def format_facts(facts: Dict[str, Fact]) -> str:
     """Return a human-readable string representation of a dict of Fact objects."""
     lines = []
     for fact_id, fact in facts.items():
         actor = fact.actor
         lines.append(f"\n[{actor.id}] ({actor.type})")
 
-        # --- Actor ---
-        traits_str = _format_traits(getattr(actor, "traits", {}))
-        lines.append(f"  Actor: {actor.type} ({traits_str})")
-
         # --- Sources, Sessions ---
         lines.append(_format_field("Sources", fact.sources))
         lines.append(_format_field("Sessions", fact.sessions))
+
+        # --- Actor ---
+        traits_str = _format_traits(getattr(actor, "traits", {}))
+        lines.append(f"  Actor: {actor.type} ({traits_str})")
 
         # --- Events ---
         events = getattr(fact, "events", [])
@@ -26,6 +27,8 @@ def format_facts(facts: dict) -> str:
                     obj_desc = _format_traits(obj_traits)
                     obj_info = f" → Object [{e.object.id}] ({e.object.type}, {obj_desc})"
                 lines.append(f"    • {e.label} [{e.type}]{obj_info}")
+                if getattr(e, "semantic", None):
+                    lines.append(f"    • Semantic description: {e.semantic.format(inline=True)}")
         else:
             lines.append(f"  Events: None")
 
@@ -44,6 +47,26 @@ def format_facts(facts: dict) -> str:
 
     return "\n".join(lines)
 
+
+def yield_string_for_embedding(facts: Dict[str, Fact]) -> str:
+    for fact_id, fact in facts.items():
+        actor = fact.actor
+        actor_traits_str = _format_traits(getattr(actor, "traits", {}))
+        for event in fact.events:
+            semantic_desc = event.semantic.format(inline=True) if event.semantic else ""
+            object = event.object
+            if object:
+                object_traits_str = _format_traits(getattr(object, "traits", {}))
+                object_type = f"{object.type} ({object_traits_str})"
+            else:
+                object_type = ""
+
+            if semantic_desc:
+                semantic_desc = f"\nDetails: {semantic_desc}"
+            else:
+                semantic_desc = ""
+
+            yield f"Fact: {actor.type} ({actor_traits_str}) {event.label} {object_type}{semantic_desc}"
 
 # ---------- Helpers ----------
 

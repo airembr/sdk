@@ -23,6 +23,26 @@ class Metadata(BaseModel):
     update: Optional[datetime] = None
 
 
+class Semantic(BaseModel):
+    summary: Optional[str] = None
+    description: Optional[str] = None
+
+    def format(self, inline: bool = False):
+        if inline:
+            join = ": "
+        else:
+            join = "\n"
+
+        if self.summary and self.description:
+            return f"{self.summary}{join}{self.description}"
+        if self.summary:
+            return self.summary
+        else:
+            return self.description
+
+
+
+
 class Event(Entity):
     type: str
     label: str
@@ -30,6 +50,8 @@ class Event(Entity):
 
     metadata: Metadata
     object: Optional[EntityObject] = None
+
+    semantic: Optional[Semantic] = Semantic()
 
 
 class Fact(BaseModel):
