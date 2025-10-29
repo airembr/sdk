@@ -3,7 +3,7 @@ from sdk.defer_adapter import queue_type
 from sdk.defer.model.adapter import Adapter
 from sdk.defer.service.singleton import Singleton
 from sdk.defer_adapter.adapters import collector_queue_adapter, function_queue_adapter, workflow_queue_adapter, \
-    destination_queue_adapter, logger_queue_adapter, event_property_adapter, ai_embeddings_adapter
+    destination_queue_adapter, logger_queue_adapter, event_property_adapter, event_attachment_adapter
 
 
 class DeferAdapterSelector(metaclass=Singleton):
@@ -28,9 +28,7 @@ class DeferAdapterSelector(metaclass=Singleton):
             queue_type.DESTINATION: (destination_queue_adapter, True),
             queue_type.LOGGER: (logger_queue_adapter, True),
             queue_type.PROPERTIES: (event_property_adapter, True), # False if custom consumer that attaches to existing queue without adapter
-            queue_type.EMBEDDINGS: (ai_embeddings_adapter, True),
-            # queue_type.SUMMARY: (ai_summary_consumer, False),
-            # queue_type.AI_ENTITY_RECOGNITION: (ai_ner_queue_adapter, True),
+            queue_type.ATTACHMENTS: (event_attachment_adapter, True),
         }
 
     def get(self, adapter_name, queue_tenant: str) -> Adapter:

@@ -282,6 +282,8 @@ async def start_worker(inactivity_time_out=3000,
                                         function_module, function_name = result
                                     else:
                                         logger.info(f"Execution of message with function {function_module}.{function_name} is skipped.")
+                                        # Ack functions that are skipped. If function is overriden. It is expected that it will be acked.
+                                        consumer.acknowledge(msg_protocol)
                                         continue
                                 else:
                                     raise ValueError(f"Unknown override function {adapter.override_function}. Expected tuple or callable.")
@@ -434,30 +436,23 @@ def get_consumer_adapter(queue_tenant,
                          subscription_name: str,
                          consumer_name: str,
                          queue_type_name: str,
-                         message_function: Union[Callable,Tuple[str, str]],
+                         message_function: Optional[Union[Callable,Tuple[str, str]]]=None,
                          batch_function: Union[Callable, Optional[Tuple[Optional[str], Optional[str], int, int, int]]] = None,
                          init_function: Optional[Tuple[str, str]] = None):
 
     adapter = DeferAdapterSelector().get(queue_type_name, queue_tenant)
 
-    if init_function is not None:
-        adapter.init_function = init_function
-
     data_bus = adapter.adapter_protocol.data_bus()
     data_bus.subscription.subscription_name = subscription_name
     data_bus.subscription.consumer_name = consumer_name
 
-    adapter.override_function = message_function
+    if init_function is not None:
+        adapter.init_function = init_function
 
-    if not batch_function:
-        adapter.override_batcher = (
-            None, # package
-            None, # function
-            0,  # min size
-            0,  # Max size
-            0  # timeout
-        )
-    else:
+    if message_function is not None:
+        adapter.override_function = message_function
+
+    if batch_function is not None:
         adapter.override_batcher = batch_function
 
     return adapter

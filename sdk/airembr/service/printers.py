@@ -28,7 +28,7 @@ def format_facts(facts: Dict[str, Fact]) -> str:
                     obj_info = f" → Object [{e.object.id}] ({e.object.type}, {obj_desc})"
                 lines.append(f"    • {e.label} [{e.type}]{obj_info}")
                 if getattr(e, "semantic", None):
-                    lines.append(f"    • Semantic description: {e.semantic.format(inline=True)}")
+                    lines.append(f"    • Semantic description: {e.semantic.to_string(inline=True)}")
         else:
             lines.append(f"  Events: None")
 
@@ -48,25 +48,10 @@ def format_facts(facts: Dict[str, Fact]) -> str:
     return "\n".join(lines)
 
 
-def yield_string_for_embedding(facts: Dict[str, Fact]) -> str:
-    for fact_id, fact in facts.items():
-        actor = fact.actor
-        actor_traits_str = _format_traits(getattr(actor, "traits", {}))
+def yield_string_for_embedding(facts: Dict[str, Fact]):
+    for _, fact in facts.items():
         for event in fact.events:
-            semantic_desc = event.semantic.format(inline=True) if event.semantic else ""
-            object = event.object
-            if object:
-                object_traits_str = _format_traits(getattr(object, "traits", {}))
-                object_type = f"{object.type} ({object_traits_str})"
-            else:
-                object_type = ""
-
-            if semantic_desc:
-                semantic_desc = f"\nDetails: {semantic_desc}"
-            else:
-                semantic_desc = ""
-
-            yield f"Fact: {actor.type} ({actor_traits_str}) {event.label} {object_type}{semantic_desc}"
+            yield fact, event, event.to_string(fact.actor)
 
 # ---------- Helpers ----------
 

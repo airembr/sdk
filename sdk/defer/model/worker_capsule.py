@@ -137,9 +137,6 @@ class WorkerCapsule(BaseModel):
             # Throws PushError
             result = adapter.adapter_protocol.publish(publish_payload, on_error=on_error_function)
 
-            bus = adapter.adapter_protocol.data_bus()
-            logger.debug(f"Pushed to topic: {bus.topic}, event type: {event_name}")
-
             return result, log_handler.collection
 
         # On connection error

@@ -21,8 +21,8 @@ class Topics:
     def logger_function_topic(self, queue_tenant: str):
         return f"{self.config.topic_type}://{queue_tenant}/{self.config.system_namespace}/{self.config.log_topic}"
 
-    def ai_ner_topic(self, queue_tenant: str):
-        return f"{self.config.topic_type}://{queue_tenant}/{self.config.system_namespace}/{self.config.ai_ner_topic}"
+    def event_attachment_topic(self, queue_tenant: str):
+        return f"{self.config.topic_type}://{queue_tenant}/{self.config.system_namespace}/{self.config.event_attachment_topic}"
 
 
 pulsar_topics = Topics()

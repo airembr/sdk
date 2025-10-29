@@ -8,6 +8,8 @@ from durable_dot_dict.dotdict import DotDict
 from pydantic import BaseModel, RootModel
 
 from sdk.airembr.model.entity import Entity
+from sdk.airembr.model.fact import EntityObject
+from sdk.airembr.model.flat_fact import FlatFactObservation
 from sdk.airembr.model.instance import Instance
 from sdk.airembr.model.instance_link import InstanceLink
 from sdk.airembr.model.session import Session
@@ -49,6 +51,17 @@ class ObservationEntity(BaseModel):
             converted = [f'{key}: {value}' for key, value in DotDict(self.traits).flat().items()]
             return f"{self.instance.label()} ({', '.join(converted)})"
         return self.instance.label()
+
+    def to_entity_object(self) -> EntityObject:
+        return EntityObject(
+            id=self.instance.id,
+            pk=self.instance.id,
+            type=self.instance.kind,
+            role=self.instance.role,
+            is_a=self.is_a.id if self.is_a else None,
+            part_of=self.part_of.id if self.part_of else None,
+            traits=self.traits,
+        )
 
 
 class StatusEnum(str, Enum):
@@ -242,6 +255,9 @@ class EntityRefs(RootModel[Dict[str, ObservationEntity]]):
     def items(self):
         return self.root.items()
 
+    def links(self):
+        return self.root.keys()
+
 class Observation(BaseModel):
     id: Optional[str] = None
     name: Optional[str] = None
@@ -265,34 +281,81 @@ class Observation(BaseModel):
         if not self.id:
             self.id = f"anon-{str(uuid4())}"
 
+        self._validate_links()
+
+    def _validate_links(self):
+        links = self.entities.links()
+        for relation in self.relation:
+            objects = list(relation.get_objects())
+            for o in objects:
+                if o not in links:
+                    raise ValueError(f"Entity link {o} not found in entities, but referenced in relation {objects} (label: {relation.label}).")
+
     def _index_entity_traits(self) -> Dict[str, dict]:
         return {link: observed_entity.traits for link, observed_entity in self.entities.root.items()}
 
-    def get_flat_data_keys(self):
+
+    def yield_flatten_facts(self):
+        context_entities = [entity.to_entity_object().model_dump(mode='json') for entity in self.entities.root.values()]
+
         for relation in self.relation:
+            fact = DotDict()
+
+            fact['session.id'] = self.session.id
+            fact['source.id'] = self.source.id
+            fact['relation.id'] = relation.id
+            fact['relation.type'] = relation.type
+            fact['relation.label'] = relation.label
+            fact['relation.traits'] = relation.traits
+            fact['relation.metadata.create'] = relation.ts
+            fact['context'] = context_entities
+
+            if relation.semantic:
+                fact['relation.semantic.summary'] = relation.semantic.summary
+                fact['relation.semantic.description'] = relation.semantic.description
+
             actor_link = relation.get_actor()
 
             if actor_link:
                 actor = self.entities.get(actor_link.link)
-                if actor and actor.traits:
-                    actor_props = DotDict(actor.traits)
-                    for prop_attribute in set(actor_props.flat().keys()):
-                        # president, person, actor, traits
-                        yield actor.instance.kind, relation.label, "actor", f"traits.{prop_attribute}"
+                if actor:
+                    fact['actor'] = actor.to_entity_object().model_dump(mode='json')
 
             object_links: List[InstanceLink] = list(relation.get_objects())
             if object_links:
                 for object_link in object_links:
                     object = self.entities.get(object_link.link)
-                    if object and object.traits:
-                        object_props = DotDict(object.traits)
-                        for prop_attribute in set(object_props.flat().keys()):
-                            yield object.instance.kind, relation.label, "object", f"traits.{prop_attribute}"
+                    if object:
+                        fact['relation.object'] = object.to_entity_object().model_dump(mode='json')
+                        yield FlatFactObservation(**fact)
 
-            if relation.traits:
-                fact_traits = DotDict(relation.traits).flat()
-                for prop_attribute in set(fact_traits.keys()):
-                    yield 'event', relation.label, "event", f"traits.{prop_attribute}"
+
+    #
+    # def get_flat_data_keys(self):
+    #     for relation in self.relation:
+    #         actor_link = relation.get_actor()
+    #
+    #         if actor_link:
+    #             actor = self.entities.get(actor_link.link)
+    #             if actor and actor.traits:
+    #                 actor_props = DotDict(actor.traits)
+    #                 for prop_attribute in set(actor_props.flat().keys()):
+    #                     # president, person, actor, traits
+    #                     yield actor.instance.kind, relation.label, "actor", f"traits.{prop_attribute}"
+    #
+    #         object_links: List[InstanceLink] = list(relation.get_objects())
+    #         if object_links:
+    #             for object_link in object_links:
+    #                 object = self.entities.get(object_link.link)
+    #                 if object and object.traits:
+    #                     object_props = DotDict(object.traits)
+    #                     for prop_attribute in set(object_props.flat().keys()):
+    #                         yield object.instance.kind, relation.label, "object", f"traits.{prop_attribute}"
+    #
+    #         if relation.traits:
+    #             fact_traits = DotDict(relation.traits).flat()
+    #             for prop_attribute in set(fact_traits.keys()):
+    #                 yield 'event', relation.label, "event", f"traits.{prop_attribute}"
 
     def is_consent_granted(self) -> bool:
         if self.consents is None:

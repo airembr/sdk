@@ -119,6 +119,8 @@ def _convert_fact(data):
         # Add to storage
         facts.append(flat_fact)
 
+    # this merges actor traits
+
     actor_id_to_fact = {}
     for fact in facts:  # TODO need to be sorted
 
@@ -155,7 +157,7 @@ def _convert_fact(data):
 from collections import defaultdict
 
 
-def _group_by_observation_id(data):
+def _group_by_session_id(data):
     groups = defaultdict(list)
 
     for tup in data:
@@ -164,7 +166,7 @@ def _group_by_observation_id(data):
         if first_obj is None:
             continue
 
-        obs_id = first_obj['observation.id']
+        obs_id = first_obj['session.id']
 
         if obs_id:
             groups[obs_id].append(tup)
@@ -172,10 +174,10 @@ def _group_by_observation_id(data):
     return list(groups.values())
 
 
-def convert_to_agg_facts_by_observation_id(
+def convert_to_agg_facts_by_session_id(
         storage_payload: List[List[Tuple[DotDict, FlatRelation, List[DotDict], Optional[DotDict]]]]):
     if not storage_payload:
         return
 
-    for group in _group_by_observation_id(storage_payload):
+    for group in _group_by_session_id(storage_payload):
         yield _convert_fact(group)

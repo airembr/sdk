@@ -13,5 +13,5 @@ class TopicConfig(metaclass=Singleton):
         self.workflow_topic = env.get('PULSAR_WORKFLOW_TOPIC', 'workflows')
         self.destination_topic = env.get('PULSAR_DESTINATION_TOPIC', 'destinations')
         self.log_topic = env.get('PULSAR_LOG_TOPIC', 'logs')
-        self.ai_ner_topic = env.get('PULSAR_AI_NER_TOPIC', 'ai_ner')
+        self.event_attachment_topic = env.get('PULSAR_EVENT_ATTACHMENT_TOPIC', 'event-attachments')
 
