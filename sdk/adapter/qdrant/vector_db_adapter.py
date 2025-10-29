@@ -7,8 +7,6 @@ from qdrant_client import models
 
 from qdrant_client.models import PointStruct
 
-from sdk.airembr.model.fact import Fact, Event
-
 
 def _uuid_to_int(uuid):
     return int.from_bytes(hashlib.sha256(uuid.encode()).digest()[:8], 'big')
@@ -38,7 +36,7 @@ class VectorDbAdapter:
                 sparse_vectors_config=self._sparse_vector_config
             )
 
-    def insert(self, index: str, facts: List[Tuple[Fact, Event, str]], dense_vectors, bm25_vectors):
+    def insert(self, index: str, facts, dense_vectors, bm25_vectors):
         points = [
             PointStruct(
                 id=_uuid_to_int(event.id),

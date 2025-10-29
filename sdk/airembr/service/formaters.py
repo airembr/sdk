@@ -3,14 +3,6 @@ import sys
 from sdk.airembr.model.observation import Observation
 from durable_dot_dict.dotdict import DotDict
 
-from colorama import init as colorama_init, Style, Fore, Back
-
-# Initialize colorama (Windows)
-colorama_init()
-
-REVERSE = "\x1b[7m"
-RESET = Style.RESET_ALL
-
 
 def terminal_supports_colors() -> bool:
     """Return True if stdout is a terminal that supports ANSI escapes."""
@@ -24,7 +16,7 @@ def _format_header(text: str) -> str:
     """
     if terminal_supports_colors():
         # Use reverse video + bright for clearer visual
-        return f"{REVERSE}{Style.BRIGHT} {text} {RESET}"
+        return text
     # Fallback boxed header (no ANSI codes)
     border = "─" * (len(text) + 4)
     return f"┌{border}┐\n│  {text}  │\n└{border}┘"
@@ -89,10 +81,10 @@ def format_observation(observation: Observation) -> str:
     # --- Relations ---
     for r_idx, relation in enumerate(observation.relation):
         is_last_relation = (
-            r_idx == len(observation.relation) - 1
-            and not observation.context
-            and not observation.metadata
-            and not observation.aux
+                r_idx == len(observation.relation) - 1
+                and not observation.context
+                and not observation.metadata
+                and not observation.aux
         )
         connector = "└── " if is_last_relation else "├── "
         lines.append(
@@ -194,3 +186,46 @@ def format_observation(observation: Observation) -> str:
 
     return "\n".join(lines)
 
+
+def _get_traits(dot_dict):
+    x = ["=".join(item) for item in dot_dict.items()]
+    return ", ".join(x)
+
+
+def format_dotdict(dot_dict_fact):
+    """
+    Formats a DotDict-like object into a readable string for embedding.
+    Handles nested dot-accessible keys (e.g. 'relation.object.traits.name')
+    and lists/dicts gracefully.
+    """
+    lines = []
+
+    # Extract top-level information
+    relation_type = dot_dict_fact.get('relation.type', '')
+    relation_label = dot_dict_fact.get('relation.label', '')
+    summary = dot_dict_fact.get('relation.semantic.summary', '')
+    description = dot_dict_fact.get('relation.semantic.description', '')
+
+    # Actor and Object (human readable)
+    lines.append(f"\nActor: {dot_dict_fact.get('actor.type', '')}({_get_traits(dot_dict_fact.get('actor.traits', {}))})")
+
+    lines.append(f"\nRelation to objects: {relation_type}: {relation_label}")
+    lines.append(f"Summary: {summary}")
+    if description:
+        lines.append(f"Description: {description}")
+
+    lines.append(f"\nObject: {dot_dict_fact.get('relation.object.type', '')}({_get_traits(dot_dict_fact.get('relation.object.traits', {}))})")
+
+    # Contexts (if present)
+    context_list = dot_dict_fact.get('context', [])
+    if context_list:
+        lines.append("\nContext:")
+        for ctx in context_list:
+            name = ctx.get('traits', {}).get('name', '')
+            surname = ctx.get('traits', {}).get('surname', '')
+            email = ctx.get('traits', {}).get('email', '')
+            lines.append(f"  - {ctx.get('type', '')} {name} {surname} ({email})")
+
+    # Join all lines into one string
+    formatted = "\n".join(line for line in lines if line.strip())
+    return formatted

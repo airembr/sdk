@@ -1,37 +1,9 @@
 from datetime import datetime
-from typing import Optional, List, Set, Any
+from typing import Optional, List
+from durable_dot_dict.dotdict import DotDict
 
 from pydantic import BaseModel
-
 from sdk.airembr.model.entity import Entity
-
-def _safe_str(value: Any) -> str:
-    """Safely stringify nested or Pydantic values without printing internals."""
-    if isinstance(value, (dict, list, set, tuple)):
-        return str(value)
-    if hasattr(value, "__dict__"):
-        attrs = {
-            k: v
-            for k, v in vars(value).items()
-            if not k.startswith("_") and "pydantic" not in k
-        }
-        return ", ".join(f"{k}={v}" for k, v in attrs.items())
-    return str(value)
-
-def _format_traits(traits: Any) -> str:
-    """Format a traits dict (or DotDict) cleanly."""
-    if not traits:
-        return "-"
-    if isinstance(traits, dict):
-        items = []
-        for k, v in traits.items():
-            if isinstance(v, dict):
-                inner = ", ".join(f"{ik}={iv}" for ik, iv in v.items())
-                items.append(f"{k}={{ {inner} }}")
-            else:
-                items.append(f"{k}={_safe_str(v)}")
-        return ", ".join(items)
-    return str(traits)
 
 
 class EntityObject(Entity):
@@ -42,7 +14,6 @@ class EntityObject(Entity):
     part_of: Optional[str] = None
     kind_of: Optional[str] = None
     traits: Optional[dict] = {}
-    # data_hash: int
 
 
 class Metadata(BaseModel):
@@ -69,7 +40,7 @@ class Semantic(BaseModel):
             return self.description
 
 
-class Event(Entity):
+class Relation(Entity):
     type: str
     label: str
     traits: Optional[dict] = {}
@@ -79,30 +50,18 @@ class Event(Entity):
 
     semantic: Optional[Semantic] = Semantic()
 
-    def to_string(self, actor):
-        actor_traits_str = _format_traits(getattr(actor, "traits", {}))
 
-        semantic_desc = self.semantic.to_string(inline=True) if self.semantic else ""
-        object = self.object
-        if object:
-            object_traits_str = _format_traits(getattr(object, "traits", {}))
-            object_type = f"{object.type} ({object_traits_str})"
-        else:
-            object_type = ""
-
-        if semantic_desc:
-            semantic_desc = f"\nDetails: {semantic_desc}"
-        else:
-            semantic_desc = ""
-
-        return f"Fact: {actor.type} ({actor_traits_str}) {self.label} {object_type}{semantic_desc}"
-
-
-class Fact(Entity):
+class Fact(BaseModel):
     actor: EntityObject
-    sessions: Optional[Set[str]] = set()
-    sources: Optional[Set[str]] = set()
-    aspects: Optional[Set[str]] = set()
-    events: Optional[List[Event]] = []
+    session: Entity
+    source: Entity
+    aspect: Optional[str] = None
+    relation: Relation
 
     context: Optional[List[EntityObject]] = None
+
+
+class DotDictFact(DotDict):
+
+    def to_fact(self):
+        return Fact(**self.root)

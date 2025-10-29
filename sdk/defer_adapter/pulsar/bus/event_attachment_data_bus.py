@@ -1,7 +1,6 @@
 from pulsar import ConsumerType, InitialPosition
 from pulsar.schema import JsonSchema
 
-from sdk.defer_adapter.pulsar.bus.observation_payload_bus import ObservationSerializer, ObservationRecord
 from sdk.defer_adapter.pulsar.bus.pulsar_data_bus import FunctionRecord, FunctionSerializer
 from sdk.defer_adapter.pulsar.pulsar_topics import pulsar_topics
 from sdk.defer.model.data_bus import DataBus, DataBusSubscription
