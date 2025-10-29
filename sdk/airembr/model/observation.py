@@ -287,9 +287,10 @@ class Observation(BaseModel):
         links = self.entities.links()
         for relation in self.relation:
             objects = list(relation.get_objects())
-            for o in objects:
-                if o not in links:
-                    raise ValueError(f"Entity link {o} not found in entities, but referenced in relation {objects} (label: {relation.label}).")
+            for obj in objects:
+                obj_link = obj.link
+                if obj_link not in links:
+                    raise ValueError(f"Entity link {obj_link} not found in entities, but referenced in relation {objects} (label: {relation.label}).")
 
     def _index_entity_traits(self) -> Dict[str, dict]:
         return {link: observed_entity.traits for link, observed_entity in self.entities.root.items()}

@@ -96,7 +96,7 @@ def format_observation(observation: Observation) -> str:
         )
         connector = "└── " if is_last_relation else "├── "
         lines.append(
-            f"{connector}Relation: {relation.label} ({relation.type}) @ {relation.ts.strftime('%Y-%m-%d %H:%M:%S UTC') if relation.ts else 'Unknown time'}"
+            f"{connector}Facts: \"{relation.label}\" ({relation.type}) @ {relation.ts.strftime('%Y-%m-%d %H:%M:%S UTC') if relation.ts else 'Unknown time'}"
         )
 
         rel_prefix = "    " if is_last_relation else "│   "
