@@ -2,7 +2,7 @@ from typing import List
 
 from durable_dot_dict.dotdict import DotDict
 
-from sdk.airembr.model.fact import EntityObject, Fact, DotDictFact
+from sdk.airembr.model.fact import EntityObject, DotDictFact
 from sdk.airembr.model.instance_link import InstanceLink
 from sdk.airembr.model.observation import Observation
 

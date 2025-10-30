@@ -76,9 +76,6 @@ class WorkerCapsule(BaseModel):
 
         """
             Pushed data to pulsar topic.
-            IF you would like to add new data bus that is responsible for collecting data on different topic,
-            and with different record being sent create a factory in com_tracardi.service.pulsar.factories.
-            At the end of factory create a data bus and add it in background_function_worker.py in _available_topics.
         """
 
         if on_error is None:
