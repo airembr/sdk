@@ -153,6 +153,7 @@ def _get_function(properties) -> Tuple[str, str]:
 
 def _get_metadata(msg: MessageProtocol, available_serializers: Dict[str, SerializerProtocol]) -> Tuple[
     SerializerProtocol, Any, tuple, dict, TransportContext, str, str, str, str, BatcherMetadata]:
+
     properties = msg.properties()
 
     _data_serializer: Optional[str] = properties.get('data_bus.factory', None)
@@ -271,13 +272,14 @@ async def start_worker(inactivity_time_out=3000,
                              function_name, function_module,
                              batcher_module, batcher_function, metadata) = _get_metadata(msg_protocol,
                                                                                          adapter.serializers)
+
                             if adapter.override_function:
                                 # Run only if a function override is set
                                 if isinstance(adapter.override_function, tuple):
                                     function_module, function_name = adapter.override_function
                                 elif isinstance(adapter.override_function, Callable):
-                                    # Run as a router
-                                    result = adapter.override_function(f"{function_module}.{function_name}")
+                                    # Run as a router, pass job tag and function
+                                    result = adapter.override_function(record.type, f"{function_module}.{function_name}")
                                     if result:
                                         function_module, function_name = result
                                     else:
@@ -296,8 +298,8 @@ async def start_worker(inactivity_time_out=3000,
                                      metadata.max_batch_size,
                                      metadata.max_time_without_flash) = adapter.override_batcher
                                 elif isinstance(adapter.override_batcher, Callable):
-                                    # Run as a router
-                                    result = adapter.override_batcher(f"{batcher_module}.{batcher_function}")
+                                    # Run as a router, pass job tag and function
+                                    result = adapter.override_batcher(record.type, f"{batcher_module}.{batcher_function}")
                                     if result:
                                         (batcher_module, batcher_function,
                                          metadata.min_batch_size,

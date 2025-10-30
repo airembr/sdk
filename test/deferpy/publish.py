@@ -18,7 +18,7 @@ async def main():
 
     with deferred_lazy_execution('test.deferpy.worker','run_function') as defer:
         await defer(1).push(
-            "some-name",
+            "some-tag",
             TransportContext.build(context),
             adapter=DeferAdapterSelector().get(queue_type.FUNCTION, queue_tenant='airembr-0.0.1')
         )

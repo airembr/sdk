@@ -32,7 +32,7 @@ class KafkaAdapter(QueueProtocol):
 
     def publish(self, payload: PublishPayload, on_error: Callable):
         # Serialize record - it creates an object - serialization is in producer
-        record, schema = self._data_bus.factory.serialize(payload.capsule, payload.event_name, payload.context)
+        record, schema = self._data_bus.factory.serialize(payload.capsule, payload.job_tag, payload.context)
 
         # Convert headers
         headers = [(key, value.encode('utf-8')) for key, value in payload.headers.items()]

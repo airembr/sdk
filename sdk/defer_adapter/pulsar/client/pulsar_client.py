@@ -30,7 +30,7 @@ def send_async_message(producer, message, payload: PublishPayload, on_error: Cal
             logger.warning("Queue could not be reached. Fallback function executed.")
             on_error(payload)
         else:
-            logger.info(f"Pushed to topic: {producer.topic()}, event type: {payload.event_name}")
+            logger.info(f"Pushed to topic: {producer.topic()}, job tag: {payload.job_tag}")
 
     return producer.send_async(message, lambda res, _: _callback(res, payload), properties=payload.headers,
                                **options)

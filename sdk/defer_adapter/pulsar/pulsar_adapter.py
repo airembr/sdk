@@ -30,7 +30,7 @@ class PulsarAdapter(QueueProtocol):
 
         message, schema = self._data_bus.factory.serialize(
             payload.capsule,
-            payload.event_name,
+            payload.job_tag,
             payload.context
         )
 

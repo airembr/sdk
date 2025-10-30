@@ -23,7 +23,7 @@ class FunctionCapsule(BaseModel):
 
 class PublishPayload(BaseModel):
     capsule: 'WorkerCapsule'
-    event_name: str
+    job_tag: str
     context: TransportContext
     headers: dict
     options: Optional[dict] = {}
@@ -66,7 +66,7 @@ class WorkerCapsule(BaseModel):
         return await async_invoke(context, batcher_module, batcher_name, [result])
 
     async def push(self,
-                   event_name: str,
+                   job_tag: str,
                    context: TransportContext,
                    batcher: Optional[BatcherConfig] = None,
                    adapter: Optional[Adapter] = None,
@@ -95,7 +95,7 @@ class WorkerCapsule(BaseModel):
             return None, log_handler.collection
 
         if adapter is None:
-            logger.warning(f"Job `{event_name}` is running without data bus. Inline execution of the job is scheduled.")
+            logger.warning(f"Job `{job_tag}` is running without data bus. Inline execution of the job is scheduled.")
 
         data_bus = adapter.adapter_protocol.data_bus()
         properties = {
@@ -117,7 +117,7 @@ class WorkerCapsule(BaseModel):
         try:
 
             if not config.queue_enabled:
-                logger.debug(f"Running inline. Topic: {data_bus.topic}, event type: {event_name}")
+                logger.debug(f"Running inline. Topic: {data_bus.topic}, job tag: {job_tag}")
                 result = await self._invoke(batcher, context)
                 return result, log_handler.collection
 
@@ -128,7 +128,7 @@ class WorkerCapsule(BaseModel):
 
             publish_payload = PublishPayload(
                 capsule=self,
-                event_name=event_name,
+                job_tag=job_tag,
                 context=context,
                 headers=properties,
                 options=options
@@ -145,7 +145,7 @@ class WorkerCapsule(BaseModel):
             logger.error(str(e))
             publish_payload = PublishPayload(
                 capsule=self,
-                event_name=event_name,
+                job_tag=job_tag,
                 context=context,
                 headers=properties,
                 options=options

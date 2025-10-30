@@ -41,7 +41,7 @@ class FunctionSerializer(SerializerProtocol):
     def schema(self):
         return self._schema
 
-    def serialize(self, data, event_name: str, context: TransportContext) -> Tuple[FunctionRecord, Schema]:
+    def serialize(self, data, job_tag: str, context: TransportContext) -> Tuple[FunctionRecord, Schema]:
         context_dict = context.model_dump()
 
         args = _default_serializer.serialize(data.args) if data.args else ""
@@ -49,7 +49,7 @@ class FunctionSerializer(SerializerProtocol):
 
         return FunctionRecord(
             timestamp=now_in_utc().timestamp(),
-            type=event_name,
+            type=job_tag,
             name=data.function.name,
             module=data.function.module,
             args=args,
