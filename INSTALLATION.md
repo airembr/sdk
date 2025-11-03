@@ -1,0 +1,89 @@
+Use this docker compose file to run the project for testing purposes.
+
+```yaml
+version: "3.7"
+services:
+
+  gui-api:
+    # GUI API
+    container_name: airembr-api
+    pull_policy: always
+    image: tracardi/airembr-api-gui:0.0.1
+    environment:
+      QUEUE_ENABLED: 'no'
+      META_DATA_ADAPTER: 'sqlite'
+      REDIS_HOST: redis
+      STARROCKS_HOST: starrocks
+      STARROCKS_FORCE_BE_HOST: starrocks
+      LOGGING_LEVEL: debug
+      SERVER_LOGGING_LEVEL: info
+    ports:
+      - 14001:80
+    volumes:
+      - ./db:/db
+    depends_on:
+      - redis
+      - starrocks
+
+
+  collector-api:
+    # GUI API
+    container_name: airembr-collector-api
+    image: tracardi/airembr-collector-api:0.0.1
+    pull_policy: always
+    environment:
+      QUEUE_ENABLED: 'no'
+      META_DATA_ADAPTER: 'sqlite'
+      REDIS_HOST: redis
+      STARROCKS_HOST: starrocks
+      STARROCKS_FORCE_BE_HOST: starrocks
+      LOGGING_LEVEL: debug
+      SERVER_LOGGING_LEVEL: info
+    ports:
+      - 14002:80
+    volumes:
+      - ./db:/db
+    depends_on:
+      - redis
+      - starrocks
+
+
+  gui:
+    # GUI Console
+    container_name: airembr-gui
+    pull_policy: always
+    image: tracardi/airembr-gui:0.0.1
+    ports:
+      - 14000:80
+    depends_on:
+      - gui-api
+
+
+  imap:
+    image: tracardi/airembr-job-imap-source:0.0.1
+    pull_policy: always
+    environment:
+      REDIS_HOST: redis
+      STARROCKS_HOST: starrocks
+      STARROCKS_FORCE_BE_HOST: starrocks
+      LOGGING_LEVEL: debug
+      WORKER: true
+    volumes:
+      - ./db:/db
+    depends_on:
+      - redis
+      - starrocks
+
+  redis:
+    image: redis:7.2       # Use the version you want
+    container_name: redis
+    ports:
+      - 6379:6379
+
+  starrocks:
+    image: starrocks/allin1-ubuntu
+    ports:
+      - "9030:9030"
+      - "8030:8030"
+      - "8040:8040"
+```
