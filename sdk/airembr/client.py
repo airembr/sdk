@@ -7,7 +7,7 @@ from sdk.airembr.service.api.sync_api import SyncApi
 from sdk.airembr.service.time.time import now_in_utc
 
 
-class AiRembrClient:
+class AiRembrChatClient:
 
     def __init__(self,
                  api: str,
