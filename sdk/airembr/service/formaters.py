@@ -1,4 +1,5 @@
 import sys
+from typing import Union
 
 from sdk.airembr.model.observation import Observation
 from durable_dot_dict.dotdict import DotDict
@@ -192,7 +193,7 @@ def _get_traits(dot_dict):
     return ", ".join(x)
 
 
-def format_dotdict(dot_dict_fact):
+def format_dotdict_fact(dot_dict_fact):
     """
     Formats a DotDict-like object into a readable string for embedding.
     Handles nested dot-accessible keys (e.g. 'relation.object.traits.name')
@@ -207,14 +208,16 @@ def format_dotdict(dot_dict_fact):
     description = dot_dict_fact.get('relation.semantic.description', '')
 
     # Actor and Object (human readable)
-    lines.append(f"\nActor: {dot_dict_fact.get('actor.type', '')}({_get_traits(dot_dict_fact.get('actor.traits', {}))})")
+    lines.append(
+        f"\nActor: {dot_dict_fact.get('actor.type', '')}({_get_traits(dot_dict_fact.get('actor.traits', {}))})")
 
     lines.append(f"\nRelation to objects: {relation_type}: {relation_label}")
     lines.append(f"Summary: {summary}")
     if description:
         lines.append(f"Description: {description}")
 
-    lines.append(f"\nObject: {dot_dict_fact.get('relation.object.type', '')}({_get_traits(dot_dict_fact.get('relation.object.traits', {}))})")
+    lines.append(
+        f"\nObject: {dot_dict_fact.get('relation.object.type', '')}({_get_traits(dot_dict_fact.get('relation.object.traits', {}))})")
 
     # Contexts (if present)
     context_list = dot_dict_fact.get('context', [])
@@ -229,3 +232,20 @@ def format_dotdict(dot_dict_fact):
     # Join all lines into one string
     formatted = "\n".join(line for line in lines if line.strip())
     return formatted
+
+
+def _key_value_to_string(key, value):
+    if isinstance(value, (dict, list)):
+        return f"{key}={value}"
+    elif isinstance(value, (int, float, bool)):
+        return f"{key}={value}"
+    else:
+        return f'{key}="{value}"'
+
+
+def format_traits(traits: Union[DotDict, dict]) -> str:
+    if isinstance(traits, dict):
+        traits = DotDict(traits)
+    flat = traits.flat()
+    properties = [_key_value_to_string(key,value) for key, value in flat.items()]
+    return f"({', '.join(properties)})"

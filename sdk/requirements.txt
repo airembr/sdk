@@ -4,6 +4,8 @@ jinja2
 durable-dot-dict>=0.0.20
 python-dateutil
 requests
+pytz
+pytimeparse
 
 # For adapters
 pulsar-client==3.5.0

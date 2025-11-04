@@ -1,96 +1,61 @@
-from datetime import datetime
-from typing import Optional
-from uuid import uuid4
+from typing import List, Optional
 
 from sdk.airembr.model.observation import Observation
+from sdk.airembr.model.query.time_range_query import DatePayload
 from sdk.airembr.service.api.sync_api import SyncApi
-from sdk.airembr.service.time.time import now_in_utc
 
 
-class AiRembrChatClient:
+class AirembrQuery:
+    def __init__(self, transport):
+        self.transport = transport
 
-    def __init__(self,
-                 api: str,
-                 source_id: str,
-                 person_instance: str,
-                 chat_id: str, chat_ttl: int = 60 * 60,
-                 agent_instance: Optional[str] = 'agent #agent',
-                 agent_traits=None,
-                 person_traits=None,
-                 tenant_id: Optional[str] = None
-                 ):
+    def computed_entity(self, query):
+        status, result = self.transport.query_computed_entity(query)
+        if not status.ok():
+            raise ConnectionError(f"Query failed with status: {status} and result: {result}")
+        return result
 
-        if agent_traits is None:
-            agent_traits = {}
+    def facts(self,
+                    query: Optional[str] = None,
+                    min_date: Optional[DatePayload] = None,
+                    max_date: Optional[DatePayload] = None,
+                    page: Optional[int] = 0,
+                    limit: Optional[int] = 30,
+                    timezone: Optional[str] = "UTC",
+                    headers=None, ):
 
-        if person_traits is None:
-            person_traits = {}
+        if query is None:
+            query = ""
 
-        self.api = api
-        self.person_instance = person_instance
-        self.agent_traits = agent_traits
-        self.agent_instance = agent_instance
-        self.chat_ttl = chat_ttl
-        self.source_id = source_id
-        self.chat_id = chat_id
-        self.chats = []
-        self.person_traits = person_traits
+        status, result = self.transport.query_facts(query, min_date, max_date, page, limit, timezone, headers=headers)
 
-    def person(self, message: str, date: Optional[datetime] = None, fact_label: Optional[str] = 'messaged'):
-       self.chat(message, "person", date, fact_label)
+        if not status.ok():
+            raise ConnectionError(f"Query failed with status: {status} and result: {result}")
 
-    def agent(self, message: str, date: Optional[datetime] = None, fact_label: Optional[str] = 'messaged'):
-       self.chat(message, "agent", date, fact_label)
+        return result
 
-    def chat(self, message: str, by: str, date: Optional[datetime] = None, fact_label: Optional[str] = 'messaged'):
-        chat = {
-            "ts": now_in_utc() if date is None else date,
-            "type": "chat",
-            "label": fact_label,
-            "actor": by,
-            "objects": "person" if by != "person" else "agent",
-            "semantic": {
-                "summary": message
-            }
-        }
-        self.chats.append(chat)
 
-    def remember(self,
-                 realtime: Optional[str] = None,
-                 skip: Optional[str] = None,
-                 response: bool = True,
-                 context: Optional[str] = None):
+class AirembrClient:
 
-        if self.chats:
-            payload = Observation(**{
-                "id": str(uuid4()),
-                "name": "Chat",
-                "source": {
-                    "id": self.source_id
-                },
-                "session": {
-                    "id": self.chat_id,
-                    "chat": {
-                        "ttl": self.chat_ttl
-                    },
-                },
-                "entities": {
-                    "agent": {
-                        "instance": self.agent_instance,
-                        "traits": self.agent_traits,
-                    },
-                    "person": {
-                        "instance": self.person_instance,
-                        "traits": self.person_traits
-                    }
+    def __init__(self, api):
+        self.transport = SyncApi(api)
 
-                },
-                "relation": self.chats
-            })
+    def observe(self,
+                observations: List[Observation],
+                realtime: Optional[str] = None,
+                skip: Optional[str] = None,
+                response: bool = True,
+                context: Optional[str] = None):
+        payload = [observation.model_dump(mode="json") for observation in observations]
 
-            transport = SyncApi(self.api, realtime, skip, response, context)
-            payload = payload.model_dump(mode="json")
+        return self.transport.remember(payload, realtime, skip, response, context=context)
 
-            return transport.remember(
-                [payload]
-            )
+    def authenticate(self, username: str, password: str) -> "AirembrClient":
+        status, _ = self.transport.authenticate(username, password)
+        if not status.ok():
+            raise ConnectionError("Authentication failed.")
+        return self
+
+    @property
+    def query(self) -> AirembrQuery:
+        return AirembrQuery(self.transport)
