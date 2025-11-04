@@ -2,7 +2,7 @@ from typing import Optional, List
 
 from durable_dot_dict.dotdict import DotDict
 
-from sdk.airembr.service.formaters import format_traits
+from sdk.airembr.service.format.formaters import format_traits
 
 
 class QueryResponse:

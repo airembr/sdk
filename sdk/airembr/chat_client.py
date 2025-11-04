@@ -1,8 +1,10 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Tuple
 from uuid import uuid4
 
+from sdk.airembr.model.memory.conversation_memory import MemorySessions
 from sdk.airembr.model.observation import Observation
+from sdk.airembr.model.query.status import QueryStatus
 from sdk.airembr.service.api.sync_api import SyncApi
 from sdk.airembr.service.time.time import now_in_utc
 
@@ -59,39 +61,41 @@ class AiRembrChatClient:
                  realtime: Optional[str] = None,
                  skip: Optional[str] = None,
                  response: bool = True,
-                 context: Optional[str] = None):
+                 context: Optional[str] = None) -> Tuple[QueryStatus, MemorySessions]:
 
-        if self.chats:
-            payload = Observation(**{
-                "id": str(uuid4()),
-                "name": "Chat",
-                "source": {
-                    "id": self.source_id
+        if not self.chats:
+            return QueryStatus(404), MemorySessions({})
+
+        payload = Observation(**{
+            "id": str(uuid4()),
+            "name": "Chat",
+            "source": {
+                "id": self.source_id
+            },
+            "session": {
+                "id": self.chat_id,
+                "chat": {
+                    "ttl": self.chat_ttl
                 },
-                "session": {
-                    "id": self.chat_id,
-                    "chat": {
-                        "ttl": self.chat_ttl
-                    },
+            },
+            "entities": {
+                "agent": {
+                    "instance": self.agent_instance,
+                    "traits": self.agent_traits,
                 },
-                "entities": {
-                    "agent": {
-                        "instance": self.agent_instance,
-                        "traits": self.agent_traits,
-                    },
-                    "person": {
-                        "instance": self.person_instance,
-                        "traits": self.person_traits
-                    }
+                "person": {
+                    "instance": self.person_instance,
+                    "traits": self.person_traits
+                }
 
-                },
-                "relation": self.chats
-            })
+            },
+            "relation": self.chats
+        })
 
-            transport = SyncApi(self.api)
-            payload = payload.model_dump(mode="json")
+        transport = SyncApi(self.api)
+        payload = payload.model_dump(mode="json")
 
-            return transport.remember(
-                [payload],
-                realtime, skip, response, context
-            )
+        return transport.remember(
+            [payload],
+            realtime, skip, response, context
+        )

@@ -1,9 +1,9 @@
 import random
-from datetime import datetime
 from typing import Optional, Protocol, Dict, Any, Tuple
 
 import requests
 
+from sdk.airembr.model.memory.conversation_memory import ConversationMemory, MemorySessions
 from sdk.airembr.model.query.response import QueryResponse, QueryEntityResponse
 
 from sdk.airembr.model.query.status import QueryStatus
@@ -28,6 +28,9 @@ class ApiProtocol(Protocol):
 
     def query_computed_entity(self, query, entity_type: str = None, page: int = 0, headers=None) -> Tuple[
         int, Dict[str, Any]]: ...
+
+    def query_stitched_entity(self, query, entity_type: str = None, page: int = 0, headers=None) -> Tuple[
+        QueryStatus, QueryResponse]: ...
 
 
 class SyncApi:
@@ -83,15 +86,43 @@ class SyncApi:
         return QueryStatus(response.status_code), payload
 
     def remember(self, data, realtime: Optional[str] = None, skip: Optional[str] = None, response: bool = True,
-                 context: Optional[str] = None):
+                 context: Optional[str] = None) -> Tuple[QueryStatus, MemorySessions]:
 
         response = requests.post(self.url, headers=self._get_headers(realtime, skip, response, context), json=data)
 
-        return response.status_code, response.json()
+        body = response.json()
+
+        return QueryStatus(response.status_code), MemorySessions({key: ConversationMemory(**value) for key, value in body.items()} if response else {})
 
     def query_computed_entity(self, query, entity_type: str = None, page: int = 0, headers=None) -> Tuple[
         QueryStatus, QueryEntityResponse]:
         url = f"{self.url}/v2/entity/1/list"
+        params = {
+            "page": page,
+            "query": query
+        }
+
+        if not self.token:
+            raise Exception("Not authenticated")
+
+        if headers is None:
+            headers = {}
+
+        headers['Authorization'] = self._get_token()
+
+        if entity_type:
+            params["entity_type"] = entity_type
+
+        response = requests.get(url, headers=headers, params=params)
+
+        result = response.json()
+
+        return QueryStatus(response.status_code), QueryEntityResponse(result=result.get('result', []),
+                                                                      total=result.get('total', 0))
+
+    def query_stitched_entity(self, query, entity_type: str, page: int = 0, headers=None) -> Tuple[
+        QueryStatus, QueryEntityResponse]:
+        url = f"{self.url}/v2/entity/2/list"
         params = {
             "page": page,
             "query": query
@@ -152,4 +183,4 @@ class SyncApi:
         result = response.json()
 
         return QueryStatus(response.status_code), QueryResponse(result=result.get('result', []),
-                                                                  total=result.get('total', 0))
+                                                                total=result.get('total', 0))
