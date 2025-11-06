@@ -3,8 +3,8 @@ from typing import Optional, Callable
 import functools
 import contextlib
 
-from sdk.defer.model.worker_capsule import WorkerCapsule, FunctionCapsule
-from sdk.defer.service.logger.log_handler import get_logger
+from pararun.model.worker_capsule import WorkerCapsule, FunctionCapsule
+from pararun.service.logger.log_handler import get_logger
 
 logger = get_logger(__name__)
 

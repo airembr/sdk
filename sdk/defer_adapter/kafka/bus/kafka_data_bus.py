@@ -1,11 +1,11 @@
 from typing import Tuple, Optional
 
-from sdk.defer_adapter.kafka.kafka_topics import kafka_topics
-from sdk.defer.model.data_bus import DataBus, DataBusSubscription
-from sdk.defer.model.transport_context import TransportContext
-from sdk.defer.protocol.model_factory_protocol import SerializerProtocol
-from sdk.defer.service.logger.log_handler import get_logger, now_in_utc
-from sdk.defer.transport.serializers import PickleSerializer
+from pararun_adapter.kafka.kafka_topics import kafka_topics
+from pararun.model.data_bus import DataBus, DataBusSubscription
+from pararun.model.transport_context import TransportContext
+from pararun.protocol.model_factory_protocol import SerializerProtocol
+from pararun.service.logger.log_handler import get_logger, now_in_utc
+from pararun.transport.serializers import PickleSerializer
 
 logger = get_logger(__name__)
 

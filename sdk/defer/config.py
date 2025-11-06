@@ -1,7 +1,7 @@
 import os
 
-from sdk.defer.service.environment import get_env_as_bool
-from sdk.defer.service.singleton import Singleton
+from pararun.service.environment import get_env_as_bool
+from pararun.service.singleton import Singleton
 
 
 class Config(metaclass=Singleton):

@@ -1,8 +1,8 @@
 import os
 
-from sdk.defer.service.environment import get_env_as_int
-from sdk.defer.service.logger.log_handler import get_logger
-from sdk.defer.service.singleton import Singleton
+from pararun.service.environment import get_env_as_int
+from pararun.service.logger.log_handler import get_logger
+from pararun.service.singleton import Singleton
 
 logger = get_logger(__name__)
 

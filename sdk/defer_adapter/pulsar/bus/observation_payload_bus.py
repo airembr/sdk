@@ -3,14 +3,14 @@ from typing import Tuple, List, Optional
 from pulsar import ConsumerType, InitialPosition
 from pulsar.schema import JsonSchema, Schema, String, Record, Float
 
-from sdk.defer_adapter.pulsar.pulsar_topics import pulsar_topics
-from sdk.defer.model.data_bus import DataBus, DataBusSubscription
-from sdk.defer.model.transport_context import TransportContext
-from sdk.defer.model.worker_capsule import WorkerCapsule
-from sdk.defer.protocol.model_factory_protocol import SerializerProtocol
+from pararun_adapter.pulsar.pulsar_topics import pulsar_topics
+from pararun.model.data_bus import DataBus, DataBusSubscription
+from pararun.model.transport_context import TransportContext
+from pararun.model.worker_capsule import WorkerCapsule
+from pararun.protocol.model_factory_protocol import SerializerProtocol
 
-from sdk.defer.service.timestamp import now_in_utc
-from sdk.defer.transport.serializers import JsonSerializer
+from pararun.service.timestamp import now_in_utc
+from pararun.transport.serializers import JsonSerializer
 
 _default_serializer = JsonSerializer
 

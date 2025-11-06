@@ -2,15 +2,15 @@ from time import time
 from typing import Optional, List, Any, Tuple, Callable
 from pydantic import BaseModel
 
-from sdk.defer.config import Config
-from sdk.defer.error.client_timeout import PushError
-from sdk.defer.model.adapter import Adapter
-from sdk.defer.model.batcher import BatcherConfig
-from sdk.defer.model.transport_context import TransportContext
-from sdk.defer.service.error_handler import fallback_on_error
-from sdk.defer.service.fallback import FallbackManager
-from sdk.defer.service.invokers import invoke, async_invoke
-from sdk.defer.service.logger.log_handler import get_logger, log_handler
+from pararun.config import Config
+from pararun.error.client_timeout import PushError
+from pararun.model.adapter import Adapter
+from pararun.model.batcher import BatcherConfig
+from pararun.model.transport_context import TransportContext
+from pararun.service.error_handler import fallback_on_error
+from pararun.service.fallback import FallbackManager
+from pararun.service.invokers import invoke, async_invoke
+from pararun.service.logger.log_handler import get_logger, log_handler
 
 logger = get_logger(__name__)
 fallback = FallbackManager()

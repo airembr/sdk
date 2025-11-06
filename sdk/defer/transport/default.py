@@ -1,10 +1,10 @@
 from typing import Tuple, Any
 
-from sdk.defer.model.data_bus import DataBus, DataBusSubscription
-from sdk.defer.model.transport_context import TransportContext
-from sdk.defer.protocol.model_factory_protocol import SerializerProtocol
-from sdk.defer.service.logger.log_handler import get_logger, now_in_utc
-from sdk.defer.transport.serializers import JsonSerializer
+from pararun.model.data_bus import DataBus, DataBusSubscription
+from pararun.model.transport_context import TransportContext
+from pararun.protocol.model_factory_protocol import SerializerProtocol
+from pararun.service.logger.log_handler import get_logger, now_in_utc
+from pararun.transport.serializers import JsonSerializer
 
 logger = get_logger(__name__)
 

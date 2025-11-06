@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from sdk.defer.service.singleton import Singleton
+from pararun.service.singleton import Singleton
 
 
 class TimedFlag:

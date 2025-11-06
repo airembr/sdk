@@ -1,4 +1,4 @@
-from sdk.defer_adapter.topic_config import TopicConfig
+from pararun_adapter.topic_config import TopicConfig
 
 
 class Topics:

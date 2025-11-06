@@ -1,8 +1,8 @@
-from sdk.defer_adapter import queue_type
+from pararun_adapter import queue_type
 
-from sdk.defer.model.adapter import Adapter
-from sdk.defer.service.singleton import Singleton
-from sdk.defer_adapter.adapters import collector_queue_adapter, function_queue_adapter, workflow_queue_adapter, \
+from pararun.model.adapter import Adapter
+from pararun.service.singleton import Singleton
+from pararun_adapter.adapters import collector_queue_adapter, function_queue_adapter, workflow_queue_adapter, \
     destination_queue_adapter, logger_queue_adapter, event_property_adapter, event_attachment_adapter
 
 

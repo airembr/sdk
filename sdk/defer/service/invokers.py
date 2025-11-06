@@ -1,13 +1,13 @@
 import inspect
 from contextlib import contextmanager
 
-from sdk.defer.model.transport_context import TransportContext
-from sdk.defer.service.converters.time_converters import pretty_time_format
+from pararun.model.transport_context import TransportContext
+from pararun.service.converters.time_converters import pretty_time_format
 from time import time
 from importlib import import_module
 
-from sdk.defer.service.logger.extra_info import exact
-from sdk.defer.service.logger.log_handler import get_logger
+from pararun.service.logger.extra_info import exact
+from pararun.service.logger.log_handler import get_logger
 
 logger = get_logger(__name__)
 _cached_function_references = {}

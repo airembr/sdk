@@ -2,7 +2,7 @@ from dataclasses import dataclass, asdict
 from typing import Optional, Any, Union
 from uuid import uuid4
 
-from sdk.defer.protocol.model_factory_protocol import SerializerProtocol
+from pararun.protocol.model_factory_protocol import SerializerProtocol
 
 
 @dataclass

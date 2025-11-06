@@ -10,9 +10,9 @@ from zoneinfo import ZoneInfo
 from logging import Handler, LogRecord
 from time import time
 
-from sdk.defer.service.logger.logger_adapter import log_format_adapter
-from sdk.defer.service.logger.logging_config import log_stack_trace_as, log_stack_trace_for
-from sdk.defer.service.logger.tools import _get_logging_level
+from pararun.service.logger.logger_adapter import log_format_adapter
+from pararun.service.logger.logging_config import log_stack_trace_as, log_stack_trace_for
+from pararun.service.logger.tools import _get_logging_level
 import traceback
 
 _env = os.environ

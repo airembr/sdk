@@ -3,7 +3,7 @@ import io
 import base64
 import json
 import pickle
-from sdk.defer.transport.unpickler import DebugUnpickler
+from pararun.transport.unpickler import DebugUnpickler
 
 
 class PickleSerializer:

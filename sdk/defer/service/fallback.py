@@ -1,8 +1,8 @@
 import random
 
-from sdk.defer.service.timed_flag import TimedFlags
-from sdk.defer.service.logger.log_handler import get_logger
-from sdk.defer.service.singleton import Singleton
+from pararun.service.timed_flag import TimedFlags
+from pararun.service.logger.log_handler import get_logger
+from pararun.service.singleton import Singleton
 
 logger = get_logger(__name__)
 

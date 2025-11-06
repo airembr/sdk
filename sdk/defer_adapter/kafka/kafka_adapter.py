@@ -1,12 +1,12 @@
 import json
 from typing import Callable
-from sdk.defer.model.data_bus import DataBus
-from sdk.defer.model.worker_capsule import PublishPayload
-from sdk.defer.protocol.queue_client_protocol import QueueProtocol
+from pararun.model.data_bus import DataBus
+from pararun.model.worker_capsule import PublishPayload
+from pararun.protocol.queue_client_protocol import QueueProtocol
 
-from sdk.defer_adapter.kafka.client.kafka_client import KafkaClient
-from sdk.defer_adapter.kafka.config import kafka_settings
-from sdk.defer_adapter.kafka.kafka_consumer_adapter import KafkaConsumerAdapter
+from pararun_adapter.kafka.client.kafka_client import KafkaClient
+from pararun_adapter.kafka.config import kafka_settings
+from pararun_adapter.kafka.kafka_consumer_adapter import KafkaConsumerAdapter
 
 _serializer = lambda v: json.dumps(v).encode('utf-8')
 _deserializer = lambda x: json.loads(x.decode('utf-8'))

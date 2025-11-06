@@ -4,20 +4,20 @@ from time import time
 from pickle import UnpicklingError
 from typing import Optional, List, Tuple, Callable, Dict, Any, Awaitable, Union
 
-import sdk.defer.service.logger.extra_info as ExtraInfo
-from sdk.defer.consumer.batcher import BatcherMetadata, BatchStatus, Batcher
-from sdk.defer.error.client_timeout import ClientTimeOutError
-from sdk.defer.model.adapter import Adapter
-from sdk.defer.model.transport_context import TransportContext
-from sdk.defer.model.worker_capsule import WorkerCapsule, FunctionCapsule
-from sdk.defer.protocol.queue_consumer_protocol import ConsumerProtocol
-from sdk.defer.protocol.model_factory_protocol import SerializerProtocol
-from sdk.defer.protocol.queue_message_protocol import MessageProtocol
-from sdk.defer.service.invokers import async_invoke, raw_func_invoke
-from sdk.defer.service.logger.log_handler import get_logger, log_handler, DeferLogHandler
-from sdk.defer.service.profiler import profiler
-from sdk.defer.transport.default import DefaultSerializer
-from sdk.defer_adapter.adaper_selector import DeferAdapterSelector
+import pararun.service.logger.extra_info as ExtraInfo
+from pararun.consumer.batcher import BatcherMetadata, BatchStatus, Batcher
+from pararun.error.client_timeout import ClientTimeOutError
+from pararun.model.adapter import Adapter
+from pararun.model.transport_context import TransportContext
+from pararun.model.worker_capsule import WorkerCapsule, FunctionCapsule
+from pararun.protocol.queue_consumer_protocol import ConsumerProtocol
+from pararun.protocol.model_factory_protocol import SerializerProtocol
+from pararun.protocol.queue_message_protocol import MessageProtocol
+from pararun.service.invokers import async_invoke, raw_func_invoke
+from pararun.service.logger.log_handler import get_logger, log_handler, DeferLogHandler
+from pararun.service.profiler import profiler
+from pararun.transport.default import DefaultSerializer
+from pararun_adapter.adaper_selector import DeferAdapterSelector
 
 logger = get_logger(__name__)
 ack_the_whole_batch = True

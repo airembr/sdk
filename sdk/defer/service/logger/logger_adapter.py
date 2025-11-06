@@ -1,6 +1,6 @@
 import os
 
-from sdk.defer.service.logger.formater import ConsoleFormatter, JSONFormatter, CustomFormatter
+from pararun.service.logger.formater import ConsoleFormatter, JSONFormatter, CustomFormatter
 
 
 def log_format_adapter():

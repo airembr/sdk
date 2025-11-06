@@ -1,7 +1,7 @@
 from typing import Protocol, Optional, Any, Callable
 
-from sdk.defer.model.data_bus import DataBus
-from sdk.defer.protocol.queue_consumer_protocol import ConsumerProtocol
+from pararun.model.data_bus import DataBus
+from pararun.protocol.queue_consumer_protocol import ConsumerProtocol
 
 
 class QueueProtocol(Protocol):

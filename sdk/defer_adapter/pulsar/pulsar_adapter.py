@@ -1,9 +1,9 @@
 from typing import Callable
 
-from sdk.defer.error.client_timeout import PushError
-from sdk.defer.model.worker_capsule import PublishPayload
-from sdk.defer.model.data_bus import DataBus
-from sdk.defer.protocol.queue_client_protocol import QueueProtocol
+from pararun.error.client_timeout import PushError
+from pararun.model.worker_capsule import PublishPayload
+from pararun.model.data_bus import DataBus
+from pararun.protocol.queue_client_protocol import QueueProtocol
 from .client.pulsar_client import PulsarClient, send_async_message
 from .client.pulsar_subscriber_factory import topic_subscriber_factory
 from .client.pulsar_producer_factory import topic_producer_factory

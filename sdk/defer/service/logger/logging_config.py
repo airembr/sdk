@@ -1,6 +1,6 @@
 import os
 
-from sdk.defer.service.environment import get_env_as_int
+from pararun.service.environment import get_env_as_int
 
 log_stack_trace_as = os.environ.get('LOG_STACK_TRACE_AS', 'json')
 log_stack_trace_for = os.environ.get('LOG_STACK_TRACE_AS', 'CRITICAL,ERROR,WARNING,INFO').split(',')

@@ -2,9 +2,9 @@ from typing import Generator
 
 import pulsar
 
-from sdk.defer.error.client_timeout import ClientTimeOutError
-from sdk.defer.protocol.queue_consumer_protocol import ConsumerProtocol
-from sdk.defer.protocol.queue_message_protocol import MessageProtocol
+from pararun.error.client_timeout import ClientTimeOutError
+from pararun.protocol.queue_consumer_protocol import ConsumerProtocol
+from pararun.protocol.queue_message_protocol import MessageProtocol
 from .pulsar_message_adapter import PulsarMessageAdapter
 
 

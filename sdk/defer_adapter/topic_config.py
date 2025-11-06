@@ -1,6 +1,6 @@
 import os
 
-from sdk.defer.service.singleton import Singleton
+from pararun.service.singleton import Singleton
 
 class TopicConfig(metaclass=Singleton):
     def __init__(self):

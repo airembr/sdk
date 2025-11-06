@@ -5,8 +5,8 @@ from contextlib import contextmanager
 
 from pydantic import BaseModel
 
-from sdk.defer.protocol.queue_message_protocol import MessageProtocol
-from sdk.defer.service.timer import Timer
+from pararun.protocol.queue_message_protocol import MessageProtocol
+from pararun.service.timer import Timer
 
 
 class BatchItem(BaseModel):

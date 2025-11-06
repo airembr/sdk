@@ -2,8 +2,8 @@ from typing import Optional
 
 from kafka import KafkaProducer, KafkaConsumer
 
-from sdk.defer.service.singleton import Singleton
-from sdk.defer_adapter.kafka.config import KafkaConfig
+from pararun.service.singleton import Singleton
+from pararun_adapter.kafka.config import KafkaConfig
 
 
 class KafkaClient(metaclass=Singleton):

@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import Dict, Optional, Tuple
 
-from sdk.defer.protocol.model_factory_protocol import SerializerProtocol
-from sdk.defer.protocol.queue_client_protocol import QueueProtocol
+from pararun.protocol.model_factory_protocol import SerializerProtocol
+from pararun.protocol.queue_client_protocol import QueueProtocol
 
 
 @dataclass

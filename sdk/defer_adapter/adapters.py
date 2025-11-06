@@ -3,19 +3,19 @@ from typing import Optional
 
 from pulsar.schema import JsonSchema
 
-from sdk.defer.model.adapter import Adapter
-from sdk.defer_adapter.kafka.bus.kafka_data_bus import KafkaFunctionSerializer, kafka_data_bus
-from sdk.defer_adapter.kafka.kafka_adapter import KafkaAdapter
-from sdk.defer_adapter.pulsar.bus.event_attachment_data_bus import event_attachment_bus
-from sdk.defer_adapter.pulsar.bus.destination_data_bus import destination_data_bus
-from sdk.defer_adapter.pulsar.bus.observation_payload_bus import collector_json_bus, ObservationSerializer, \
+from pararun.model.adapter import Adapter
+from pararun_adapter.kafka.bus.kafka_data_bus import KafkaFunctionSerializer, kafka_data_bus
+from pararun_adapter.kafka.kafka_adapter import KafkaAdapter
+from pararun_adapter.pulsar.bus.event_attachment_data_bus import event_attachment_bus
+from pararun_adapter.pulsar.bus.destination_data_bus import destination_data_bus
+from pararun_adapter.pulsar.bus.observation_payload_bus import collector_json_bus, ObservationSerializer, \
     ObservationRecord
-from sdk.defer_adapter.pulsar.bus.logger_data_bus import logger_data_bus
-from sdk.defer_adapter.pulsar.bus.pulsar_data_bus import FunctionSerializer, FunctionRecord, function_data_bus
-from sdk.defer_adapter.pulsar.bus.workflow_data_bus import workflow_data_bus
-from sdk.defer_adapter.pulsar.pulsar_adapter import PulsarAdapter
+from pararun_adapter.pulsar.bus.logger_data_bus import logger_data_bus
+from pararun_adapter.pulsar.bus.pulsar_data_bus import FunctionSerializer, FunctionRecord, function_data_bus
+from pararun_adapter.pulsar.bus.workflow_data_bus import workflow_data_bus
+from pararun_adapter.pulsar.pulsar_adapter import PulsarAdapter
 
-from sdk.defer_adapter.run_once import run_once
+from pararun_adapter.run_once import run_once
 
 _queue_adapter_var = os.environ.get('QUEUE_ADAPTER', 'pulsar')
 

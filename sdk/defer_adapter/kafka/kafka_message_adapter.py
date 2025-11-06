@@ -1,4 +1,4 @@
-from sdk.defer.protocol.queue_message_protocol import MessageProtocol
+from pararun.protocol.queue_message_protocol import MessageProtocol
 
 
 class KafkaMessageAdapter(MessageProtocol):

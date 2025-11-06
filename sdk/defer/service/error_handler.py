@@ -1,6 +1,6 @@
-from sdk.defer.config import Config
+from pararun.config import Config
 import requests
-from sdk.defer.service.logger.log_handler import get_logger
+from pararun.service.logger.log_handler import get_logger
 
 config = Config()
 

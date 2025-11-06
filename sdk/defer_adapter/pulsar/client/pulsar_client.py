@@ -9,9 +9,9 @@ from typing import Optional, Callable
 from pulsar import TopicNotFound
 from pulsar.schema import BytesSchema
 
-from sdk.defer.model.worker_capsule import PublishPayload
-from sdk.defer.service.logger.log_handler import get_logger
-from sdk.defer.service.singleton import Singleton
+from pararun.model.worker_capsule import PublishPayload
+from pararun.service.logger.log_handler import get_logger
+from pararun.service.singleton import Singleton
 
 pulsar_logger = logging.getLogger('pulsar')
 pulsar_logger.setLevel(logging.WARNING)

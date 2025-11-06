@@ -1,6 +1,6 @@
 from typing import Protocol, Tuple, Any
 
-from sdk.defer.model.transport_context import TransportContext
+from pararun.model.transport_context import TransportContext
 
 
 class SerializerProtocol(Protocol):
