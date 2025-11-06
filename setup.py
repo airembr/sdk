@@ -12,17 +12,12 @@ setup(
     author='Risto Kowaczewski',
     packages=['sdk'],
     install_requires=[
-        # Both sdk and deferpy
         'pydantic',
         'jinja2',
         'durable-dot-dict>=0.0.20',
         'python-dateutil',
         'requests',
-
-        # For adapters
-        'pulsar-client==3.5.0',
-        'kafka-python==2.1.5',
-        'aiokafka==0.12.0'
+        'airembr-pararun-os'
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
