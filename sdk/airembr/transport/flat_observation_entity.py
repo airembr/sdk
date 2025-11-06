@@ -10,6 +10,8 @@ class ObservationEntity(DotDict):
     ENTITY_TYPE = 'entity.type'
     ENTITY_ROLE = 'entity.role'
     ENTITY_TRAITS = 'entity.traits'
+    ENTITY_TRAITS_STATE = 'entity.traits._state'
+    ENTITY_STATE = 'entity.state'
     ENTITY_TRAITS_TEXT = 'entity.traits_text'
 
     DATA_HASH = 'data_hash'

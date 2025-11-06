@@ -36,6 +36,9 @@ class ObservationEntity(BaseModel):
     has_a: Optional[List[Instance]] = None
 
     traits: Optional[dict] = {}
+    state: Optional[dict] = {}
+
+    measurements: Optional[List[ObservationMeasurement]] = []
 
     consents: Optional[ObservationCollectConsent] = None
 
