@@ -1,7 +1,0 @@
-FUNCTION = 'system.function'
-COLLECTOR = 'system.collector'
-WORKFLOW = 'system.workflow'
-DESTINATION = 'system.destination'
-LOGGER = 'system.logger'
-PROPERTIES = 'system.event.properties'
-ATTACHMENTS = 'system.event.attachments'
