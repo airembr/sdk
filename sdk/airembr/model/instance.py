@@ -1,6 +1,6 @@
 import hashlib
 import re
-from typing import Union
+from typing import Union, Optional, List
 from uuid import uuid4
 
 from durable_dot_dict.dotdict import DotDict
@@ -222,5 +222,8 @@ class Instance(str):
         return json_schema
 
     @staticmethod
-    def create(type: str, id: Union[str, int]) -> 'Instance':
-        return Instance(f"{type} #{id}")
+    def identification(type: str, instance_id: Optional[Union[str, int]] = None) -> 'Instance':
+        if instance_id is not None:
+            return Instance(f"{type} #{instance_id}")
+
+        return Instance(type)

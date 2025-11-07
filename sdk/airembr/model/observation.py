@@ -28,8 +28,15 @@ class ObservationConsents(ObservationCollectConsent):
     granted: Set[str]
 
 
+class EntityIdentification(BaseModel):
+    properties: List[str]
+    strict: Optional[bool] = True
+    values_only: Optional[bool] = False
+
+
 class ObservationEntity(BaseModel):
     instance: Instance
+    identification: Optional[EntityIdentification] = None
 
     part_of: Optional[Instance] = None
     is_a: Optional[Instance] = None
@@ -41,6 +48,40 @@ class ObservationEntity(BaseModel):
     measurements: Optional[List[ObservationMeasurement]] = []
 
     consents: Optional[ObservationCollectConsent] = None
+
+    def __init__(self, **data):
+        super().__init__(**data)
+        self._resolve_id_from_properties()
+
+    def _yield_traits_from_properties(self):
+        for trait_path in self.identification.properties:
+            if trait_path in self.traits:
+                if self.identification.values_only:
+                    yield self.traits[trait_path]
+                    continue
+                yield trait_path, self.traits[trait_path]
+
+    def _resolve_id_from_properties(self):
+        if self.instance.is_abstract() and self.identification is not None:
+
+            if not self.identification.properties:
+                return  # No properties defined, nothing to do here.
+
+            # Try to revolve id from properties
+            hash_base = list(self._yield_traits_from_properties())
+
+            if len(hash_base) == 0:
+                # Not properties in traits to identify entity
+                return
+
+            if self.identification.strict and len(hash_base) != len(self.identification.properties):
+                # Not all properties in traits to identify entity
+                return
+
+            hash_base = sorted(hash_base)
+            hash_base = f"{self.instance.kind}:{hash_base}"
+            instance_id = hashlib.md5(hash_base.encode()).hexdigest()
+            self.instance = Instance.identification(self.instance.kind, instance_id)
 
     def is_consent_granted(self) -> bool:
         if self.consents is None:
@@ -256,6 +297,7 @@ class EntityRefs(RootModel[Dict[InstanceLink, ObservationEntity]]):
 
     def links(self):
         return self.root.keys()
+
 
 class Observation(BaseModel):
     id: Optional[str] = None
