@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Optional, Tuple
 from uuid import uuid4
 
+from sdk.airembr.model.instance_link import InstanceLink
 from sdk.airembr.model.memory.conversation_memory import MemorySessions
 from sdk.airembr.model.observation import Observation
 from sdk.airembr.model.query.status import QueryStatus
@@ -9,48 +10,38 @@ from sdk.airembr.service.api.sync_api import SyncApi
 from sdk.airembr.service.time.time import now_in_utc
 
 
+def _create_object(by) -> str:
+    return "person" if by != "person" else "agent"
+
+
 class AiRembrChatClient:
 
     def __init__(self,
                  api: str,
                  source_id: str,
-                 person_instance: str,
+                 entities,
+                 observer: InstanceLink,
                  chat_id: str, chat_ttl: int = 60 * 60,
-                 agent_instance: Optional[str] = 'agent #agent',
-                 agent_traits=None,
-                 person_traits=None,
                  tenant_id: Optional[str] = None
                  ):
-
-        if agent_traits is None:
-            agent_traits = {}
-
-        if person_traits is None:
-            person_traits = {}
+        self.observer = observer
+        self.entities = entities
 
         self.api = api
-        self.person_instance = person_instance
-        self.agent_traits = agent_traits
-        self.agent_instance = agent_instance
         self.chat_ttl = chat_ttl
         self.source_id = source_id
         self.chat_id = chat_id
         self.chats = []
-        self.person_traits = person_traits
 
-    def person(self, message: str, date: Optional[datetime] = None, fact_label: Optional[str] = 'messaged'):
-        self.chat(message, "person", date, fact_label)
-
-    def agent(self, message: str, date: Optional[datetime] = None, fact_label: Optional[str] = 'messaged'):
-        self.chat(message, "agent", date, fact_label)
-
-    def chat(self, message: str, by: str, date: Optional[datetime] = None, fact_label: Optional[str] = 'messaged'):
+    def chat(self, message: str, by: InstanceLink, date: Optional[datetime] = None,
+             fact_label: Optional[str] = 'messaged'):
         chat = {
             "ts": now_in_utc() if date is None else date,
             "type": "chat",
             "label": fact_label,
+            "observer": self.observer,
             "actor": by,
-            "objects": "person" if by != "person" else "agent",
+            "objects": InstanceLink.create(_create_object(by)),
             "semantic": {
                 "summary": message
             }
@@ -62,7 +53,6 @@ class AiRembrChatClient:
                  skip: Optional[str] = None,
                  response: bool = True,
                  context: Optional[str] = None) -> Tuple[QueryStatus, MemorySessions]:
-
         if not self.chats:
             return QueryStatus(404), MemorySessions({})
 
@@ -78,17 +68,7 @@ class AiRembrChatClient:
                     "ttl": self.chat_ttl
                 },
             },
-            "entities": {
-                "agent": {
-                    "instance": self.agent_instance,
-                    "traits": self.agent_traits,
-                },
-                "person": {
-                    "instance": self.person_instance,
-                    "traits": self.person_traits
-                }
-
-            },
+            "entities": self.entities,
             "relation": self.chats
         })
 
@@ -99,3 +79,11 @@ class AiRembrChatClient:
             [payload],
             realtime, skip, response, context
         )
+
+    @staticmethod
+    def get_references() -> Tuple[InstanceLink, InstanceLink, InstanceLink]:
+        observer = InstanceLink.create('observer')
+        person = InstanceLink.create('person')
+        agent = InstanceLink.create('agent')
+
+        return observer, person, agent
