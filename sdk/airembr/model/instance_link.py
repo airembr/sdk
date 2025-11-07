@@ -3,18 +3,19 @@ from pydantic import ValidationInfo
 from pydantic_core import core_schema
 from pydantic import GetCoreSchemaHandler, GetJsonSchemaHandler
 
+
 class InstanceLink(str):
     _pattern = re.compile(r"""
-        ^\s*                           # leading whitespace
-        (?P<link>[A-Za-z0-9*\-_]+)      # link (added escape for hyphen and numbers)
-        \s*                            # whitespace after link
-        (?:
-            :                          # colon separator
-            \s*                        # whitespace after colon
-            (?P<role>[A-Za-z0-9_\-]+)  # role (added escape for hyphen and numbers)
-        )?                             # role is optional
-        \s*$                           # trailing whitespace
-        """, re.VERBOSE)
+    ^\s*                                         # leading whitespace
+    (?P<link><(?![.-])[a-z0-9.-]+(?<![.-])>)    # link in <...> form
+    \s*                                          # optional whitespace after link
+    (?:                                          # optional role part
+        :                                        # colon separator
+        \s*                                      # optional space
+        (?P<role>[A-Za-z0-9_-]+)                 # role name
+    )?                                           # role optional
+    \s*$                                         # trailing whitespac
+    """, re.VERBOSE)
 
     # ── walidacja pydantic ─────────────────────────────────────
     @classmethod
@@ -64,7 +65,6 @@ class InstanceLink(str):
     def role(self) -> str | None:
         return self.parts()[1]
 
-
     def to_dict(self):
         return {
             "link": self.link,
@@ -95,3 +95,7 @@ class InstanceLink(str):
             examples=["user", "user:author", "project:maintainer"]
         )
         return json_schema
+
+    @staticmethod
+    def create(link: str) -> 'InstanceLink':
+        return InstanceLink(f"<{link}>")

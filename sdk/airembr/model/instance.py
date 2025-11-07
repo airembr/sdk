@@ -1,5 +1,6 @@
 import hashlib
 import re
+from typing import Union
 from uuid import uuid4
 
 from durable_dot_dict.dotdict import DotDict
@@ -11,6 +12,7 @@ from pydantic import GetCoreSchemaHandler, GetJsonSchemaHandler
 OBJECT_TAG_PATTERN = re.compile(
     r'\$\(\s*([a-zA-Z0-9_-]+)\s*#\s*([a-zA-Z0-9_-]+)\s*\)'
 )
+
 
 class Instance(str):
     """
@@ -190,7 +192,6 @@ class Instance(str):
             return self.role
         return self.kind
 
-
     @classmethod
     def __get_pydantic_core_schema__(cls, source_type, handler: GetCoreSchemaHandler):
         """
@@ -220,3 +221,6 @@ class Instance(str):
         )
         return json_schema
 
+    @staticmethod
+    def create(type: str, id: Union[str, int]) -> 'Instance':
+        return Instance(f"{type} #{id}")

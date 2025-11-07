@@ -102,6 +102,7 @@ class ObservationSemantic(BaseModel):
 class ObservationRelation(BaseModel):
     id: Optional[str] = None
     ts: Optional[datetime] = None
+    observer: InstanceLink
     actor: Optional[Union[List[InstanceLink], InstanceLink]] = None
     type: Optional[str] = 'fact'
     label: str
@@ -131,6 +132,11 @@ class ObservationRelation(BaseModel):
         if not self.actor:
             return None
         return self.actor
+
+    def get_observer(self) -> Optional[InstanceLink]:
+        if not self.observer:
+            return None
+        return self.observer
 
     def get_objects(self) -> Generator[InstanceLink, None, None]:
         if isinstance(self.objects, list):
@@ -230,12 +236,12 @@ class ObservationMetaContext(BaseModel):
     location: Optional[ObservationLocation] = None
 
 
-class EntityRefs(RootModel[Dict[str, ObservationEntity]]):
+class EntityRefs(RootModel[Dict[InstanceLink, ObservationEntity]]):
 
-    def get(self, link) -> Optional[ObservationEntity]:
+    def get(self, link: InstanceLink) -> Optional[ObservationEntity]:
         return self.root.get(link, None)
 
-    def add(self, link, entity: ObservationEntity):
+    def add(self, link: InstanceLink, entity: ObservationEntity):
         self.root[link] = entity
 
     def index(self) -> Dict[str, ObservationEntity]:
@@ -249,7 +255,6 @@ class EntityRefs(RootModel[Dict[str, ObservationEntity]]):
 
     def links(self):
         return self.root.keys()
-
 
 class Observation(BaseModel):
     id: Optional[str] = None

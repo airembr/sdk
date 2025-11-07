@@ -25,6 +25,13 @@ class FlatFact(DotDict):
 
     CONSENTS_GRANTED = 'consents.granted'
 
+    OBSERVER_ID = 'observer.id'
+    OBSERVER_PK = 'observer.pk'  # observer.type + observer.id
+    OBSERVER_TYPE = 'observer.type'
+    OBSERVER_ROLE = 'observer.role'
+    OBSERVER_DATA_HASH = 'observer.data_hash'
+    OBSERVER_SCHEMA_HASH = 'observer.schema_hash'
+
     ACTOR_ID = 'actor.id'
     ACTOR_PK = 'actor.pk'  # actor.type + actor.id
     ACTOR_TYPE = 'actor.type'
