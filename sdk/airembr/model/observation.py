@@ -112,6 +112,7 @@ class ObservationRelation(BaseModel):
     context: Optional[List[InstanceLink]] = []
     tags: Optional[list] = []
     timer: Optional[ObservationTimer] = None
+    subjective: Optional[bool] = True  # Is information subjective?
 
     consents: Optional[ObservationCollectConsent] = None
 

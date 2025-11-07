@@ -84,6 +84,8 @@ class FlatFact(DotDict):
 
     HIT = 'hit.origin'
 
+    SUBJECTIVE = 'subjective'
+
     SEMANTIC_DESCRIPTION = 'semantic.description'
     SEMANTIC_CONTEXT = 'semantic.context'
     SEMANTIC_SUMMARY = 'semantic.summary'
