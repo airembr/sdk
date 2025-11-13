@@ -33,6 +33,14 @@ class EntityIdentification(BaseModel):
     strict: Optional[bool] = True
     values_only: Optional[bool] = False
 
+    @staticmethod
+    def by(properties: List[str]) -> 'EntityIdentification':
+        return EntityIdentification(properties=properties, strict=False, values_only=True)
+
+    def as_all_properties(self) -> 'EntityIdentification':
+        self.strict = False
+        return self
+
 
 class ObservationEntity(BaseModel):
     instance: Instance
@@ -43,7 +51,7 @@ class ObservationEntity(BaseModel):
     has_a: Optional[List[Instance]] = None
 
     traits: Optional[dict] = {}
-    state: Optional[dict] = {}
+    state: Optional[Dict[str, InstanceLink]] = {}
 
     measurements: Optional[List[ObservationMeasurement]] = []
 

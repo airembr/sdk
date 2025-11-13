@@ -99,3 +99,6 @@ class InstanceLink(str):
     @staticmethod
     def create(link: str) -> 'InstanceLink':
         return InstanceLink(f"<{link}>")
+
+    def acts_as(self, role: str) -> 'InstanceLink':
+        return InstanceLink(f"{self.link}:{role}")
