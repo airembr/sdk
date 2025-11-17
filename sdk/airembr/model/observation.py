@@ -89,7 +89,7 @@ class ObservationEntity(BaseModel):
             hash_base = sorted(hash_base)
             hash_base = f"{self.instance.kind}:{hash_base}"
             instance_id = hashlib.md5(hash_base.encode()).hexdigest()
-            self.instance = Instance.identification(self.instance.kind, instance_id)
+            self.instance = Instance.type(self.instance.kind, instance_id)
 
     def is_consent_granted(self) -> bool:
         if self.consents is None:

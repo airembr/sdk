@@ -7,7 +7,7 @@ from pydantic import GetCoreSchemaHandler, GetJsonSchemaHandler
 class InstanceLink(str):
     _pattern = re.compile(r"""
     ^\s*                                         # leading whitespace
-    (?P<link><(?![.-])[a-z0-9.-]+(?<![.-])>)    # link in <...> form
+    (?P<link><(?![.-])[a-z0-9._-]+(?<![._-])>)    # link in <...> form
     \s*                                          # optional whitespace after link
     (?:                                          # optional role part
         :                                        # colon separator

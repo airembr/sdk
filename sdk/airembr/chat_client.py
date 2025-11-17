@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List, Union
 from uuid import uuid4
 
 from sdk.airembr.model.instance_link import InstanceLink
@@ -10,10 +10,6 @@ from sdk.airembr.service.api.sync_api import SyncApi
 from sdk.airembr.service.time.time import now_in_utc
 
 
-def _create_object(by) -> str:
-    return "person" if by != "person" else "agent"
-
-
 class AiRembrChatClient:
 
     def __init__(self,
@@ -22,8 +18,10 @@ class AiRembrChatClient:
                  entities,
                  observer: InstanceLink,
                  chat_id: str, chat_ttl: int = 60 * 60,
-                 tenant_id: Optional[str] = None
+                 tenant_id: Optional[str] = None,
+                 observation_id: Optional[str] = None
                  ):
+        self.observation_id = observation_id
         self.observer = observer
         self.entities = entities
 
@@ -33,19 +31,24 @@ class AiRembrChatClient:
         self.chat_id = chat_id
         self.chats = []
 
-    def chat(self, message: str, by: InstanceLink, date: Optional[datetime] = None,
-             fact_label: Optional[str] = 'messaged'):
+    def chat(self, message: str, actor: InstanceLink, objects: List[InstanceLink]=None, date: Optional[Union[datetime|str]] = None,
+             fact_label: Optional[str] = 'messaged', observer: Optional[InstanceLink]=None):
+
+        if date is not None and isinstance(date, str):
+            date = datetime.fromisoformat(date)
+
         chat = {
             "ts": now_in_utc() if date is None else date,
             "type": "chat",
             "label": fact_label,
-            "observer": self.observer,
-            "actor": by,
-            "objects": InstanceLink.create(_create_object(by)),
+            "observer": self.observer if observer is None else observer,
+            "actor": actor,
+            "objects": objects,
             "semantic": {
                 "summary": message
             }
         }
+
         self.chats.append(chat)
 
     def remember(self,
@@ -56,8 +59,19 @@ class AiRembrChatClient:
         if not self.chats:
             return QueryStatus(404), MemorySessions({})
 
-        payload = Observation(**{
-            "id": str(uuid4()),
+        payload = self.get_observation()
+
+        transport = SyncApi(self.api)
+        payload = payload.model_dump(mode="json")
+
+        return transport.remember(
+            [payload],
+            realtime, skip, response, context
+        )
+
+    def get_observation(self) -> Observation:
+        return Observation(**{
+            "id": str(uuid4()) if self.observation_id is None else self.observation_id,
             "name": "Chat",
             "source": {
                 "id": self.source_id
@@ -71,14 +85,6 @@ class AiRembrChatClient:
             "entities": self.entities,
             "relation": self.chats
         })
-
-        transport = SyncApi(self.api)
-        payload = payload.model_dump(mode="json")
-
-        return transport.remember(
-            [payload],
-            realtime, skip, response, context
-        )
 
     @staticmethod
     def get_references() -> Tuple[InstanceLink, InstanceLink, InstanceLink]:

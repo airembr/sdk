@@ -222,7 +222,7 @@ class Instance(str):
         return json_schema
 
     @staticmethod
-    def identification(type: str, instance_id: Optional[Union[str, int]] = None) -> 'Instance':
+    def type(type: str, instance_id: Optional[Union[str, int]] = None) -> 'Instance':
         if instance_id is not None:
             return Instance(f"{type} #{instance_id}")
 

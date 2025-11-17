@@ -174,6 +174,7 @@ class DatetimeRangePayload(BaseModel):
     start: Optional[int] = 0
     limit: Optional[int] = 25
     rand: Optional[float] = 0
+    sort: Optional[str] = None
 
     def get_dates(self) -> Tuple[datetime, datetime]:
 
