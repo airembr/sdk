@@ -13,6 +13,7 @@ class FlatFact(DotDict):
     SOURCE_ID = 'source.id'
 
     METADATA = "metadata"
+    METADATA_ORDER = "metadata.order"
     METADATA_TIME = "metadata.time"
     METADATA_TIME_INSERT = "metadata.time.insert"
     METADATA_TIME_CREATE = "metadata.time.create"
