@@ -188,9 +188,18 @@ def format_observation(observation: Observation) -> str:
     return "\n".join(lines)
 
 
-def _get_traits(dot_dict):
-    x = ["=".join(item) for item in dot_dict.items()]
-    return ", ".join(x)
+def _get_traits(traits):
+    current_state = None
+    if '_state' in traits:
+        current_state = DotDict(traits['_state']).flat()
+        del traits['_state']
+
+    traits = DotDict(traits).flat()
+    traits = ", ".join([f"{item[0]}={item[1]}" for item in traits.items()])
+    if current_state:
+        current_state = ", ".join([f"{item[0]}={item[1]}" for item in current_state.items()])
+
+    return traits, current_state
 
 
 def format_dotdict_fact(dot_dict_fact):
@@ -208,16 +217,18 @@ def format_dotdict_fact(dot_dict_fact):
     description = dot_dict_fact.get('relation.semantic.description', '')
 
     # Actor and Object (human readable)
+    traits, current_state = _get_traits(dot_dict_fact.get('actor.traits', {}))
     lines.append(
-        f"\nActor: {dot_dict_fact.get('actor.type', '')}({_get_traits(dot_dict_fact.get('actor.traits', {}))})")
+        f"\nActor: {dot_dict_fact.get('actor.type', '')}({traits}), Current state: ({current_state or 'N/A'})")
 
     lines.append(f"\nRelation to objects: {relation_type}: {relation_label}")
     lines.append(f"Summary: {summary}")
     if description:
         lines.append(f"Description: {description}")
 
+    traits, current_state = _get_traits(dot_dict_fact.get('relation.object.traits', {}))
     lines.append(
-        f"\nObject: {dot_dict_fact.get('relation.object.type', '')}({_get_traits(dot_dict_fact.get('relation.object.traits', {}))})")
+        f"\nObject: {dot_dict_fact.get('relation.object.type', '')}({traits}), Current state: ({current_state or 'N/A'})")
 
     # Contexts (if present)
     context_list = dot_dict_fact.get('context', [])
@@ -247,5 +258,27 @@ def format_traits(traits: Union[DotDict, dict]) -> str:
     if isinstance(traits, dict):
         traits = DotDict(traits)
     flat = traits.flat()
-    properties = [_key_value_to_string(key,value) for key, value in flat.items()]
+    properties = [_key_value_to_string(key, value) for key, value in flat.items()]
     return f"({', '.join(properties)})"
+
+
+def format_semantic_description(dot_dict_fact: DotDict):
+    # Extract top-level information
+    relation_type = dot_dict_fact.get('relation.type', '')
+    relation_label = dot_dict_fact.get('relation.label', '')
+    summary = dot_dict_fact.get('relation.semantic.summary', '')
+    description = dot_dict_fact.get('relation.semantic.description', '')
+    context = dot_dict_fact.get('relation.semantic.context', '')
+
+    output = []
+    if description:
+        output.append(description)
+
+    output.append(f"Metadata:\nFact: {relation_type.upper()}: {relation_label}")
+    if summary:
+        output.append(f"Summary: {summary}")
+
+    if context:
+        output.append(f"Context: {context}")
+
+    return "\n".join(output)
