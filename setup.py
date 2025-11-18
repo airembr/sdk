@@ -17,7 +17,8 @@ setup(
         'durable-dot-dict>=0.0.21',
         'python-dateutil',
         'requests',
-        'airembr-pararun-os'
+        'airembr-pararun-os',
+        'orjson'
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

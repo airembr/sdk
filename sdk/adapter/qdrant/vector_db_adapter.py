@@ -7,7 +7,7 @@ from qdrant_client import models
 
 from qdrant_client.models import PointStruct
 
-from sdk.airembr.model.observation import Observation
+from sdk.airembr.model.observation import ObservationRelation
 
 
 def _uuid_to_int(uuid):
@@ -38,24 +38,30 @@ class VectorDbAdapter:
                 sparse_vectors_config=self._sparse_vector_config
             )
 
-    def insert(self, index: str, records: List[Tuple[Observation, List[float]]]):
+    def insert(self, index: str, records: List[Tuple[ObservationRelation, List[float]]]):
 
         points = []
         for relation, vector in records:
             vector = {
                 "dense": vector
             }
+
+            payload = {
+                "rel_id": relation.id,
+                "label":relation.label,
+            }
+
+            if relation.semantic:
+                payload.update({
+                    "summary": relation.semantic.summary,
+                    "description": relation.semantic.description,
+                    "context": relation.semantic.context, }
+                )
+
             p = PointStruct(
                 id=_uuid_to_int(relation.id),
                 vector=vector,
-                payload={
-                    "fact_id": relation.id,
-                    # "actor": {"pk": relation.actor.pk, "type": fact.actor.type, "traits": fact.actor.traits},
-                    # "sources": fact.sources,
-                    # "event_label": event.label,
-                    # "time_insert": event.metadata.insert,
-                    # "time_create": event.metadata.create,
-                }
+                payload=payload
             )
             points.append(p)
 
@@ -63,8 +69,6 @@ class VectorDbAdapter:
             collection_name=index,
             points=points
         )
-        print("Inserted points", len(points))
-        print('fact_id', [p.payload['fact_id'] for p in points])
 
     def upsert(self, index: str, points):
         self.client.upload_points(
