@@ -7,6 +7,8 @@ from qdrant_client import models
 
 from qdrant_client.models import PointStruct
 
+from sdk.airembr.model.observation import Observation
+
 
 def _uuid_to_int(uuid):
     return int.from_bytes(hashlib.sha256(uuid.encode()).digest()[:8], 'big')
@@ -36,27 +38,26 @@ class VectorDbAdapter:
                 sparse_vectors_config=self._sparse_vector_config
             )
 
-    def insert(self, index: str, facts, dense_vectors, bm25_vectors):
-        points = [
-            PointStruct(
-                id=_uuid_to_int(event.id),
-                vector={
-                    "dense": dense_vectors[i],
-                    "sparse": bm25_vectors[i]
-                },
+    def insert(self, index: str, records: List[Tuple[Observation, List[float]]]):
+
+        points = []
+        for relation, vector in records:
+            vector = {
+                "dense": vector
+            }
+            p = PointStruct(
+                id=_uuid_to_int(relation.id),
+                vector=vector,
                 payload={
-                    "fact": text,
-                    "fact_id": fact.id,
-                    "event_id": event.id,
-                    "actor": {"pk": fact.actor.pk, "type": fact.actor.type, "traits": fact.actor.traits},
-                    "sources": fact.sources,
-                    "event_label": event.label,
-                    "time_insert": event.metadata.insert,
-                    "time_create": event.metadata.create,
+                    "fact_id": relation.id,
+                    # "actor": {"pk": relation.actor.pk, "type": fact.actor.type, "traits": fact.actor.traits},
+                    # "sources": fact.sources,
+                    # "event_label": event.label,
+                    # "time_insert": event.metadata.insert,
+                    # "time_create": event.metadata.create,
                 }
             )
-            for i, (fact, event, text) in enumerate(facts)
-        ]
+            points.append(p)
 
         self.client.upload_points(
             collection_name=index,
@@ -64,7 +65,6 @@ class VectorDbAdapter:
         )
         print("Inserted points", len(points))
         print('fact_id', [p.payload['fact_id'] for p in points])
-        print('event_id', [p.payload['event_id'] for p in points])
 
     def upsert(self, index: str, points):
         self.client.upload_points(
@@ -72,7 +72,7 @@ class VectorDbAdapter:
             points=points
         )
 
-    def search(self, index: str,  dense_query_vector, b25_query_vector):
+    def search(self, index: str, dense_query_vector, b25_query_vector):
 
         prefetch = [
             models.Prefetch(

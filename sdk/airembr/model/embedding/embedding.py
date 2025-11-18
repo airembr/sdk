@@ -10,8 +10,8 @@ class Embedding(BaseModel):
 
 
 class EmbeddingResponse(BaseModel):
-    sparse: Optional[List[Tuple[str,dict]]] = []
-    dense: List[Tuple[str,List[float]]]
+    sparse: Optional[Dict[str, dict]] = []
+    dense: Dict[str, List[float]]
     model: str
     elapsed: float
 
