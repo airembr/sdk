@@ -5,7 +5,7 @@ from typing import Optional, List, Any, Dict, Generator, Set, Union
 from uuid import uuid4
 
 from durable_dot_dict.dotdict import DotDict
-from pydantic import BaseModel, RootModel
+from pydantic import BaseModel, RootModel, model_validator
 
 from sdk.airembr.model.entity import Entity
 from sdk.airembr.model.instance import Instance
@@ -151,6 +151,7 @@ class ObservationSemantic(BaseModel):
 class ObservationRelation(BaseModel):
     id: Optional[str] = None
     ts: Optional[datetime] = None
+    order: Optional[int] = None
     observer: InstanceLink
     actor: Optional[Union[List[InstanceLink], InstanceLink]] = None
     type: Optional[str] = 'fact'
@@ -331,6 +332,13 @@ class Observation(BaseModel):
             self.id = f"anon-{str(uuid4())}"
 
         self._validate_links()
+
+    # @model_validator(mode="after")
+    # def inject_ts_into_relations(self):
+    #     for rel in self.relation:
+    #         if rel.ts is None:
+    #             rel.ts = self.id
+    #     return self
 
     def _validate_links(self):
         links = self.entities.links()

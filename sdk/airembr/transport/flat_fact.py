@@ -88,6 +88,9 @@ class FlatFact(DotDict):
     SUBJECTIVE = 'subjective'
 
     SEMANTIC_DESCRIPTION = 'semantic.description'
+    SEMANTIC_DESCRIPTION_HASH = 'semantic.description_hash'
     SEMANTIC_CONTEXT = 'semantic.context'
+    SEMANTIC_CONTEXT_HASH = 'semantic.context_hash'
     SEMANTIC_SUMMARY = 'semantic.summary'
+    SEMANTIC_SUMMARY_HASH = 'semantic.summary_hash'
 

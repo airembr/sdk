@@ -45,7 +45,7 @@ class AiRembrChatClient:
             "actor": actor,
             "objects": objects,
             "semantic": {
-                "summary": message
+                "description": message
             }
         }
 
