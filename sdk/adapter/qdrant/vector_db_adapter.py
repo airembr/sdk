@@ -1,3 +1,4 @@
+import binascii
 import hashlib
 from typing import List, Tuple
 
@@ -7,11 +8,14 @@ from qdrant_client import models
 
 from qdrant_client.models import PointStruct
 
-from sdk.airembr.model.observation import ObservationRelation
-
 
 def _uuid_to_int(uuid):
     return int.from_bytes(hashlib.sha256(uuid.encode()).digest()[:8], 'big')
+
+
+def _md5_to_int(hex_hash: str):
+    digest = binascii.unhexlify(hex_hash)
+    return int.from_bytes(digest[:8], 'big')
 
 
 class VectorDbAdapter:
@@ -38,28 +42,48 @@ class VectorDbAdapter:
                 sparse_vectors_config=self._sparse_vector_config
             )
 
-    def insert(self, index: str, records: List[Tuple[ObservationRelation, List[float]]]):
+    def insert(self, index: str, records: List[Tuple[str, str, List[float], str]]):
 
         points = []
-        for relation, vector in records:
+        for cluster_id, relation_id, hash, vector, text in records:
             vector = {
                 "dense": vector
             }
 
             payload = {
-                "rel_id": relation.id,
-                "label":relation.label,
+                "rel_id": relation_id,
+                "text": text,
             }
 
-            if relation.semantic:
-                payload.update({
-                    "summary": relation.semantic.summary,
-                    "description": relation.semantic.description,
-                    "context": relation.semantic.context, }
-                )
+            if cluster_id:
+                payload["cluster_id"] = cluster_id
 
             p = PointStruct(
-                id=_uuid_to_int(relation.id),
+                id=_md5_to_int(hash),
+                vector=vector,
+                payload=payload
+            )
+            points.append(p)
+
+        self.client.upload_points(
+            collection_name=index,
+            points=points
+        )
+
+    def insert_cluster(self, index: str, records: List[Tuple[str,List[float]]]):
+
+        points = []
+        for cluster_id, vector in records:
+            vector = {
+                "dense": vector
+            }
+
+            payload = {
+                "cluster_id": cluster_id,
+            }
+
+            p = PointStruct(
+                id=_uuid_to_int(cluster_id),
                 vector=vector,
                 payload=payload
             )
@@ -76,18 +100,13 @@ class VectorDbAdapter:
             points=points
         )
 
-    def search(self, index: str, dense_query_vector, b25_query_vector):
+    def search(self, index: str, dense_vector):
 
         prefetch = [
             models.Prefetch(
-                query=dense_query_vector,
+                query=dense_vector,
                 using='dense',
                 limit=15,
-            ),
-            models.Prefetch(
-                using='sparse',
-                limit=15,
-                query=models.SparseVector(**b25_query_vector.as_object())
             )
         ]
 
@@ -99,9 +118,25 @@ class VectorDbAdapter:
             with_payload=True
         )
 
+
+
         # Fix: Proper iteration over search results
         for hit in search_result.points:  # Changed from `for c, hits in search_result:`
             # Send each word/token separately for streaming effect
             text = hit.payload.get('text', '')
 
             yield hit.score, text
+
+
+    def search_cluster(self, index: str, dense_vector: List[float], limit: int = 10):
+        result = self.client.query_points(
+            collection_name=index,
+            query=dense_vector,
+            limit=limit,
+            with_payload=True,
+            with_vectors=["dense"],
+            using="dense"  # <-- specify the named vector
+        )
+
+        for point in result.points:
+            yield point.score, point.payload, point.vector['dense']
