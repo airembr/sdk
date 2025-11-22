@@ -3,7 +3,7 @@ import hashlib
 from typing import List, Tuple
 
 from qdrant_client import QdrantClient
-from qdrant_client.models import Distance, VectorParams, SparseVectorParams, Modifier
+from qdrant_client.models import Distance, VectorParams, SparseVectorParams, Modifier, Filter
 from qdrant_client import models
 
 from qdrant_client.models import PointStruct
@@ -70,7 +70,7 @@ class VectorDbAdapter:
             points=points
         )
 
-    def insert_cluster(self, index: str, records: List[Tuple[str,List[float]]]):
+    def insert_cluster(self, index: str, records: List[Tuple[str, List[float]]]):
 
         points = []
         for cluster_id, vector in records:
@@ -118,15 +118,12 @@ class VectorDbAdapter:
             with_payload=True
         )
 
-
-
         # Fix: Proper iteration over search results
         for hit in search_result.points:  # Changed from `for c, hits in search_result:`
             # Send each word/token separately for streaming effect
             text = hit.payload.get('text', '')
 
             yield hit.score, text
-
 
     def search_cluster(self, index: str, dense_vector: List[float], limit: int = 10):
         result = self.client.query_points(
@@ -140,3 +137,23 @@ class VectorDbAdapter:
 
         for point in result.points:
             yield point.score, point.payload, point.vector['dense']
+
+    def scroll(self, index: str, filter: Filter = None, with_payload=False, with_vectors=True, limit: int = 100):
+
+        scroll_cursor = None
+
+        while True:
+            result, scroll_cursor = self.client.scroll(
+                collection_name=index,
+                limit=limit,
+                scroll_filter=filter,
+                with_vectors=with_vectors,
+                with_payload=with_payload,
+                offset=scroll_cursor
+            )
+
+            for point in result:
+                yield point
+
+            if scroll_cursor is None:
+                break
