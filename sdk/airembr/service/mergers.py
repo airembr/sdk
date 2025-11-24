@@ -104,9 +104,6 @@ def merge_observation_entities(old_entity, new_entity):
             result_state[k] = merged_state[k]
     merged.state = result_state
 
-    # measurements -> concat (older first)
-    merged.measurements = (merged.measurements or []) + (new_entity.measurements or [])
-
     # consents -> if any False -> False; else if any True -> True; else None
     cons_old = getattr(merged, "consents", None)
     cons_new = getattr(new_entity, "consents", None)

@@ -5,7 +5,7 @@ from typing import Optional, List, Any, Dict, Generator, Set, Union
 from uuid import uuid4
 
 from durable_dot_dict.dotdict import DotDict
-from pydantic import BaseModel, RootModel, model_validator
+from pydantic import BaseModel, RootModel, model_validator, Field
 
 from sdk.airembr.model.entity import Entity
 from sdk.airembr.model.instance import Instance
@@ -43,8 +43,8 @@ class EntityIdentification(BaseModel):
 
 
 class ObservationEntity(BaseModel):
-    instance: Instance
-    identification: Optional[EntityIdentification] = None
+    instance: Instance = Field(..., description="Entity instance.")
+    identification: Optional[EntityIdentification] = Field(None, description="Way how the entity is identified. None is undefined.")
 
     part_of: Optional[Instance] = None
     is_a: Optional[Instance] = None
@@ -52,8 +52,6 @@ class ObservationEntity(BaseModel):
 
     traits: Optional[dict] = {}
     state: Optional[Dict[str, InstanceLink]] = {}
-
-    measurements: Optional[List[ObservationMeasurement]] = []
 
     consents: Optional[ObservationCollectConsent] = None
 
@@ -99,7 +97,9 @@ class ObservationEntity(BaseModel):
     def __str__(self):
         if self.traits:
             converted = [f'{key}: {value}' for key, value in DotDict(self.traits).flat().items()]
-            return f"{self.instance.label()} ({', '.join(converted)})"
+            if self.instance.is_abstract():
+                return f"{self.instance.kind} ({', '.join(converted)})"
+            return f"{self.instance.kind} (id={self.instance.id}, {', '.join(converted)})"
         return self.instance.label()
 
 
@@ -309,11 +309,11 @@ class EntityRefs(RootModel[Dict[InstanceLink, ObservationEntity]]):
 
 
 class Observation(BaseModel):
-    id: Optional[str] = None
-    name: Optional[str] = None
-    aspects: Optional[List[str]] = None
-    source: Entity
-    session: Optional[Session] = Session()
+    id: Optional[str] = Field(None, description="Observation id")
+    name: Optional[str] = Field(None, description="Observation name")
+    aspects: Optional[List[str]] = Field(None, description="Available aspects of the observation.")
+    source: Entity = Field(..., description="Observation source entity.")
+    session: Optional[Session] = Field(Session(), description="Observation session entity.")
     entities: Optional[EntityRefs] = EntityRefs({})
     relation: List[ObservationRelation]  # Should be relation
     context: Optional[Union[List[InstanceLink], InstanceLink]] = None
