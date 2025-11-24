@@ -2,7 +2,7 @@ from typing import Optional, Any
 
 from pydantic import BaseModel
 
-from sdk.airembr.service.uuid.uuid_generator import get_time_based_uuid
+from sdk.airembr.service.hashes.uuid_generator import get_time_based_uuid
 
 class ChatSession(BaseModel):
     ttl: Optional[int] = 0

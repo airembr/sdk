@@ -311,7 +311,7 @@ class EntityRefs(RootModel[Dict[InstanceLink, ObservationEntity]]):
 class Observation(BaseModel):
     id: Optional[str] = None
     name: Optional[str] = None
-    aspect: Optional[str] = None
+    aspects: Optional[List[str]] = None
     source: Entity
     session: Optional[Session] = Session()
     entities: Optional[EntityRefs] = EntityRefs({})

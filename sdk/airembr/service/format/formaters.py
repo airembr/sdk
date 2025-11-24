@@ -52,7 +52,7 @@ def format_observation(observation: Observation) -> str:
     lines = []
     lines.append(_format_header(f"Observation: {observation.name or observation.id}"))
     lines.append(f"├── ID: {observation.id or 'N/A'}")
-    lines.append(f"├── Aspect: {observation.aspect or 'N/A'}")
+    lines.append(f"├── Aspects: {observation.aspects or 'N/A'}")
     source_label = observation.source.label() if hasattr(observation.source, 'label') else observation.source.id
     lines.append(f"├── Source: {source_label}")
 

@@ -1,6 +1,6 @@
 import hashlib
 import re
-from typing import Union, Optional, List
+from typing import Union, Optional
 from uuid import uuid4
 
 from durable_dot_dict.dotdict import DotDict
