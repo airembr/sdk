@@ -55,3 +55,5 @@ def yield_facts(observation: Observation):
         else:
             # No objects
             yield fact
+
+

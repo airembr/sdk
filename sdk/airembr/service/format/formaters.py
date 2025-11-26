@@ -89,7 +89,7 @@ def format_observation(observation: Observation) -> str:
         )
         connector = "└── " if is_last_relation else "├── "
         lines.append(
-            f"{connector}Facts: \"{relation.label}\" ({relation.type}) @ {relation.ts.strftime('%Y-%m-%d %H:%M:%S UTC') if relation.ts else 'Unknown time'}"
+            f"{connector}Fact: \"{relation.label}\" ({relation.type}) @ {relation.ts.strftime('%Y-%m-%d %H:%M:%S UTC') if relation.ts else 'Unknown time'}"
         )
 
         rel_prefix = "    " if is_last_relation else "│   "
@@ -102,7 +102,7 @@ def format_observation(observation: Observation) -> str:
         if actor_link:
             actor_entity = observation.entities.get(actor_link.link)
             if actor_entity:
-                lines.append(f"{rel_prefix}├── Actor: {actor_entity.instance.label()}")
+                lines.append(f"{rel_prefix}├── Actor: {actor_entity.instance.label()} {actor_link.link}")
                 lines += _format_traits_tree(actor_entity.traits, rel_prefix + "│   ", False)
 
         # Objects
@@ -113,10 +113,10 @@ def format_observation(observation: Observation) -> str:
                 if obj_entity:
                     obj_is_last = (o_idx == len(object_links) - 1)
                     connector = "└── " if obj_is_last else "├── "
-                    lines.append(f"{rel_prefix}{connector}Object: {obj_entity.instance.label()}")
+                    lines.append(f"{rel_prefix}{connector}Object: {obj_entity.instance.label()} {obj_link.link}")
                     lines += _format_traits_tree(
                         obj_entity.traits,
-                        rel_prefix + ("    " if obj_is_last else "│   "),
+                        rel_prefix + "│   ",
                         obj_is_last,
                     )
         else:
@@ -129,6 +129,8 @@ def format_observation(observation: Observation) -> str:
                 lines.append(f"{rel_prefix}│   ├── Summary: {_clean_value(relation.semantic.summary)}")
             if relation.semantic.description:
                 lines.append(f"{rel_prefix}│   └── Description: {_clean_value(relation.semantic.description)}")
+            if relation.semantic.context:
+                lines.append(f"{rel_prefix}│   └── Context: {_clean_value(relation.semantic.context)}")
 
         # Timer
         if relation.timer:
