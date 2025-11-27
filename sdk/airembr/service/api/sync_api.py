@@ -177,7 +177,6 @@ class SyncApi:
 
         headers['Authorization'] = self._get_token()
 
-        print(1, data)
         response = requests.post(url, headers=headers, json=data.model_dump(mode='json'))
 
         result = response.json()

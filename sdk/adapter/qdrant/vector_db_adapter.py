@@ -122,8 +122,9 @@ class VectorDbAdapter:
         for hit in search_result.points:  # Changed from `for c, hits in search_result:`
             # Send each word/token separately for streaming effect
             text = hit.payload.get('text', '')
+            rel_id = hit.payload.get('rel_id', None)
 
-            yield hit.score, text
+            yield hit.score, rel_id, text
 
     def search_cluster(self, index: str, dense_vector: List[float], limit: int = 10):
         result = self.client.query_points(
