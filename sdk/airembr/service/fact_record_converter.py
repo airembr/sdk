@@ -1,5 +1,4 @@
 import json
-from datetime import datetime
 
 from durable_dot_dict.dotdict import DotDict
 from pydantic import ValidationError
@@ -74,14 +73,20 @@ def convert_record_to_observation(flat: DotDict) -> Observation:
 
         entities[InstanceLink.create(_create_link(id_, 'ref'))] = entity
 
+    actor_id = flat.get_or_none('actor.id')
+    if actor_id is not None:
+        actor_instance = InstanceLink.create(_create_link(actor_id, 'ref'))
+    else:
+        actor_instance = None
+
     # --- Relation ---
     relation = ObservationRelation(
         id=flat.get('rel.id'),
         label=flat.get('rel.label'),
         type=flat.get('rel.type', 'event'),
-        observer=InstanceLink.create(_create_link(flat.get('actor.id'), 'ref')),
-        actor=InstanceLink.create(_create_link(flat.get('actor.id'), 'ref')) if flat.get('actor.id') else None,
-        objects=InstanceLink.create(_create_link(flat.get('object.id'), 'ref'))if flat.get('object.id') else None,
+        observer=actor_instance,
+        actor=actor_instance,
+        objects=InstanceLink.create(_create_link(flat.get('object.id'), 'ref')) if flat.get('object.id', None) else None,
         traits=safe_json(flat.get('rel.traits', {})),
         semantic=ObservationSemantic(
             summary=flat.get_or_none('semantic.summary'),

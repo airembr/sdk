@@ -308,6 +308,7 @@ class EntityRefs(RootModel[Dict[InstanceLink, ObservationEntity]]):
         return self.root.keys()
 
 
+
 class Observation(BaseModel):
     id: Optional[str] = Field(None, description="Observation id")
     name: Optional[str] = Field(None, description="Observation name")

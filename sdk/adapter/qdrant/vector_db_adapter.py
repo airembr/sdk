@@ -42,16 +42,17 @@ class VectorDbAdapter:
                 sparse_vectors_config=self._sparse_vector_config
             )
 
-    def insert(self, index: str, records: List[Tuple[str, str, List[float], str]]):
+    def insert(self, index: str, records: List[Tuple[str, str, str, List[float], str]]):
 
         points = []
-        for cluster_id, relation_id, hash, vector, text in records:
+        for cluster_id, observer_id, relation_id, hash, vector, text in records:
             vector = {
                 "dense": vector
             }
 
             payload = {
-                "rel_id": relation_id,
+                "observer_id": observer_id,
+                "relation_id": relation_id,
                 "text": text,
             }
 
