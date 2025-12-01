@@ -101,7 +101,7 @@ class VectorDbAdapter:
             points=points
         )
 
-    def search(self, index: str, dense_vector):
+    def search(self, index: str, observer_id:str, dense_vector: List[float]):
 
         prefetch = [
             models.Prefetch(
@@ -123,8 +123,7 @@ class VectorDbAdapter:
         for hit in search_result.points:  # Changed from `for c, hits in search_result:`
             # Send each word/token separately for streaming effect
             text = hit.payload.get('text', '')
-            rel_id = hit.payload.get('rel_id', None)
-
+            rel_id = hit.payload.get('relation_id', None)
             yield hit.score, rel_id, text
 
     def search_cluster(self, index: str, dense_vector: List[float], limit: int = 10):

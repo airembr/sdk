@@ -3,8 +3,10 @@ from typing import List, Dict, Optional, Union, Generator, Tuple
 
 from requests import Response
 
+from sdk.airembr.logging.log_handler import get_logger
 from sdk.airembr.model.embedding.embedding import EmbeddingResponse
 
+logger = get_logger(__name__)
 
 def call_embedding_api(embedder_api: str, embedder_api_key: str, texts: Dict[str, str],
                        add_bm25: bool = False) -> Response:
@@ -40,10 +42,13 @@ class EmbeddingApiClient:
         return self.response
 
     def get_mapped_embeddings(self, source_mapping=None) -> Optional[Union[EmbeddingResponse,Generator[Tuple[str, List[float]], None, None]]]:
-        if self.response is not None and self.response.ok:
+        if self.response is not None:
+            if not self.response.ok:
+                raise ConnectionError(f"Error calling embedding API: {self.response.text}")
+
             data = self.response.json()
             if not data:
-                return None
+                raise ValueError(f"Error calling embedding API: {self.response.text}")
 
             embedding_response = EmbeddingResponse(**data)
             if source_mapping:
