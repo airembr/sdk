@@ -80,7 +80,7 @@ pip install airembr-sdk
 ### 1. Initialize the Client
 
 ```python
-from sdk.airembr.client import AiRembrChatClient
+from airembr.sdk.client import AiRembrChatClient
 
 client = AiRembrChatClient(
     api="http://localhost:4002",
