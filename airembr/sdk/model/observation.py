@@ -30,8 +30,8 @@ class ObservationConsents(ObservationCollectConsent):
 
 class EntityIdentification(BaseModel):
     properties: List[str]
-    strict: Optional[bool] = True
-    values_only: Optional[bool] = False
+    strict: Optional[bool] = True  # Means: All properties must be present in traits to identify entity
+    values_only: Optional[bool] = False # Means: Hash only values of properties
 
     @staticmethod
     def by(properties: List[str]) -> 'EntityIdentification':
