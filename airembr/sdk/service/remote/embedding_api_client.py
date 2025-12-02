@@ -8,16 +8,6 @@ from airembr.sdk.model.embedding.embedding import EmbeddingResponse
 
 logger = get_logger(__name__)
 
-def call_embedding_api(embedder_api: str, embedder_api_key: str, texts: Dict[str, str],
-                       add_bm25: bool = False) -> Response:
-    headers = {
-        "Authorization": f"Bearer {embedder_api_key}",
-        "Content-Type": "application/json"
-    }
-
-    _embedder_api = f"{embedder_api}/embeddings/?bm25={'true' if add_bm25 else 'false'}"
-    return requests.post(_embedder_api, json=texts, headers=headers)
-
 
 class EmbeddingApiClient:
 
@@ -41,7 +31,8 @@ class EmbeddingApiClient:
     def get_response(self) -> Response:
         return self.response
 
-    def get_mapped_embeddings(self, source_mapping=None) -> Optional[Union[EmbeddingResponse,Generator[Tuple[str, List[float]], None, None]]]:
+    def get_mapped_embeddings(self, source_mapping=None) -> Optional[
+        Union[EmbeddingResponse, Generator[Tuple[str, List[float]], None, None]]]:
         if self.response is not None:
             if not self.response.ok:
                 raise ConnectionError(f"Error calling embedding API: {self.response.text}")
