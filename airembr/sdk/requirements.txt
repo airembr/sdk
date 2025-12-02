@@ -9,4 +9,4 @@ pytz
 pytimeparse
 
 # Commercial must install commercial pararun - this is done in docker
-# git+https://github.com/airembr/pararun@main
+# git+https://github.com/airembr/pararun@master
