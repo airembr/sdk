@@ -1,7 +1,4 @@
 import requests
-from typing import List, Dict, Optional, Union, Generator, Tuple
-
-from requests import Response
 
 from airembr.sdk.logging.log_handler import get_logger
 
@@ -22,6 +19,5 @@ class RecallApiClient:
 
     def call(self, observer_id: str, text: str) -> 'RecallApiClient':
         _endpoint = f"{self.url}/recall/{observer_id}"
-        print(1, _endpoint, text)
         self.response = requests.post(_endpoint, data=text, headers=self.headers)
         return self
