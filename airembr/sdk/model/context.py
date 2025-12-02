@@ -46,7 +46,10 @@ class Context:
                 raise ValueError("Tenant is not set.")
             self.tenant = tenant
         if user:
-            self.user = User(**user)
+            if isinstance(user, dict):
+                self.user = User(**user)
+            else:
+                self.user = user
         self.production = system_version.production if production is None else production
         self.host = host
         self.errors = 0
