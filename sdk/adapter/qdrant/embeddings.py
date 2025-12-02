@@ -1,6 +1,6 @@
 import hashlib
 
-from lib.common.singleton import Singleton
+from sdk.airembr.common.singleton import Singleton
 from fastembed.sparse.bm25 import Bm25
 from sentence_transformers import SentenceTransformer
 
