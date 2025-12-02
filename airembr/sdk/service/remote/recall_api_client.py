@@ -19,5 +19,6 @@ class RecallApiClient:
 
     def call(self, observer_id: str, text: str) -> 'RecallApiClient':
         _endpoint = f"{self.url}/recall/{observer_id}"
+        print(1, _endpoint)
         self.response = requests.post(_endpoint, data=text, headers=self.headers)
         return self
