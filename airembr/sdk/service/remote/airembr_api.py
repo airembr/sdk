@@ -33,7 +33,7 @@ class ApiProtocol(Protocol):
         QueryStatus, QueryResponse]: ...
 
 
-class SyncApi:
+class AirembrApi:
 
     def __init__(self, url: str):
         self.url = url

@@ -6,7 +6,7 @@ from airembr.sdk.model.instance_link import InstanceLink
 from airembr.sdk.model.memory.conversation_memory import MemorySessions
 from airembr.sdk.model.observation import Observation
 from airembr.sdk.model.query.status import QueryStatus
-from airembr.sdk.service.api.sync_api import SyncApi
+from airembr.sdk.service.remote.airembr_api import AirembrApi
 from airembr.sdk.service.time.time import now_in_utc
 
 
@@ -61,7 +61,7 @@ class AiRembrChatClient:
 
         payload = self.get_observation()
 
-        transport = SyncApi(self.api)
+        transport = AirembrApi(self.api)
         payload = payload.model_dump(mode="json")
 
         return transport.remember(

@@ -5,7 +5,7 @@ from airembr.sdk.model.observation import Observation
 from airembr.sdk.model.query.response import QueryEntityResponse
 from airembr.sdk.model.query.status import QueryStatus
 from airembr.sdk.model.query.time_range_query import DatePayload
-from airembr.sdk.service.api.sync_api import SyncApi
+from airembr.sdk.service.remote.airembr_api import AirembrApi
 
 
 class AirembrQuery:
@@ -47,7 +47,7 @@ class AirembrQuery:
 class AirembrClient:
 
     def __init__(self, api):
-        self.transport = SyncApi(api)
+        self.transport = AirembrApi(api)
 
     def observe(self,
                 observations: List[Observation],
