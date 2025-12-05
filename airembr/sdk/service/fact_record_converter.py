@@ -46,17 +46,20 @@ def convert_record_to_observation(flat: DotDict) -> Observation:
     # --- Entities ---
     entities = {}
     for prefix in ['actor', 'object']:
-        id_ = flat.get(f'{prefix}.id')
 
-        if not id_:
-            # Skip abstract
-            continue
-
-        kind = flat.get(f'{prefix}.type')
-        role = flat.get(f'{prefix}.role')
         actor_flag = (prefix == 'actor')
 
+        id_ = flat.get_or_none(f'{prefix}.id')
+        kind = flat.get_or_none(f'{prefix}.type')
+        role = flat.get_or_none(f'{prefix}.role')
         instance = make_instance(kind, role, id_, actor=actor_flag)
+
+        if not instance:
+            continue
+
+        if actor_flag and (not id_ or not kind):
+            # Skip abstract actor
+            continue
 
         traits = safe_json(flat.get(f'{prefix}.traits', {}))
         part_of_id = flat.get_or_none(f'{prefix}.part_of.id')

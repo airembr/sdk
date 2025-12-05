@@ -147,6 +147,9 @@ class ObservationSemantic(BaseModel):
                                               object_link,
                                               observation)
 
+    def is_empty(self):
+        return self.summary is None and self.description is None and self.context is None
+
 
 class ObservationRelation(BaseModel):
     id: Optional[str] = None

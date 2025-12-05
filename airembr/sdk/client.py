@@ -1,15 +1,16 @@
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Generator
 
 from airembr.sdk.model.memory.conversation_memory import MemorySessions
 from airembr.sdk.model.observation import Observation
 from airembr.sdk.model.query.response import QueryEntityResponse
 from airembr.sdk.model.query.status import QueryStatus
 from airembr.sdk.model.query.time_range_query import DatePayload
+from airembr.sdk.service.fact_record_converter import convert_record_to_observation
 from airembr.sdk.service.remote.airembr_api import AirembrApi
 
 
 class AirembrQuery:
-    def __init__(self, transport):
+    def __init__(self, transport: AirembrApi):
         self.transport = transport
 
     def stitched_entity(self, query, entity_type: str) -> QueryEntityResponse:
@@ -30,18 +31,38 @@ class AirembrQuery:
               max_date: Optional[DatePayload] = None,
               page: Optional[int] = 0,
               limit: Optional[int] = 30,
-              timezone: Optional[str] = "UTC",
-              headers=None, ):
+              timezone: Optional[str] = "UTC"):
 
         if query is None:
             query = ""
 
-        status, result = self.transport.query_facts(query, min_date, max_date, page, limit, timezone, headers=headers)
+        status, result = self.transport.query_facts(query, min_date, max_date, page, limit, timezone, headers=self.transport.get_default_headers())
 
         if not status.ok():
             raise ConnectionError(f"Query failed with status: {status} and result: {result}")
 
         return result
+
+    def yield_observations(self, total: int) -> Generator[Observation, None, None]:
+        """
+        Scans facts in batches of 100 and yields observations.
+        :param total:
+        :return:
+        """
+        per_page = 100
+        no_of_pages = total // per_page + 1
+
+        for page in range(no_of_pages):
+            response = self.facts(page=page, limit=per_page)
+
+            counter = 0
+            for fact in response.result:
+                counter += 1
+                observation: Observation = convert_record_to_observation(fact)
+                yield observation
+
+            if counter == 0:
+                break
 
 
 class AirembrClient:
