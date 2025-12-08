@@ -7,6 +7,7 @@ airembr-pararun-os>=0.0.2
 orjson
 pytz
 pytimeparse
+pydantic-ai==1.27.0
 
 # Commercial must install commercial pararun - this is done in docker
 # git+https://github.com/airembr/pararun@master

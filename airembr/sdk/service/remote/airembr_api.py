@@ -180,7 +180,7 @@ class AirembrApi:
                     ) -> Tuple[
         QueryStatus, QueryResponse]:
 
-        url = f"{self.url}/v2/events/list/page/{page}"
+        url = f"{self.url}/v2/events/list/page/{page}?shorten=false"
 
         data = DatetimeRangePayload(
             start=page,
