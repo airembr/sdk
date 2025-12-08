@@ -14,7 +14,7 @@ class EmbeddingApiClient:
     def __init__(self, embedder_api: str, embedder_api_key: str):
         self.embedder_api = embedder_api
         self.embedder_api_key = embedder_api_key
-        self.response = None
+        self.response: Optional[Response] = None
 
         self.headers = {
             "Authorization": f"Bearer {self.embedder_api_key}",
@@ -26,6 +26,12 @@ class EmbeddingApiClient:
              add_bm25: bool = False) -> 'EmbeddingApiClient':
         _embedder_api = f"{self.embedder_api}/embeddings/?normalize={'true' if normalize else 'false'}&bm25={'true' if add_bm25 else 'false'}"
         self.response = requests.post(_embedder_api, json=texts, headers=self.headers)
+        return self
+
+    def call_list(self, texts: List[str],
+             normalize: bool = False) -> 'EmbeddingApiClient':
+        _embedder_api = f"{self.embedder_api}/embeddings/?normalize={'true' if normalize else 'false'}"
+        self.response = requests.put(_embedder_api, json=texts, headers=self.headers)
         return self
 
     def get_response(self) -> Response:

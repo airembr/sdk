@@ -3,6 +3,7 @@ import hashlib
 from typing import List, Tuple
 
 from qdrant_client import QdrantClient
+from qdrant_client.http.models import MatchAny
 from qdrant_client.models import Distance, VectorParams, SparseVectorParams, Modifier, Filter
 from qdrant_client import models
 
@@ -23,32 +24,33 @@ class VectorDbAdapter:
     def __init__(self, qdrant_host: str, qdrant_port: int = 6333):
         self.client = QdrantClient(host=qdrant_host, port=qdrant_port)
         self._vectors_config = {
-            'dense': VectorParams(
+            'text': VectorParams(
                 size=384,  # e.g. 384-dimensional vectors
                 distance=Distance.COSINE
-            )
-        }
-        self._sparse_vector_config = {
-            'sparse': SparseVectorParams(
-                modifier=Modifier.IDF
-            )
+            ),
+            'nouns': VectorParams(
+                size=384,  # e.g. 384-dimensional vectors
+                distance=Distance.COSINE
+            ),
         }
 
     def index(self, index: str):
         if not self.client.collection_exists(index):
             self.client.create_collection(
                 collection_name=index,
-                vectors_config=self._vectors_config,
-                sparse_vectors_config=self._sparse_vector_config
+                vectors_config=self._vectors_config
             )
 
     def insert(self, index: str, records: List[Tuple[str, str, str, List[float], str]]):
 
         points = []
-        for cluster_id, observer_id, relation_id, hash, vector, text in records:
-            vector = {
-                "dense": vector
+        for n, (cluster_id, observer_id, relation_id, hash, text_embedding, noun_embedding, text) in enumerate(records):
+            vectors = {
+                "text": text_embedding
             }
+
+            if noun_embedding:
+                vectors["nouns"] = noun_embedding
 
             payload = {
                 "observer_id": observer_id,
@@ -61,7 +63,7 @@ class VectorDbAdapter:
 
             p = PointStruct(
                 id=_md5_to_int(hash),
-                vector=vector,
+                vector=vectors,
                 payload=payload
             )
             points.append(p)
@@ -101,21 +103,30 @@ class VectorDbAdapter:
             points=points
         )
 
-    def search(self, index: str, observer_id:str, dense_vector: List[float]):
+    def search(self, index: str, observer_id:str, dense_vector: List[float], nouns_vector: List[float] = None):
 
         prefetch = [
             models.Prefetch(
                 query=dense_vector,
-                using='dense',
-                limit=15,
+                using='text',
+                limit=150,
             )
         ]
+
+        if nouns_vector is not None:
+            prefetch.append(
+                models.Prefetch(
+                    query=nouns_vector,
+                    using='nouns',
+                    limit=150,
+                )
+            )
 
         search_result = self.client.query_points(
             collection_name=index,
             prefetch=prefetch,
             query=models.FusionQuery(fusion=models.Fusion.RRF),
-            limit=15,
+            limit=150,
             with_payload=True
         )
 
