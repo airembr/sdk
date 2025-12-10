@@ -56,20 +56,20 @@ services:
       - gui-api
 
 
-#  imap:
-#    image: tracardi/airembr-os-job-imap-source:0.0.1
-#    pull_policy: always
-#    environment:
-#      REDIS_HOST: redis
-#      STARROCKS_HOST: starrocks
-#      STARROCKS_FORCE_BE_HOST: starrocks
-#      LOGGING_LEVEL: debug
-#      WORKER: true
-#    volumes:
-#      - ./db:/db
-#    depends_on:
-#      - redis
-#      - starrocks
+  imap:
+    image: tracardi/airembr-os-job-imap-source:0.0.1
+    pull_policy: always
+    environment:
+      REDIS_HOST: redis
+      STARROCKS_HOST: starrocks
+      STARROCKS_FORCE_BE_HOST: starrocks
+      LOGGING_LEVEL: debug
+      WORKER: true
+    volumes:
+      - ./db:/db
+    depends_on:
+      - redis
+      - starrocks
 
   redis:
     image: redis:7.2       # Use the version you want
