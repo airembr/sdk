@@ -2,7 +2,7 @@
 
 ## Overview
 
-**AiRembr SDK** is a software development kit that enables developers to easily store, retrieve, and manage data within the **AiRembr memory system** — a distributed infrastructure for building **AI Memory Systems**.
+**AiRembr SDK** is a software development kit that enables developers to easily store, retrieve, and manage data within the **AiRembr memory system** — a distributed infrastructure for building **AI Based Systems**.
 It provides a seamless interface for integrating AiRembr’s real-time memory into any application, allowing AI agents, enterprise systems, and intelligent apps to **capture observations, query contextual memories, and evolve knowledge structures** with minimal latency.
 
 ---
@@ -60,7 +60,7 @@ docker compose up
 The service will be available at:
 
 ```
-http://localhost:4002
+http://localhost:14002
 ```
 
 ---
