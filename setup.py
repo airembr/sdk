@@ -4,13 +4,13 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
-    name='airembr-sdk',
-    version='0.0.2',
+    name='airembr_sdk',
+    version='0.0.3',
     description='Airembr SDK',
     long_description=long_description,
     long_description_content_type="text/markdown",
     author='Risto Kowaczewski',
-    packages=['sdk'],
+    packages=['airembr'],
     install_requires=[
         'pydantic',
         'jinja2',
