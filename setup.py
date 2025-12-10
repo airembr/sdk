@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name='airembr_sdk',
-    version='0.0.4',
+    version='0.0.5',
     description='Airembr SDK',
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -18,7 +18,9 @@ setup(
         'python-dateutil',
         'requests',
         'airembr-pararun-os',
-        'orjson'
+        'orjson',
+        'pytz',
+        'pytimeparse'
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
