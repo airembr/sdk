@@ -56,13 +56,14 @@ services:
       - gui-api
 
 
-  imap:
+  imap-worker:
     image: tracardi/airembr-os-job-imap-source:0.0.1
     pull_policy: always
     environment:
       REDIS_HOST: redis
       STARROCKS_HOST: starrocks
       STARROCKS_FORCE_BE_HOST: starrocks
+      META_DATA_ADAPTER: 'sqlite'
       LOGGING_LEVEL: debug
       WORKER: true
     volumes:
