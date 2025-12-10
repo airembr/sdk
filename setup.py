@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name='airembr_sdk',
-    version='0.0.3',
+    version='0.0.4',
     description='Airembr SDK',
     long_description=long_description,
     long_description_content_type="text/markdown",

@@ -16,7 +16,7 @@ Ensure your project is structured correctly:
 
 ```
 sdk/
-│── sdk/     # Package directory
+│── airembr/     # Package directory
 │   ├── __init__.py       # Required for Python package
 │   ├── your_module.py    # Your package files
 │── setup.py              # Setup script
