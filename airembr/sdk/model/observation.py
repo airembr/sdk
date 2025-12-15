@@ -1,11 +1,11 @@
 import hashlib
 from datetime import datetime
 from enum import Enum
-from typing import Optional, List, Any, Dict, Generator, Set, Union
+from typing import Optional, List, Any, Dict, Generator, Set, Union, Tuple
 from uuid import uuid4
 
 from durable_dot_dict.dotdict import DotDict
-from pydantic import BaseModel, RootModel, model_validator, Field
+from pydantic import BaseModel, RootModel, model_validator, Field, PrivateAttr
 
 from airembr.sdk.model.entity import Entity
 from airembr.sdk.model.instance import Instance
@@ -31,7 +31,7 @@ class ObservationConsents(ObservationCollectConsent):
 class EntityIdentification(BaseModel):
     properties: List[str]
     strict: Optional[bool] = True  # Means: All properties must be present in traits to identify entity
-    values_only: Optional[bool] = False # Means: Hash only values of properties
+    values_only: Optional[bool] = False  # Means: Hash only values of properties
 
     @staticmethod
     def by(properties: List[str]) -> 'EntityIdentification':
@@ -44,7 +44,8 @@ class EntityIdentification(BaseModel):
 
 class ObservationEntity(BaseModel):
     instance: Instance = Field(..., description="Entity instance.")
-    identification: Optional[EntityIdentification] = Field(None, description="Way how the entity is identified. None is undefined.")
+    identification: Optional[EntityIdentification] = Field(None,
+                                                           description="Way how the entity is identified. None is undefined.")
 
     part_of: Optional[Instance] = None
     is_a: Optional[Instance] = None
@@ -55,9 +56,19 @@ class ObservationEntity(BaseModel):
 
     consents: Optional[ObservationCollectConsent] = None
 
+    _ref: InstanceLink = PrivateAttr(default_factory=InstanceLink)
+
     def __init__(self, **data):
         super().__init__(**data)
+        self._ref = InstanceLink.create()
         self._resolve_id_from_properties()
+
+    def link(self, reference=None) -> InstanceLink:
+        return reference if InstanceLink.create(reference) else self._ref
+
+    @property
+    def ref(self) -> InstanceLink:
+        return self._ref
 
     def _yield_traits_from_properties(self):
         for trait_path in self.identification.properties:
@@ -101,6 +112,10 @@ class ObservationEntity(BaseModel):
                 return f"{self.instance.kind} ({', '.join(converted)})"
             return f"{self.instance.kind} (id={self.instance.id}, {', '.join(converted)})"
         return self.instance.label()
+
+    @staticmethod
+    def init(instance: Instance, **kwargs) -> 'ObservationEntity':
+        return ObservationEntity(instance=instance, **kwargs)
 
 
 class StatusEnum(str, Enum):
@@ -290,7 +305,22 @@ class ObservationMetaContext(BaseModel):
     location: Optional[ObservationLocation] = None
 
 
-class EntityRefs(RootModel[Dict[InstanceLink, ObservationEntity]]):
+class EntityRefs(RootModel[Union[Tuple, Dict[InstanceLink, ObservationEntity]]]):
+
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_input(cls, value):
+        # Case 1: already a dict → keep as-is
+        if isinstance(value, dict):
+            return value
+
+        # Case 2: a set (or any iterable) of entities
+        if isinstance(value, (set, tuple)):
+            return {entity.ref: entity for entity in value}
+
+        raise TypeError(
+            "EntityRefs must be initialized with a dict or a set of ObservationEntity"
+        )
 
     def get(self, link: InstanceLink) -> Optional[ObservationEntity]:
         return self.root.get(link, None)
@@ -311,7 +341,6 @@ class EntityRefs(RootModel[Dict[InstanceLink, ObservationEntity]]):
         return self.root.keys()
 
 
-
 class Observation(BaseModel):
     id: Optional[str] = Field(None, description="Observation id")
     name: Optional[str] = Field(None, description="Observation name")
@@ -326,11 +355,6 @@ class Observation(BaseModel):
     aux: Optional[dict] = None  # Put here all the additional dimensions
 
     def __init__(self, /, **data: Any):
-
-        if not isinstance(data.get('entities', {}), dict):
-            raise ValueError(
-                "Entities in observation must be a dictionary, with a key as reference and value as ObservationEntity object.")
-
         super().__init__(**data)
         if not self.id:
             self.id = f"anon-{str(uuid4())}"
@@ -427,3 +451,16 @@ class Observation(BaseModel):
 
     def get_entities(self) -> List[str]:
         return [f"{link} -> {str(entity)}" for link, entity in self.entities.items()]
+
+
+class Init:
+    def __init__(self, instance: str):
+        self.instance = Instance(instance)
+        self.identification = None
+
+    def traits(self, traits: dict) -> ObservationEntity:
+        return ObservationEntity(instance=self.instance, traits=traits, identification=self.identification)
+
+    def identified_by(self, properties: List[str]) -> 'Init':
+        self.identification = EntityIdentification.by(properties)
+        return self

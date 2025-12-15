@@ -1,36 +1,85 @@
-from airembr.sdk.chat_client import AiRembrChatClient
-from airembr.sdk.model.instance import Instance
-from airembr.sdk.model.observation import ObservationEntity
+from airembr.sdk.client import AirembrClient
+from airembr.sdk.model.entity import Entity
+from airembr.sdk.model.observation import Observation, ObservationEntity, EntityIdentification, ObservationRelation, \
+    Init
+from airembr.sdk.model.session import Session
 
-observer, person, agent = AiRembrChatClient.get_references()
-actor = ObservationEntity(
-            instance=Instance.type("person", "1"),
-            traits={"name": "Adam"}
-        )
-
-client = AiRembrChatClient(
-    api="http://localhost:14002",
-    source_id="701eeeb9-13f1-4263-9c59-98adeb3317c9",
-    entities={  # Entities that take part in the conversation.
-        observer: actor,
-        person: actor,
-        agent: ObservationEntity(
-            instance=Instance.type("agent"),
-            traits={"name": "ChatGPT", "model": "openai-5"}
-        )
-    },
-    observer=observer,  # Which entiti is an observer? Observer is the owner of the conversation.
-    chat_id="chat-1"
+client = AirembrClient(
+    api="http://localhost:4002",
 )
 
-client.chat("Hello there!", person)
-client.chat("Hi How are you!", agent)
+location = Init('location').identified_by(["address", "code", "city"]).traits(
+    {
+        "address": "123 Main Street",
+        "code": "SW1",
+        "city": "London",
+    }
+)
 
-status, response = client.remember(realtime='collect,store,destination')
+person = ObservationEntity(
+    instance="person",
+    identification=EntityIdentification.by(["email"]),
+    traits={
+        "name": "Mark",
+        "surname": "Doe",
+        "email": "joe.doe@gmail.com",
+        "age": 61,
+    },
+    state={
+        "location": location.ref
+    }
+)
 
-if status.ok():
-    print(response.get_chat_memory(client.chat_id).format())
-    # Print raw object
-    print(response.get_chat_memory(person))
-else:
-    print(status)
+product = ObservationEntity(
+    instance="product #1",
+    traits={
+        "name": "Adidas Sneakers",
+        "size": 42,
+    }
+)
+
+located = ObservationRelation(
+
+    observer=person.ref,
+    actor=person.ref,
+    objects=[location.ref],
+
+    type="event",
+    label="located",
+    traits={"by": "GPS"},
+    tags=["prefix:tag"]
+)
+
+obs1 = Observation(
+    id="observation-1",
+    name="New Observation",
+    source=Entity(id="8351737-a9ad-4c29-a01b-2f3180bec592"),
+    session=Session(id="session-1"),
+    entities=(location, person),
+    relation=[located],
+)
+
+obs2 = Observation(
+    id="observation-1",
+    name="New Observation",
+    source=Entity(id="8351737-a9ad-4c29-a01b-2f3180bec592"),
+    session=Session(id="session-1"),
+    entities=(product, person),
+    relation=[
+        ObservationRelation(
+            observer=person.ref,
+            actor=person.ref,
+            type="event",
+            label="purchased",
+            objects=[product.ref],
+            traits={
+                "quantity": 1
+            },
+            tags=["prefix:tag"]
+        )],
+)
+
+status, response = client.observe(observations=[obs1, obs2])
+# status, response = client.observe(observations=[obs2], realtime='collect,store,destination')
+print(status)
+print(response)
