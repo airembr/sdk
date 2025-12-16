@@ -3,6 +3,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Optional, List, Any, Dict, Generator, Set, Union, Tuple
 from uuid import uuid4
+from hashlib import md5
 
 from durable_dot_dict.dotdict import DotDict
 from pydantic import BaseModel, RootModel, model_validator, Field, PrivateAttr
@@ -145,22 +146,24 @@ class ObservationSemantic(BaseModel):
     description: Optional[str] = None
     context: Optional[str] = None
 
-    def render(self, actor_link, object_link, observation):
+    def render(self, actor_link, object_link, observation) -> tuple[str, str, str]:
+        summary, description, context = None, None, None
         if self.summary:
-            self.summary = render_description(self.summary,
+            summary = render_description(self.summary,
                                               actor_link,
                                               object_link,
                                               observation)
         if self.description:
-            self.description = render_description(self.description,
+            description = render_description(self.description,
                                                   actor_link,
                                                   object_link,
                                                   observation)
         if self.context:
-            self.context = render_description(self.context,
+            context = render_description(self.context,
                                               actor_link,
                                               object_link,
                                               observation)
+        return summary, description, context
 
     def is_empty(self):
         return self.summary is None and self.description is None and self.context is None
@@ -170,12 +173,12 @@ class ObservationRelation(BaseModel):
     id: Optional[str] = None
     ts: Optional[datetime] = None
     order: Optional[int] = None
-    observer: InstanceLink
-    actor: Optional[Union[List[InstanceLink], InstanceLink]] = None
+    observer: Union[InstanceLink, ObservationEntity]
+    actor: Optional[Union[List[InstanceLink], InstanceLink, List[ObservationEntity], ObservationEntity]] = None
     type: Optional[str] = 'fact'
     label: str
     semantic: Optional[ObservationSemantic] = None
-    objects: Optional[Union[List[InstanceLink], InstanceLink]] = None
+    objects: Optional[Union[List[InstanceLink], InstanceLink, List[ObservationEntity], ObservationEntity]] = None
     traits: Optional[dict] = None
     context: Optional[List[InstanceLink]] = []
     tags: Optional[list] = []
@@ -190,6 +193,24 @@ class ObservationRelation(BaseModel):
             data['id'] = str(uuid4())
         if data.get('ts', None) is None:
             data['ts'] = now_in_utc()
+
+        if isinstance(data.get('observer', None), ObservationEntity):
+            data['observer'] = data['observer'].ref
+
+        _actor = data.get('actor', None)
+        if _actor:
+            if isinstance(_actor, ObservationEntity):
+                data['actor'] = _actor.ref
+            elif isinstance(_actor, list) and isinstance(_actor[0], ObservationEntity):
+                data['actor'] = [item.ref for item in _actor]
+
+        _objects = data.get('objects', None)
+        if _objects:
+            if isinstance(_objects, list) and isinstance(_objects[0], ObservationEntity):
+                data['objects'] = [item.ref for item in _objects]
+            elif isinstance(_objects, ObservationEntity):
+                data['objects'] = _objects.ref
+
         super().__init__(**data)
 
         if self.objects:
@@ -453,14 +474,52 @@ class Observation(BaseModel):
         return [f"{link} -> {str(entity)}" for link, entity in self.entities.items()]
 
 
+class IdPath:
+
+    def __init__(self, property: str, hash: bool):
+        self.hash = hash
+        self.property = property
+
+
 class Init:
-    def __init__(self, instance: str):
+    def __init__(self, instance: str, id: Optional[str] = None, auto: bool = False):
+        if id is None and auto:
+            id = str(uuid4())
+
+        if id is not None:
+            instance = f"{instance}  #{id}"
+
         self.instance = Instance(instance)
         self.identification = None
+        self._id_path: Optional[IdPath] = None
 
-    def traits(self, traits: dict) -> ObservationEntity:
-        return ObservationEntity(instance=self.instance, traits=traits, identification=self.identification)
+    def traits(self, traits: Optional[dict] = None,
+               state: Optional[Dict[str, InstanceLink]] = None) -> ObservationEntity:
+        if traits is None:
+            traits = {}
+
+        if self._id_path:
+            instance_string = self.instance.kind
+            _id = traits.get(self._id_path.property, None)
+            if _id:
+                if self._id_path.hash:
+                    instance_string += f" #{md5(_id.encode()).hexdigest()}"
+                else:
+                    instance_string += f" #{_id.replace(' ', '-').lower()}"
+        else:
+            instance_string = str(self.instance)
+
+        return ObservationEntity(
+            instance=Instance(instance_string),
+            traits=traits,
+            identification=self.identification,
+            state=state
+        )
 
     def identified_by(self, properties: List[str]) -> 'Init':
         self.identification = EntityIdentification.by(properties)
+        return self
+
+    def id(self, property: str, hashed: bool = False) -> 'Init':
+        self._id_path = IdPath(property, hashed)
         return self

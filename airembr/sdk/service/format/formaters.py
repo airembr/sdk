@@ -65,6 +65,7 @@ def format_observation(observation: Observation) -> str:
             connector = "└── " if is_last_entity else "├── "
             label = entity.instance.label() if hasattr(entity.instance, "label") else entity.instance.id
             lines.append(f"│   {connector}{link}: {label}")
+            lines.append(f"│   │   ├── Instance ID: {entity.instance.id}")
             lines += _format_traits_tree(entity.traits, "│   │   ", is_last_entity)
             if entity.consents:
                 lines.append(f"│   │   └── Consent: {'allowed' if entity.consents.allow else 'denied'}")
@@ -102,7 +103,7 @@ def format_observation(observation: Observation) -> str:
         if actor_link:
             actor_entity = observation.entities.get(actor_link.link)
             if actor_entity:
-                lines.append(f"{rel_prefix}├── Actor: {actor_entity.instance.label()} {actor_link.link}")
+                lines.append(f"{rel_prefix}├── Actor: {actor_entity.instance.label()} {actor_link.link} (ID: {actor_entity.instance.id})")
                 lines += _format_traits_tree(actor_entity.traits, rel_prefix + "│   ", False)
 
         # Objects
@@ -113,7 +114,7 @@ def format_observation(observation: Observation) -> str:
                 if obj_entity:
                     obj_is_last = (o_idx == len(object_links) - 1)
                     connector = "└── " if obj_is_last else "├── "
-                    lines.append(f"{rel_prefix}{connector}Object: {obj_entity.instance.label()} {obj_link.link}")
+                    lines.append(f"{rel_prefix}{connector}Object: {obj_entity.instance.label()} {obj_link.link} (ID: {obj_entity.instance.id})")
                     lines += _format_traits_tree(
                         obj_entity.traits,
                         rel_prefix + "│   ",
