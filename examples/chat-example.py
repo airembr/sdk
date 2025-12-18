@@ -5,11 +5,11 @@ from airembr.sdk.model.observation import ObservationEntity
 observer, person, agent = AiRembrChatClient.get_references()
 actor = ObservationEntity(
             instance=Instance.type("person", "1"),
-            traits={"name": "Adam"}
+            traits={"name": "Mark"}
         )
 
 client = AiRembrChatClient(
-    api="http://localhost:14002",
+    api="http://localhost:4002",
     source_id="701eeeb9-13f1-4263-9c59-98adeb3317c9",
     entities={  # Entities that take part in the conversation.
         observer: actor,
