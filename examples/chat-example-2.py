@@ -1,16 +1,21 @@
 from airembr.sdk.chat_client import AiRembrChatClient
 from airembr.sdk.model.instance import Instance
-from airembr.sdk.model.observation import ObservationEntity
+from airembr.sdk.model.observation import ObservationEntity, Init
 
 observer, person, agent = AiRembrChatClient.get_references()
-actor = ObservationEntity(
-            instance=Instance.type("person", "1"),
-            traits={"name": "Mark"}
-        )
+
+# Identify person by email
+
+actor: ObservationEntity = Init("person", "2").identified_by(["email"]).traits(
+    {
+        "email": "joe.doe@gmail.com",
+        "interested": "sports"
+    }
+)
 
 client = AiRembrChatClient(
     api="http://localhost:4002",
-    source_id="701eeeb9-13f1-4263-9c59-98adeb3317c9",
+    source_id="cfbfccdb-e513-4632-9232-31b5af2ed94c",
     entities={  # Entities that take part in the conversation.
         observer: actor,
         person: actor,

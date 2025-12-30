@@ -9,6 +9,7 @@ from durable_dot_dict.dotdict import DotDict
 from pydantic import BaseModel, RootModel, model_validator, Field, PrivateAttr
 
 from airembr.sdk.model.entity import Entity
+from airembr.sdk.model.identification_id import IdentificationId
 from airembr.sdk.model.instance import Instance
 from airembr.sdk.model.instance_link import InstanceLink
 from airembr.sdk.model.session import Session
@@ -30,7 +31,7 @@ class ObservationConsents(ObservationCollectConsent):
 
 
 class EntityIdentification(BaseModel):
-    properties: List[str]
+    properties: List[str] # List of trait paths to use as base for identification
     strict: Optional[bool] = True  # Means: All properties must be present in traits to identify entity
     values_only: Optional[bool] = False  # Means: Hash only values of properties
 
@@ -41,6 +42,9 @@ class EntityIdentification(BaseModel):
     def as_all_properties(self) -> 'EntityIdentification':
         self.strict = False
         return self
+
+    def to_comma_separated_value(self) -> str:
+        return ",".join(self.properties)
 
 
 class ObservationEntity(BaseModel):
@@ -57,7 +61,10 @@ class ObservationEntity(BaseModel):
 
     consents: Optional[ObservationCollectConsent] = None
 
+    # Reference of this entity in observation
     _ref: InstanceLink = PrivateAttr(default_factory=InstanceLink)
+    # Identification ID
+    _iid: Optional[IdentificationId] = PrivateAttr(None)
 
     def __init__(self, **data):
         super().__init__(**data)
@@ -71,6 +78,13 @@ class ObservationEntity(BaseModel):
     def ref(self) -> InstanceLink:
         return self._ref
 
+    @property
+    def iid(self) -> Optional[IdentificationId]:
+        return self._iid
+
+    def has_iid(self) -> bool:
+        return self._iid is not None and self._iid.iid is not None
+
     def _yield_traits_from_properties(self):
         for trait_path in self.identification.properties:
             if trait_path in self.traits:
@@ -80,7 +94,7 @@ class ObservationEntity(BaseModel):
                 yield trait_path, self.traits[trait_path]
 
     def _resolve_id_from_properties(self):
-        if self.instance.is_abstract() and self.identification is not None:
+        if self.identification is not None:
 
             if not self.identification.properties:
                 return  # No properties defined, nothing to do here.
@@ -98,8 +112,14 @@ class ObservationEntity(BaseModel):
 
             hash_base = sorted(hash_base)
             hash_base = f"{self.instance.kind}:{hash_base}"
-            instance_id = hashlib.md5(hash_base.encode()).hexdigest()
-            self.instance = Instance.type(self.instance.kind, instance_id)
+
+            self._iid = IdentificationId(iid=hashlib.md5(hash_base.encode()).hexdigest(), type=self.identification.to_comma_separated_value())
+
+            if self.instance.is_abstract():
+                # If is abstract set instance id as identification ID
+                self.instance = Instance.type(self.instance.kind, self._iid)
+        else:
+            self._iid = IdentificationId()
 
     def is_consent_granted(self) -> bool:
         if self.consents is None:

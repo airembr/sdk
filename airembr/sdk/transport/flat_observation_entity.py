@@ -7,6 +7,8 @@ class ObservationEntity(DotDict):
     ENTITY = 'entity'
     ENTITY_PK = 'entity.pk'
     ENTITY_ID = 'entity.id'
+    ENTITY_IID = 'entity.iid'
+    ENTITY_IID_TYPE = 'entity.iid_type'
     ENTITY_TYPE = 'entity.type'
     ENTITY_ROLE = 'entity.role'
     ENTITY_TRAITS = 'entity.traits'

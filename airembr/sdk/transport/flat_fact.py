@@ -35,6 +35,8 @@ class FlatFact(DotDict):
 
     ACTOR_ID = 'actor.id'
     ACTOR_PK = 'actor.pk'  # actor.type + actor.id
+    ACTOR_IID = 'actor.iid' # actor identification ID
+    ACTOR_IID_TYPE = 'actor.iid_type'  # actor identification ID
     ACTOR_TYPE = 'actor.type'
     ACTOR_ROLE = 'actor.role'
     ACTOR_DATA_HASH = 'actor.data_hash'
@@ -46,6 +48,8 @@ class FlatFact(DotDict):
 
     OBJECT_ID = 'object.id'
     OBJECT_PK = 'object.pk'  # object.type + object.id
+    OBJECT_IID = 'object.iid' # object identification ID
+    OBJECT_IID_TYPE = 'object.iid_type'  # object identification ID
     OBJECT_TYPE = 'object.type'
     OBJECT_ROLE = 'object.role'
     OBJECT_DATA_HASH = 'object.data_hash'
