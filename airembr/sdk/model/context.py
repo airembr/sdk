@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from typing import Optional, Any, Union, Dict
 from uuid import uuid4
 
+from airembr.sdk.model.headers import Headers
 from airembr.sdk.model.user import User
 from airembr.sdk.model.version import version as system_version
 from airembr.sdk.common.singleton import Singleton
@@ -111,6 +112,12 @@ class Context:
             "body": "",
             "headers": {key.decode("utf-8"): value.decode("utf-8") for key, value in self.metadata["headers"]}
         }
+
+    def get_headers(self) -> Headers:
+        return Headers(self.get_metadata().get("headers", {}))
+
+    def get_path(self) -> str:
+        return self.get_metadata().get("path", "")
 
     def __str__(self):
         return f"Context(mode: {'production' if self.production else 'test'}, " \
