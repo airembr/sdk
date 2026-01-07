@@ -60,6 +60,7 @@ class FlatFact(DotDict):
     OBJECT_PART_OF_KIND = 'object.part_of.kind'
 
     REL_ID = 'rel.id'
+    REL_PK = "rel.pk" # global event id
     REL_LABEL = 'rel.label'  # eg. viewed
     REL_TYPE = 'rel.type'  # eg. event, intent
     REL_DATA_HASH = 'rel.data_hash'
