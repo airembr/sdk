@@ -79,7 +79,7 @@ services:
       - 6379:6379
 
   starrocks:
-    image: starrocks/allin1-ubuntu
+    image: starrocks/allin1-ubuntu:4.0-latest
     ports:
       - "9030:9030"
       - "8030:8030"
