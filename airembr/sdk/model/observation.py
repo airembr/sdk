@@ -193,7 +193,6 @@ class ObservationRelation(BaseModel):
     id: Optional[str] = None
     ts: Optional[datetime] = None
     order: Optional[int] = None
-    observer: Union[InstanceLink, ObservationEntity]
     actor: Optional[Union[List[InstanceLink], InstanceLink, List[ObservationEntity], ObservationEntity]] = None
     type: Optional[str] = 'fact'
     label: str
@@ -242,11 +241,6 @@ class ObservationRelation(BaseModel):
         if not self.actor:
             return None
         return self.actor
-
-    def get_observer(self) -> Optional[InstanceLink]:
-        if not self.observer:
-            return None
-        return self.observer
 
     def get_objects(self) -> Generator[InstanceLink, None, None]:
         if isinstance(self.objects, list):
@@ -384,6 +378,7 @@ class EntityRefs(RootModel[Union[Tuple, Dict[InstanceLink, ObservationEntity]]])
 
 class Observation(BaseModel):
     id: Optional[str] = Field(None, description="Observation id")
+    observer: InstanceLink = Field(..., description="Observation observer entity.")
     name: Optional[str] = Field(None, description="Observation name")
     aspects: Optional[List[str]] = Field(None, description="Available aspects of the observation.")
     source: Entity = Field(..., description="Observation source entity.")
@@ -426,6 +421,9 @@ class Observation(BaseModel):
         if self.consents is None:
             return True
         return self.consents.allow
+
+    def get_observer(self) -> Optional[ObservationEntity]:
+        return self.entities.get(self.observer)
 
     def get_consents(self) -> Optional[Set[str]]:
         if self.consents is None:
