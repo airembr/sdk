@@ -380,7 +380,6 @@ class Observation(BaseModel):
     id: Optional[str] = Field(None, description="Observation id")
     observer: InstanceLink = Field(..., description="Observation observer entity.")
     name: Optional[str] = Field(None, description="Observation name")
-    aspects: Optional[List[str]] = Field(None, description="Available aspects of the observation.")
     source: Entity = Field(..., description="Observation source entity.")
     session: Optional[Session] = Field(Session(), description="Observation session entity.")
     entities: Optional[EntityRefs] = EntityRefs({})

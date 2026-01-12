@@ -173,8 +173,6 @@ def merge_observations(observations: Iterable) -> List:
         all_relations = []
         all_aspects = []
         for obs in group_sorted:
-            if obs.aspects:
-                all_aspects.extend(obs.aspects)
             if getattr(obs, "relation", None):
                 for rel in obs.relation:
                     all_relations.append(rel)
@@ -239,7 +237,6 @@ def merge_observations(observations: Iterable) -> List:
         # except id which is the group id
         merged_obs = deepcopy(newest_obs)
         merged_obs.id = obs_id
-        merged_obs.aspects = list(set(all_aspects)) if all_aspects else None
         merged_obs.entities = type(newest_obs.entities)(merged_entities_map) if getattr(newest_obs, "entities",
                                                                                         None) is not None else merged_entities_map
         merged_obs.relation = all_relations_sorted

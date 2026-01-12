@@ -7,8 +7,6 @@ class FlatFact(DotDict):
     SESSION = 'session'
     SESSION_ID = 'session.id'
 
-    ASPECTS = 'aspects'
-
     SOURCE = 'source'
     SOURCE_ID = 'source.id'
 
