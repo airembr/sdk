@@ -404,6 +404,12 @@ class Observation(BaseModel):
     #     return self
 
     def _validate_links(self):
+        # Validate observer link
+        if not self.get_observer():
+            raise ValueError(
+                f"Observer link {self.observer} not found in entities, but referenced as observer.")
+
+        # Validate entities links
         links = self.entities.links()
         for relation in self.relation:
             objects = list(relation.get_objects())
