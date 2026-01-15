@@ -35,8 +35,9 @@ def stack_trace():
 
 class StackInfoLogger(logging.Logger):
     def error(self, msg, *args, **kwargs):
-        kwargs['stack_info'] = True
-        kwargs['exc_info'] = True
+        kwargs['stack_info'] = False
+        if 'exc_info' not in kwargs:
+            kwargs['exc_info'] = False
         if msg is None:
             msg = "None"
         super().error(msg, *args, **kwargs)
