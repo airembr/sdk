@@ -16,5 +16,4 @@ class FlatRelation(DotDict):
     OBSERVER_PK = 'observer.pk'
 
     # Iternal
-    _LIST_OF_PROPERTIES = 'sys_ent_property_properties'
     _OBSERVER_ID = 'sys_ent_property_observer_id'

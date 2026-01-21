@@ -338,6 +338,7 @@ class ObservationMetaContext(BaseModel):
     device: Optional[ObservationDevice] = None
     os: Optional[ObservationOs] = None
     location: Optional[ObservationLocation] = None
+    trace_id: Optional[str] = None
 
 
 class EntityRefs(RootModel[Union[Tuple, Dict[InstanceLink, ObservationEntity]]]):

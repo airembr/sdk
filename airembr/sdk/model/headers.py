@@ -14,6 +14,9 @@ class Headers(dict):
         self._skips = None
         self._no_queue = None
 
+    def get_trace_id(self) -> Optional[str]:
+        return self.get('x-trace-id', None)
+
     def get_ip(self) -> Optional[str]:
         try:
             forwarded_id = self['x-forwarded-for']
