@@ -17,7 +17,7 @@ setup(
         'durable-dot-dict>=0.0.22',
         'python-dateutil',
         'requests',
-        'airembr-pararun-os>=0.0.4',
+        'airembr-pararun-os>=0.0.5',
         'orjson',
         'pytz',
         'pytimeparse'
