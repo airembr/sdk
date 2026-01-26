@@ -50,7 +50,7 @@ AiRembr requires both the **service infrastructure** and the **SDK library**.
 
 ### Install AiRembr Service
 
-1. Clone the repository and get the `docker-compose.yml` file
+1. Get the `docker-compose.yml` file (`wget https://raw.githubusercontent.com/airembr/sdk/master/docker-compose.yaml`)
 2. Run the service:
 
 ```bash

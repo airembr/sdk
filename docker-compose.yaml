@@ -73,13 +73,12 @@ services:
       - starrocks
 
   redis:
-    image: redis:7.2       # Use the version you want
-    container_name: redis
+    image: redis
     ports:
       - 6379:6379
 
   starrocks:
-    image: starrocks/allin1-ubuntu:4.0-latest
+    image: starrocks/allin1-ubuntu:3.5-latest
     ports:
       - "9030:9030"
       - "8030:8030"
