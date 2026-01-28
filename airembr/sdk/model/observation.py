@@ -31,7 +31,7 @@ class ObservationConsents(ObservationCollectConsent):
 
 
 class EntityIdentification(BaseModel):
-    properties: List[str] # List of trait paths to use as base for identification
+    properties: List[str]  # List of trait paths to use as base for identification
     strict: Optional[bool] = True  # Means: All properties must be present in traits to identify entity
     values_only: Optional[bool] = False  # Means: Hash only values of properties
 
@@ -69,7 +69,23 @@ class ObservationEntity(BaseModel):
     def __init__(self, **data):
         super().__init__(**data)
         self._ref = InstanceLink.create()
-        self._resolve_id_from_properties()
+        # MUST BE LAST
+        self._iid = self._resolve_id_from_properties()
+
+        if self.instance.is_abstract():
+            # If is abstract set instance id as identification ID
+            if self.identification is not None:
+                # We care about identification but forgot to set Instance ID
+                if self._iid.is_empty():  # Empty when could not identify entity
+                    # Abstract (No ID delivered in Instance)
+                    # Not identified
+                    # We care about identification (identification is set)
+                    # Set random instance ID
+                    self.instance = Instance.type(self.instance.kind, str(uuid4()))
+
+                else:
+                    # Abstract (No ID delivered in Instance) but identified
+                    self.instance = Instance.type(self.instance.kind, self._iid.iid)
 
     def link(self, reference=None) -> InstanceLink:
         return reference if InstanceLink.create(reference) else self._ref
@@ -93,33 +109,30 @@ class ObservationEntity(BaseModel):
                     continue
                 yield trait_path, self.traits[trait_path]
 
-    def _resolve_id_from_properties(self):
-        if self.identification is not None:
+    def _resolve_id_from_properties(self) -> IdentificationId:
 
-            if not self.identification.properties:
-                return  # No properties defined, nothing to do here.
+        if self.identification is None:
+            return IdentificationId()
 
-            # Try to revolve id from properties
-            hash_base = list(self._yield_traits_from_properties())
+        if not self.identification.properties:
+            return IdentificationId()  # No properties defined, nothing to do here.
 
-            if len(hash_base) == 0:
-                # Not properties in traits to identify entity
-                return
+        # Try to revolve id from properties
+        hash_base = list(self._yield_traits_from_properties())
 
-            if self.identification.strict and len(hash_base) != len(self.identification.properties):
-                # Not all properties in traits to identify entity
-                return
+        if len(hash_base) == 0:
+            # Not properties in traits to identify entity
+            return IdentificationId()
 
-            hash_base = sorted(hash_base)
-            hash_base = f"{self.instance.kind}:{hash_base}"
+        if self.identification.strict and len(hash_base) != len(self.identification.properties):
+            # Not all properties in traits to identify entity
+            return IdentificationId()
 
-            self._iid = IdentificationId(iid=hashlib.md5(hash_base.encode()).hexdigest(), type=self.identification.to_comma_separated_value())
+        hash_base = sorted(hash_base)
+        hash_base = f"{self.instance.kind}:{hash_base}"
 
-            if self.instance.is_abstract():
-                # If is abstract set instance id as identification ID
-                self.instance = Instance.type(self.instance.kind, self._iid)
-        else:
-            self._iid = IdentificationId()
+        return IdentificationId(iid=hashlib.md5(hash_base.encode()).hexdigest(),
+                                type=self.identification.to_comma_separated_value())
 
     def is_consent_granted(self) -> bool:
         if self.consents is None:
@@ -170,19 +183,19 @@ class ObservationSemantic(BaseModel):
         summary, description, context = None, None, None
         if self.summary:
             summary = render_description(self.summary,
-                                              actor_link,
-                                              object_link,
-                                              observation)
+                                         actor_link,
+                                         object_link,
+                                         observation)
         if self.description:
             description = render_description(self.description,
-                                                  actor_link,
-                                                  object_link,
-                                                  observation)
+                                             actor_link,
+                                             object_link,
+                                             observation)
         if self.context:
             context = render_description(self.context,
-                                              actor_link,
-                                              object_link,
-                                              observation)
+                                         actor_link,
+                                         object_link,
+                                         observation)
         return summary, description, context
 
     def is_empty(self):
