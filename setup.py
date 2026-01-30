@@ -14,7 +14,7 @@ setup(
     install_requires=[
         'pydantic',
         'jinja2',
-        'durable-dot-dict>=0.0.22',
+        'durable-dot-dict>=0.0.23',
         'python-dateutil',
         'requests',
         'airembr-pararun-os>=0.0.7',
