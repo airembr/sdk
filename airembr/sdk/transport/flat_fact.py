@@ -37,6 +37,7 @@ class FlatFact(DotDict):
     ACTOR_IID_TYPE = 'actor.iid_type'  # actor identification ID
     ACTOR_TYPE = 'actor.type'
     ACTOR_ROLE = 'actor.role'
+    ACTOR_LABEL = 'actor.label'
     ACTOR_DATA_HASH = 'actor.data_hash'
     ACTOR_SCHEMA_HASH = 'actor.schema_hash'
     ACTOR_IS_A_ID = 'actor.is_a.id'
@@ -50,6 +51,7 @@ class FlatFact(DotDict):
     OBJECT_IID_TYPE = 'object.iid_type'  # object identification ID
     OBJECT_TYPE = 'object.type'
     OBJECT_ROLE = 'object.role'
+    OBJECT_LABEL = 'object.label'
     OBJECT_DATA_HASH = 'object.data_hash'
     OBJECT_SCHEMA_HASH = 'object.schema_hash'
     OBJECT_IS_A_ID = 'object.is_a.id'
@@ -58,6 +60,7 @@ class FlatFact(DotDict):
     OBJECT_PART_OF_KIND = 'object.part_of.kind'
 
     REL_ID = 'rel.id'
+    REL_TID = 'rel.tid' # This is triplet ID generated for actor_pk, rel.label and object_pk
     REL_PK = "rel.pk" # global event id
     REL_LABEL = 'rel.label'  # eg. viewed
     REL_TYPE = 'rel.type'  # eg. event, intent

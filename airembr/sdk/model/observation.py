@@ -52,6 +52,7 @@ class ObservationEntity(BaseModel):
     identification: Optional[EntityIdentification] = Field(None,
                                                            description="Way how the entity is identified. None is undefined.")
 
+    label: Optional[str] = None
     part_of: Optional[Instance] = None
     is_a: Optional[Instance] = None
     has_a: Optional[List[Instance]] = None
@@ -207,6 +208,7 @@ class ObservationRelation(BaseModel):
     ts: Optional[datetime] = None
     order: Optional[int] = None
     actor: Optional[Union[List[InstanceLink], InstanceLink, List[ObservationEntity], ObservationEntity]] = None
+    actor_label: Optional[str] = None
     type: Optional[str] = 'fact'
     label: str
     semantic: Optional[ObservationSemantic] = None

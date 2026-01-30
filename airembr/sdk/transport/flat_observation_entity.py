@@ -11,6 +11,7 @@ class ObservationEntity(DotDict):
     ENTITY_IID_TYPE = 'entity.iid_type'
     ENTITY_TYPE = 'entity.type'
     ENTITY_ROLE = 'entity.role'
+    ENTITY_LABEL = 'entity.label'
     ENTITY_TRAITS = 'entity.traits'
     ENTITY_TRAITS_STATE = 'entity.traits._state'
     ENTITY_STATE = 'entity.state'
