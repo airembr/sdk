@@ -9,6 +9,7 @@ pytz
 pytimeparse
 pydantic-ai==1.27.0
 user-agents==2.2.0
+sqlalchemy
 
 # Commercial must install commercial pararun - this is done in docker
 # git+https://github.com/airembr/pararun@master
