@@ -16,3 +16,9 @@ git+https://github.com/Tracardi/dotty_dict@master
 
 # Commercial must install commercial pararun - this is done in docker
 # git+https://github.com/airembr/pararun@master
+
+# Required by tql parser
+lark
+dateparser
+pytz
+pytimeparse
