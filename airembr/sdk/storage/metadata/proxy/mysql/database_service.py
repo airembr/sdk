@@ -2,7 +2,6 @@ import os
 
 from sqlalchemy import text, inspect
 
-import tracardi.config
 from airembr.sdk.storage.metadata.db_context import current_md_database_name
 from airembr.sdk.storage.metadata.db_base import Base
 
@@ -28,7 +27,6 @@ class DatabaseService:
         await engine.dispose()
 
     async def _create_database(self):
-        os.makedirs(os.path.dirname(tracardi.config.sqlite.sqlite_host), exist_ok=True)
         engine = self.client.get_engine()
         async with engine.connect() as conn:
             md_database = current_md_database_name()

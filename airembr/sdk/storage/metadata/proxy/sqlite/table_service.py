@@ -163,7 +163,7 @@ class TableService(metaclass=Singleton):
         async with local_session() as session:
             async with session.begin():
                 # Use a raw SQL query to check for table existence
-                query = text(f"SELECT name FROM sqlite_master WHERE type = 'table' AND name = :table_name")
+                query = text("SELECT name FROM sqlite_master WHERE type = 'table' AND name = :table_name")
                 result = await session.execute(query, {"table_name": table_name})
                 return result.scalar() is not None
 

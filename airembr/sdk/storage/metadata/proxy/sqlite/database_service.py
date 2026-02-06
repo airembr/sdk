@@ -4,6 +4,7 @@ from sqlalchemy import text, inspect
 
 from airembr.sdk.storage.metadata.db_context import current_md_database_name
 from airembr.sdk.storage.metadata.db_base import Base
+from airembr.sdk.storage.metadata.proxy.sqlite.database_config import sqlite_config
 
 _local_dir = os.path.dirname(__file__)
 
@@ -27,6 +28,7 @@ class DatabaseService:
         await engine.dispose()
 
     async def _create_database(self):
+        os.makedirs(os.path.dirname(sqlite_config.sqlite_host), exist_ok=True)
         engine = self.client.get_engine()
         async with engine.connect() as conn:
             md_database = current_md_database_name()
