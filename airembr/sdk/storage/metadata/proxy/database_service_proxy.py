@@ -1,10 +1,29 @@
 import os
+from typing import List, Iterator
 
 from airembr.sdk.storage.metadata.db_config import meta_data_adapter
 from airembr.sdk.storage.metadata.proxy.mysql.database_engine import AsyncMySqlEngine
 from airembr.sdk.storage.metadata.proxy.mysql.database_service import DatabaseService as MysqlDatabaseService
 from airembr.sdk.storage.metadata.proxy.sqlite.database_engine import AsyncSqliteEngine
 from airembr.sdk.storage.metadata.proxy.sqlite.database_service import DatabaseService as SqliteDatabaseService
+
+
+def read_sql_files(sqls: List[str], folder: str) -> Iterator[str]:
+    """
+    Yields the content of SQL files located in the given folder.
+
+    :param sqls: List of SQL filenames (e.g. ["query1.sql", "query2.sql"])
+    :param folder: Path to the folder containing the SQL files
+    :return: Generator yielding file contents as strings
+    """
+    for sql_file in sqls:
+        path = os.path.join(folder, sql_file)
+
+        if not os.path.isfile(path):
+            raise FileNotFoundError(f"SQL file not found: {path}")
+
+        with open(path, "r", encoding="utf-8") as f:
+            yield f.read()
 
 
 class DatabaseServiceProxy:
@@ -24,11 +43,12 @@ class DatabaseServiceProxy:
     async def create_database(self, *args, **kwargs):
         return await self.ds._create_database(*args, **kwargs)
 
-    def read_views(self, *args, **kwargs):
-        return self.ds._read_views(*args, **kwargs)
+    async def create_view(self, sql: str):
+        return await self.ds._create_view(sql)
 
-    async def create_views(self, *args, **kwargs):
-        return await self.ds._create_views(*args, **kwargs)
+    async def create_views(self, sqls: List[str], folder: str):
+        for sql in read_sql_files(sqls, folder):
+            await self.create_view(sql)
 
     async def exists(self, *args, **kwargs):
         return await self.ds.exists(*args, **kwargs)

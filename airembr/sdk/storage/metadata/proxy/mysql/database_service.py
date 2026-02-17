@@ -9,9 +9,6 @@ _local_dir = os.path.dirname(__file__)
 
 
 class DatabaseService:
-    sql = [
-        # None yet
-    ]
 
     def __init__(self, client):
         self.client = client
@@ -34,20 +31,13 @@ class DatabaseService:
             await conn.commit()
         await engine.dispose()
 
-    def _read_views(self):
-        for sql in self.sql:
-            file = os.path.join(_local_dir, f"../schema/view/{sql}.sql")
-            with open(file, "r") as fp:  # Save the JSON into schema.json or adjust the path
-                yield fp.read()
-
-    async def _create_views(self):
+    async def _create_view(self, sql: str):
         engine = self.client.get_engine()
         async with engine.connect() as conn:
             md_database = current_md_database_name()
-            for sql in self._read_views():
-                sql = sql.replace('{|database|}', md_database)
-                await conn.execute(text(sql))
-                await conn.commit()
+            sql = sql.replace('{|database|}', md_database)
+            await conn.execute(text(sql))
+            await conn.commit()
         await engine.dispose()
 
     async def exists(self, database_name: str) -> bool:
@@ -63,9 +53,6 @@ class DatabaseService:
 
         # Create a new async engine instance with the database selected
         await self._create_tables()
-
-        # Create views
-        await self._create_views()
 
     async def drop(self, database_name):
         engine = self.client.get_engine()
