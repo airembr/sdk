@@ -12,6 +12,8 @@ user-agents==2.2.0
 sqlalchemy
 msgpack
 redis
+aiohttp
+
 git+https://github.com/Tracardi/dotty_dict@master
 
 # Commercial must install commercial pararun - this is done in docker

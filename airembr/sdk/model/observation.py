@@ -392,6 +392,13 @@ class EntityRefs(RootModel[Union[Tuple, Dict[InstanceLink, ObservationEntity]]])
         return self.root.keys()
 
 
+class EntityIndex(BaseModel):
+    root: Dict[str, dict] = Field(default_factory=dict)
+
+    def get(self, link: InstanceLink) -> Optional[dict]:
+        return self.root.get(link, None)
+
+
 class Observation(BaseModel):
     id: Optional[str] = Field(None, description="Observation id")
     observer: InstanceLink = Field(..., description="Observation observer entity.")
@@ -404,6 +411,8 @@ class Observation(BaseModel):
     metadata: Optional[ObservationMetaContext] = None
     consents: Optional[ObservationConsents] = None
     aux: Optional[dict] = None  # Put here all the additional dimensions
+
+    _index_entities: Optional[EntityIndex] = PrivateAttr(None)
 
     def __init__(self, /, **data: Any):
         super().__init__(**data)
@@ -511,6 +520,30 @@ class Observation(BaseModel):
 
     def get_entities(self) -> List[str]:
         return [f"{link} -> {str(entity)}" for link, entity in self.entities.items()]
+
+    def get_indexed_entities(self) -> EntityIndex:
+        if self._index_entities is None:
+            _indexed_entities = {}
+            for link, entity in self.entities.root.items():  # type: ObservationEntity
+
+                instance = entity.instance
+                traits = entity.traits
+                state = entity.state
+
+                try:
+                    entity_id = instance.resolve_id(properties=traits, generate_id=True)
+                except ValueError as e:
+                    entity_id = str(uuid4())
+
+                _indexed_entities[link] = {
+                    "id": entity_id,
+                    "instance": instance,
+                    "traits": traits,
+                    "state": state
+                }
+
+            self._index_entities = EntityIndex(root=_indexed_entities)
+        return self._index_entities
 
 
 class IdPath:

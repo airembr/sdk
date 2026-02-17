@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name='airembr_sdk',
-    version='0.0.5',
+    version='0.0.6',
     description='Airembr SDK',
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -19,6 +19,16 @@ setup(
         'requests',
         'airembr-pararun-os>=0.0.7',
         'orjson',
+        'pytz',
+        'aiohttp',
+        'pytimeparse',
+        'pydantic-ai==1.27.0',
+        'user-agents==2.2.0',
+        'sqlalchemy',
+        'msgpack'
+        'redis',
+        'lark',
+        'dateparser',
         'pytz',
         'pytimeparse'
     ],

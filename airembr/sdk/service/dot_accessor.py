@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from durable_dot_dict.dotdict import DotDict
 
 dot_notation_regex = re.compile(
-    r"(?:payload|event|param|flow|memory)@([\[\]0-9a-zA-a_\-\.]+(?<![\.\[])|\.\.\.)")
+    r"(?:payload|state|param|flow|memory)@([\[\]0-9a-zA-a_\-\.]+(?<![\.\[])|\.\.\.)")
 
 
 class NotDotNotation:
@@ -42,14 +42,10 @@ class DotAccessor:
     def get_all(self, dot_notation):
         if dot_notation.startswith('flow@...'):
             return self.convert_to_dict(self.flow)
-        elif dot_notation.startswith('profile@...'):
-            return self.convert_to_dict(self.profile)
-        elif dot_notation.startswith('session@...'):
-            return self.convert_to_dict(self.session)
         elif dot_notation.startswith('payload@...'):
             return self.convert_to_dict(self.payload)
-        elif dot_notation.startswith('event@...'):
-            return self.convert_to_dict(self.event)
+        elif dot_notation.startswith('state@...'):
+            return self.convert_to_dict(self.state)
         elif dot_notation.startswith('memory@...'):
             return self.convert_to_dict(self.memory)
 
@@ -71,16 +67,16 @@ class DotAccessor:
 
         return NotDotNotation()
 
-    def __init__(self, payload=None, event=None, param=None, flow=None, memory=None):
+    def __init__(self, payload=None, state=None, param=None, flow=None, memory=None):
         self.flow = self._convert(flow, 'flow')
-        self.event = self._convert(event, 'event')
+        self.state = self._convert(state, 'state')
         self.param = self._convert(param, 'param')
         self.payload = self._convert(payload, 'payload')
         self.memory = self._convert(memory, 'memory')
 
         self.storage = {
             'param@': self.param,
-            'event@': self.event,
+            'state@': self.state,
             'payload@': self.payload,
             'flow@': self.flow,
             'memory@': self.memory,
@@ -94,8 +90,8 @@ class DotAccessor:
 
         elif name == 'param':
             self.param = data
-        elif name == 'event':
-            self.event = data
+        elif name == 'state':
+            self.state = data
         elif name == 'flow':
             self.flow = data
         elif name == 'payload':
@@ -105,8 +101,8 @@ class DotAccessor:
 
         self.storage[storage] = self._convert(data, name)
 
-        if name == 'event':
-            self.event = self.storage[storage]
+        if name == 'state':
+            self.state = self.storage[storage]
         elif name == 'param':
             self.param = self.storage[storage]
         elif name == 'flow':
@@ -124,8 +120,8 @@ class DotAccessor:
             return 'payload'
         elif key.startswith('param@'):
             return 'param'
-        elif key.startswith('event@'):
-            return 'event'
+        elif key.startswith('state@'):
+            return 'state'
         elif key.startswith('memory@'):
             return 'memory'
 
@@ -137,9 +133,9 @@ class DotAccessor:
         elif key.startswith('payload@'):
             key = key[len('payload@'):]
             del self.payload[key]
-        elif key.startswith('event@'):
-            key = key[len('event@'):]
-            del self.event[key]
+        elif key.startswith('state@'):
+            key = key[len('state@'):]
+            del self.state[key]
         elif key.startswith('param@'):
             key = key[len('param@'):]
             del self.param[key]
@@ -155,7 +151,7 @@ class DotAccessor:
             raise ValueError(
                 f"Invalid data reference. Dot notation `{key}` could not access data. The reason for this may be that "
                 f"there is no data in {_source} at `{_value}`. " +
-                "Please start dotted path with one of the accessors: [profile@, session@, payload@, event@] ")
+                "Please start dotted path with one of the accessors: [payload@, state@, param@, memory@] ")
 
     def __setitem__(self, key, value):
         if key.startswith('flow@'):
@@ -166,16 +162,16 @@ class DotAccessor:
         elif key.startswith('param@'):
             key = key[len('param@'):]
             self.param[key] = self.__getitem__(value) if not isinstance(value, dict) else value
-        elif key.startswith('event@'):
-            key = key[len('event@'):]
-            self.event[key] = self.__getitem__(value) if not isinstance(value, dict) else value
+        elif key.startswith('state@'):
+            key = key[len('state@'):]
+            self.state[key] = self.__getitem__(value) if not isinstance(value, dict) else value
         elif key.startswith('memory@'):
             key = key[len('memory@'):]
             self.memory[key] = self.__getitem__(value) if not isinstance(value, dict) else value
         else:
             raise ValueError(
                 "Invalid dot notation. Source not available. " +
-                "Please start dotted path with one of the sources: [profile@, session@, payload@, event@] ")
+                "Please start dotted path with one of the sources: [payload@, state@, param@, memory@] ")
 
     def __getitem__(self, dot_notation):
         cast = False
