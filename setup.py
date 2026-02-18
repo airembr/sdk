@@ -30,7 +30,8 @@ setup(
         'lark',
         'dateparser',
         'pytz',
-        'pytimeparse'
+        'pytimeparse',
+        'instructor'
     ],
     classifiers=[
         "Programming Language :: Python :: 3",

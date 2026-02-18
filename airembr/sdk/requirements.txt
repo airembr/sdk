@@ -24,3 +24,6 @@ lark
 dateparser
 pytz
 pytimeparse
+
+# Required by AI
+instructor
