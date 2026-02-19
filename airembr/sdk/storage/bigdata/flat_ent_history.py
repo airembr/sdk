@@ -15,6 +15,7 @@ class FlatEntityHistory(DotDict):
     SCHEMA_HASH = 'schema_hash'
     FIELD_HASH = 'field_hash'
     ENTITY_TRAITS = "entity.traits"
+    ENTITY_TRAITS_TEXT = 'entity.traits_text'
     OBS_ID = "observation.id"
     OBSERVER_PK = "observer.pk"
     CONTEXT = "context"

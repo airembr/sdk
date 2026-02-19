@@ -32,6 +32,9 @@ def _clean_value(value):
             value = value[:100] + "..."
     return str(value)
 
+def _stringify_dict(data: dict):
+    flat_dict = DotDict(data).flat()
+    return " ".join([f"{key}: {value}" for key, value in flat_dict.items()]).strip()
 
 def _format_traits_tree(traits: dict, prefix: str, is_last: bool) -> list[str]:
     """Format traits as a subtree."""
