@@ -14,6 +14,7 @@ from airembr.sdk.model.instance import Instance
 from airembr.sdk.model.instance_link import InstanceLink
 from airembr.sdk.model.session import Session
 from airembr.sdk.service.sementic import render_description
+from airembr.sdk.service.text.cleanup import _clean_value
 from airembr.sdk.service.time.time import now_in_utc
 from airembr.sdk.model.named_entity import NamedEntity
 
@@ -275,6 +276,19 @@ class ObservationRelation(BaseModel):
             converted = [f'{key}: {value}' for key, value in DotDict(self.traits).flat().items()]
             return f"{self.label}:{self.type} ({', '.join(converted)})"
         return self.label
+    
+    def semantic_summary(self) -> list[str]:
+        lines =[]
+        if self.semantic:
+            lines.append(f"Time: {self.ts}")
+            if self.semantic.summary:
+                lines.append(f"Summary: {_clean_value(self.semantic.summary)}")
+            if self.semantic.description:
+                lines.append(f"Description: {_clean_value(self.semantic.description)}")
+            if self.semantic.context:
+                lines.append(f"Context: {_clean_value(self.semantic.context)}")
+            return lines
+        return []
 
 
 class ObservationCountry(BaseModel):

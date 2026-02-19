@@ -4,6 +4,8 @@ from typing import Union
 from airembr.sdk.model.observation import Observation
 from durable_dot_dict.dotdict import DotDict
 
+from airembr.sdk.service.text.cleanup import _clean_value
+
 
 def terminal_supports_colors() -> bool:
     """Return True if stdout is a terminal that supports ANSI escapes."""
@@ -22,15 +24,6 @@ def _format_header(text: str) -> str:
     border = "─" * (len(text) + 4)
     return f"┌{border}┐\n│  {text}  │\n└{border}┘"
 
-
-def _clean_value(value):
-    """Remove newlines and truncate long values safely for tree output."""
-    if isinstance(value, str):
-        # Replace any line breaks or tabs with a single space
-        value = " ".join(value.split())
-        if len(value) > 100:
-            value = value[:100] + "..."
-    return str(value)
 
 def _stringify_dict(data: dict):
     flat_dict = DotDict(data).flat()
