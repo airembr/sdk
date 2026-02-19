@@ -1,6 +1,5 @@
-from typing import Type, Optional
-
 import instructor
+from typing import Type, Optional
 from pydantic import BaseModel
 from airembr.sdk.service.remote.llm.driver.base import BaseProvider
 

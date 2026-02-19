@@ -43,7 +43,11 @@ class LLMAdapter:
         match self._config.provider:
             case "open-ai":
                 return OpenAIProvider(self._config, self._logger)
+            case "openai":
+                return OpenAIProvider(self._config, self._logger)
             case "open-router":
+                return OpenRouterProvider(self._config, self._logger)
+            case "openrouter":
                 return OpenRouterProvider(self._config, self._logger)
             case "anthropic":
                 return AnthropicProvider(self._config, self._logger)
@@ -72,3 +76,16 @@ class LLMAdapter:
             temperature=temperature,
             structured_output=structured_output,
         )
+
+    async def complete(self,
+                       system_prompt: str,
+                       user_prompt: str,
+                       temperature: float = 0.7,
+                       ) -> tuple[str, dict]:
+        result =  await self._provider.infer(
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            temperature=temperature,
+        )
+
+        return result.choices[0].message.content, result.usage
