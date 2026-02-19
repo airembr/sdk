@@ -24,7 +24,7 @@ class LLMAdapter:
             model: str,
             timeout: float = 30.0,
             max_retries: int = 3,
-            max_tokens: int = 1024,
+            max_tokens: int = 10240,
             logger: Optional[logging.Logger] = None,
     ) -> None:
         self._config = LLMConfig(
