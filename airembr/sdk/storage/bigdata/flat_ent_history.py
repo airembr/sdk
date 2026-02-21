@@ -8,6 +8,7 @@ class FlatEntityHistory(DotDict):
     ENTITY_ID = 'entity.id'
     ENTITY_IID = 'entity.iid'
     ENTITY_IID_TYPE = 'entity.iid_type'
+    ENTITY_CLASSIFICATION = 'entity.classification'
     ENTITY_TYPE = 'entity.type'
     ENTITY_LABEL = 'entity.label'
 
