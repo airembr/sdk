@@ -41,7 +41,6 @@ class AiRembrChatClient:
             "ts": now_in_utc() if date is None else date,
             "type": "chat",
             "label": fact_label,
-            "observer": self.observer if observer is None else observer,
             "actor": actor,
             "objects": objects,
             "semantic": {
@@ -82,6 +81,7 @@ class AiRembrChatClient:
                     "ttl": self.chat_ttl
                 },
             },
+            "observer": self.observer,
             "entities": self.entities,
             "relation": self.chats
         })

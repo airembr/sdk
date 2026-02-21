@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from typing import Optional, Any, Union, Dict
 from uuid import uuid4
 
+from airembr.sdk.model.headers import Headers
 from airembr.sdk.model.user import User
 from airembr.sdk.model.version import version as system_version
 from airembr.sdk.common.singleton import Singleton
@@ -26,6 +27,7 @@ class Context:
     event_type: Optional[str] = None
     metadata: Optional[dict] = None
     request_id: Optional[str] = None
+    trace_id: Optional[str] = None
 
     def __init__(self,
                  production: bool = None,
@@ -33,11 +35,16 @@ class Context:
                  tenant: str = None,
                  host: Optional[str] = None,
                  version: Optional[str] = None,
-                 metadata: Optional[dict] = None
+                 metadata: Optional[dict] = None,
+                 trace_id: Optional[str] = None
                  ):
 
         self.version = version if version else system_version.version
 
+        if self.trace_id is None:
+            self.trace_id = f"nan-{str(uuid4())}"
+
+        self.trace_id = trace_id
         # This is every important: if not multi tenant replace tenant version by version name.
         if not system_version.multi_tenant:
             self.tenant = system_version.name
@@ -111,6 +118,12 @@ class Context:
             "body": "",
             "headers": {key.decode("utf-8"): value.decode("utf-8") for key, value in self.metadata["headers"]}
         }
+
+    def get_headers(self) -> Headers:
+        return Headers(self.get_metadata().get("headers", {}))
+
+    def get_path(self) -> str:
+        return self.get_metadata().get("path", "")
 
     def __str__(self):
         return f"Context(mode: {'production' if self.production else 'test'}, " \
@@ -204,9 +217,18 @@ class ServerContext:
         self.cm = ContextManager()
         self.context = context
 
+    def _get_trace_id(self, default=None):
+        trace_id = self.context.get_headers().get('x-trace-id', None)
+        if not trace_id:
+            trace_id = default
+        return trace_id
+
     def __enter__(self):
         if self.context is not None:
-            self.ctx_handler = ctx_id.set(str(uuid4()))
+            _context_id = str(uuid4())
+            trace_id = self._get_trace_id(default=_context_id)
+            self.ctx_handler = ctx_id.set(_context_id)
+            self.context.trace_id = trace_id
             self.cm.set("request-context", self.context)
         return self
 

@@ -1,4 +1,7 @@
 import re
+import uuid
+from typing import Optional
+
 from pydantic import ValidationInfo
 from pydantic_core import core_schema
 from pydantic import GetCoreSchemaHandler, GetJsonSchemaHandler
@@ -97,7 +100,9 @@ class InstanceLink(str):
         return json_schema
 
     @staticmethod
-    def create(link: str) -> 'InstanceLink':
+    def create(link: Optional[str] = None) -> 'InstanceLink':
+        if link is None:
+            link = str(uuid.uuid4())
         return InstanceLink(f"<{link.strip('<>')}>")
 
     def acts_as(self, role: str) -> 'InstanceLink':

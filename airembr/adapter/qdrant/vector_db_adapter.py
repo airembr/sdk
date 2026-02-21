@@ -3,8 +3,7 @@ import hashlib
 from typing import List, Tuple
 
 from qdrant_client import QdrantClient
-from qdrant_client.http.models import MatchAny
-from qdrant_client.models import Distance, VectorParams, SparseVectorParams, Modifier, Filter
+from qdrant_client.models import Distance, VectorParams, Filter
 from qdrant_client import models
 
 from qdrant_client.models import PointStruct

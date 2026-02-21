@@ -1,17 +1,20 @@
 import hashlib
 from datetime import datetime
 from enum import Enum
-from typing import Optional, List, Any, Dict, Generator, Set, Union
+from typing import Optional, List, Any, Dict, Generator, Set, Union, Tuple
 from uuid import uuid4
+from hashlib import md5
 
 from durable_dot_dict.dotdict import DotDict
-from pydantic import BaseModel, RootModel, model_validator, Field
+from pydantic import BaseModel, RootModel, model_validator, Field, PrivateAttr
 
 from airembr.sdk.model.entity import Entity
+from airembr.sdk.model.identification_id import IdentificationId
 from airembr.sdk.model.instance import Instance
 from airembr.sdk.model.instance_link import InstanceLink
 from airembr.sdk.model.session import Session
 from airembr.sdk.service.sementic import render_description
+from airembr.sdk.service.text.cleanup import _clean_value
 from airembr.sdk.service.time.time import now_in_utc
 from airembr.sdk.model.named_entity import NamedEntity
 
@@ -29,9 +32,9 @@ class ObservationConsents(ObservationCollectConsent):
 
 
 class EntityIdentification(BaseModel):
-    properties: List[str]
+    properties: List[str]  # List of trait paths to use as base for identification
     strict: Optional[bool] = True  # Means: All properties must be present in traits to identify entity
-    values_only: Optional[bool] = False # Means: Hash only values of properties
+    values_only: Optional[bool] = False  # Means: Hash only values of properties
 
     @staticmethod
     def by(properties: List[str]) -> 'EntityIdentification':
@@ -41,11 +44,16 @@ class EntityIdentification(BaseModel):
         self.strict = False
         return self
 
+    def to_comma_separated_value(self) -> str:
+        return ",".join(self.properties)
+
 
 class ObservationEntity(BaseModel):
     instance: Instance = Field(..., description="Entity instance.")
-    identification: Optional[EntityIdentification] = Field(None, description="Way how the entity is identified. None is undefined.")
+    identification: Optional[EntityIdentification] = Field(None,
+                                                           description="Way how the entity is identified. None is undefined.")
 
+    label: Optional[str] = None
     part_of: Optional[Instance] = None
     is_a: Optional[Instance] = None
     has_a: Optional[List[Instance]] = None
@@ -55,9 +63,45 @@ class ObservationEntity(BaseModel):
 
     consents: Optional[ObservationCollectConsent] = None
 
+    # Reference of this entity in observation
+    _ref: InstanceLink = PrivateAttr(default_factory=InstanceLink)
+    # Identification ID
+    _iid: Optional[IdentificationId] = PrivateAttr(None)
+
     def __init__(self, **data):
         super().__init__(**data)
-        self._resolve_id_from_properties()
+        self._ref = InstanceLink.create()
+        # MUST BE LAST
+        self._iid = self._resolve_id_from_properties()
+
+        if self.instance.is_abstract():
+            # If is abstract set instance id as identification ID
+            if self.identification is not None:
+                # We care about identification but forgot to set Instance ID
+                if self._iid.is_empty():  # Empty when could not identify entity
+                    # Abstract (No ID delivered in Instance)
+                    # Not identified
+                    # We care about identification (identification is set)
+                    # Set random instance ID
+                    self.instance = Instance.type(self.instance.kind, str(uuid4()))
+
+                else:
+                    # Abstract (No ID delivered in Instance) but identified
+                    self.instance = Instance.type(self.instance.kind, self._iid.iid)
+
+    def link(self, reference=None) -> InstanceLink:
+        return reference if InstanceLink.create(reference) else self._ref
+
+    @property
+    def ref(self) -> InstanceLink:
+        return self._ref
+
+    @property
+    def iid(self) -> Optional[IdentificationId]:
+        return self._iid
+
+    def has_iid(self) -> bool:
+        return self._iid is not None and self._iid.iid is not None
 
     def _yield_traits_from_properties(self):
         for trait_path in self.identification.properties:
@@ -67,27 +111,30 @@ class ObservationEntity(BaseModel):
                     continue
                 yield trait_path, self.traits[trait_path]
 
-    def _resolve_id_from_properties(self):
-        if self.instance.is_abstract() and self.identification is not None:
+    def _resolve_id_from_properties(self) -> IdentificationId:
 
-            if not self.identification.properties:
-                return  # No properties defined, nothing to do here.
+        if self.identification is None:
+            return IdentificationId()
 
-            # Try to revolve id from properties
-            hash_base = list(self._yield_traits_from_properties())
+        if not self.identification.properties:
+            return IdentificationId()  # No properties defined, nothing to do here.
 
-            if len(hash_base) == 0:
-                # Not properties in traits to identify entity
-                return
+        # Try to revolve id from properties
+        hash_base = list(self._yield_traits_from_properties())
 
-            if self.identification.strict and len(hash_base) != len(self.identification.properties):
-                # Not all properties in traits to identify entity
-                return
+        if len(hash_base) == 0:
+            # Not properties in traits to identify entity
+            return IdentificationId()
 
-            hash_base = sorted(hash_base)
-            hash_base = f"{self.instance.kind}:{hash_base}"
-            instance_id = hashlib.md5(hash_base.encode()).hexdigest()
-            self.instance = Instance.type(self.instance.kind, instance_id)
+        if self.identification.strict and len(hash_base) != len(self.identification.properties):
+            # Not all properties in traits to identify entity
+            return IdentificationId()
+
+        hash_base = sorted(hash_base)
+        hash_base = f"{self.instance.kind}:{hash_base}"
+
+        return IdentificationId(iid=hashlib.md5(hash_base.encode()).hexdigest(),
+                                type=self.identification.to_comma_separated_value())
 
     def is_consent_granted(self) -> bool:
         if self.consents is None:
@@ -101,6 +148,10 @@ class ObservationEntity(BaseModel):
                 return f"{self.instance.kind} ({', '.join(converted)})"
             return f"{self.instance.kind} (id={self.instance.id}, {', '.join(converted)})"
         return self.instance.label()
+
+    @staticmethod
+    def init(instance: Instance, **kwargs) -> 'ObservationEntity':
+        return ObservationEntity(instance=instance, **kwargs)
 
 
 class StatusEnum(str, Enum):
@@ -130,22 +181,24 @@ class ObservationSemantic(BaseModel):
     description: Optional[str] = None
     context: Optional[str] = None
 
-    def render(self, actor_link, object_link, observation):
+    def render(self, actor_link, object_link, observation) -> tuple[str, str, str]:
+        summary, description, context = None, None, None
         if self.summary:
-            self.summary = render_description(self.summary,
-                                              actor_link,
-                                              object_link,
-                                              observation)
+            summary = render_description(self.summary,
+                                         actor_link,
+                                         object_link,
+                                         observation)
         if self.description:
-            self.description = render_description(self.description,
-                                                  actor_link,
-                                                  object_link,
-                                                  observation)
+            description = render_description(self.description,
+                                             actor_link,
+                                             object_link,
+                                             observation)
         if self.context:
-            self.context = render_description(self.context,
-                                              actor_link,
-                                              object_link,
-                                              observation)
+            context = render_description(self.context,
+                                         actor_link,
+                                         object_link,
+                                         observation)
+        return summary, description, context
 
     def is_empty(self):
         return self.summary is None and self.description is None and self.context is None
@@ -155,12 +208,12 @@ class ObservationRelation(BaseModel):
     id: Optional[str] = None
     ts: Optional[datetime] = None
     order: Optional[int] = None
-    observer: InstanceLink
-    actor: Optional[Union[List[InstanceLink], InstanceLink]] = None
+    actor: Optional[Union[List[InstanceLink], InstanceLink, List[ObservationEntity], ObservationEntity]] = None
+    actor_label: Optional[str] = None
     type: Optional[str] = 'fact'
     label: str
     semantic: Optional[ObservationSemantic] = None
-    objects: Optional[Union[List[InstanceLink], InstanceLink]] = None
+    objects: Optional[Union[List[InstanceLink], InstanceLink, List[ObservationEntity], ObservationEntity]] = None
     traits: Optional[dict] = None
     context: Optional[List[InstanceLink]] = []
     tags: Optional[list] = []
@@ -175,6 +228,24 @@ class ObservationRelation(BaseModel):
             data['id'] = str(uuid4())
         if data.get('ts', None) is None:
             data['ts'] = now_in_utc()
+
+        if isinstance(data.get('observer', None), ObservationEntity):
+            data['observer'] = data['observer'].ref
+
+        _actor = data.get('actor', None)
+        if _actor:
+            if isinstance(_actor, ObservationEntity):
+                data['actor'] = _actor.ref
+            elif isinstance(_actor, list) and isinstance(_actor[0], ObservationEntity):
+                data['actor'] = [item.ref for item in _actor]
+
+        _objects = data.get('objects', None)
+        if _objects:
+            if isinstance(_objects, list) and isinstance(_objects[0], ObservationEntity):
+                data['objects'] = [item.ref for item in _objects]
+            elif isinstance(_objects, ObservationEntity):
+                data['objects'] = _objects.ref
+
         super().__init__(**data)
 
         if self.objects:
@@ -186,11 +257,6 @@ class ObservationRelation(BaseModel):
         if not self.actor:
             return None
         return self.actor
-
-    def get_observer(self) -> Optional[InstanceLink]:
-        if not self.observer:
-            return None
-        return self.observer
 
     def get_objects(self) -> Generator[InstanceLink, None, None]:
         if isinstance(self.objects, list):
@@ -210,6 +276,19 @@ class ObservationRelation(BaseModel):
             converted = [f'{key}: {value}' for key, value in DotDict(self.traits).flat().items()]
             return f"{self.label}:{self.type} ({', '.join(converted)})"
         return self.label
+    
+    def semantic_summary(self) -> list[str]:
+        lines =[]
+        if self.semantic:
+            lines.append(f"Time: {self.ts}")
+            if self.semantic.summary:
+                lines.append(f"Summary: {_clean_value(self.semantic.summary)}")
+            if self.semantic.description:
+                lines.append(f"Description: {_clean_value(self.semantic.description)}")
+            if self.semantic.context:
+                lines.append(f"Context: {_clean_value(self.semantic.context)}")
+            return lines
+        return []
 
 
 class ObservationCountry(BaseModel):
@@ -288,9 +367,25 @@ class ObservationMetaContext(BaseModel):
     device: Optional[ObservationDevice] = None
     os: Optional[ObservationOs] = None
     location: Optional[ObservationLocation] = None
+    trace_id: Optional[str] = None
 
 
-class EntityRefs(RootModel[Dict[InstanceLink, ObservationEntity]]):
+class EntityRefs(RootModel[Union[Tuple, Dict[InstanceLink, ObservationEntity]]]):
+
+    @model_validator(mode="before")
+    @classmethod
+    def normalize_input(cls, value):
+        # Case 1: already a dict → keep as-is
+        if isinstance(value, dict):
+            return value
+
+        # Case 2: a set (or any iterable) of entities
+        if isinstance(value, (set, tuple)):
+            return {entity.ref: entity for entity in value}
+
+        raise TypeError(
+            "EntityRefs must be initialized with a dict or a set of ObservationEntity"
+        )
 
     def get(self, link: InstanceLink) -> Optional[ObservationEntity]:
         return self.root.get(link, None)
@@ -311,11 +406,17 @@ class EntityRefs(RootModel[Dict[InstanceLink, ObservationEntity]]):
         return self.root.keys()
 
 
+class EntityIndex(BaseModel):
+    root: Dict[str, dict] = Field(default_factory=dict)
+
+    def get(self, link: InstanceLink) -> Optional[dict]:
+        return self.root.get(link, None)
+
 
 class Observation(BaseModel):
     id: Optional[str] = Field(None, description="Observation id")
+    observer: InstanceLink = Field(..., description="Observation observer entity.")
     name: Optional[str] = Field(None, description="Observation name")
-    aspects: Optional[List[str]] = Field(None, description="Available aspects of the observation.")
     source: Entity = Field(..., description="Observation source entity.")
     session: Optional[Session] = Field(Session(), description="Observation session entity.")
     entities: Optional[EntityRefs] = EntityRefs({})
@@ -325,12 +426,9 @@ class Observation(BaseModel):
     consents: Optional[ObservationConsents] = None
     aux: Optional[dict] = None  # Put here all the additional dimensions
 
+    _index_entities: Optional[EntityIndex] = PrivateAttr(None)
+
     def __init__(self, /, **data: Any):
-
-        if not isinstance(data.get('entities', {}), dict):
-            raise ValueError(
-                "Entities in observation must be a dictionary, with a key as reference and value as ObservationEntity object.")
-
         super().__init__(**data)
         if not self.id:
             self.id = f"anon-{str(uuid4())}"
@@ -345,6 +443,12 @@ class Observation(BaseModel):
     #     return self
 
     def _validate_links(self):
+        # Validate observer link
+        if not self.get_observer():
+            raise ValueError(
+                f"Observer link {self.observer} not found in entities, but referenced as observer.")
+
+        # Validate entities links
         links = self.entities.links()
         for relation in self.relation:
             objects = list(relation.get_objects())
@@ -361,6 +465,9 @@ class Observation(BaseModel):
         if self.consents is None:
             return True
         return self.consents.allow
+
+    def get_observer(self) -> Optional[ObservationEntity]:
+        return self.entities.get(self.observer)
 
     def get_consents(self) -> Optional[Set[str]]:
         if self.consents is None:
@@ -427,3 +534,78 @@ class Observation(BaseModel):
 
     def get_entities(self) -> List[str]:
         return [f"{link} -> {str(entity)}" for link, entity in self.entities.items()]
+
+    def get_indexed_entities(self) -> EntityIndex:
+        if self._index_entities is None:
+            _indexed_entities = {}
+            for link, entity in self.entities.root.items():  # type: ObservationEntity
+
+                instance = entity.instance
+                traits = entity.traits
+                state = entity.state
+
+                try:
+                    entity_id = instance.resolve_id(properties=traits, generate_id=True)
+                except ValueError as e:
+                    entity_id = str(uuid4())
+
+                _indexed_entities[link] = {
+                    "id": entity_id,
+                    "instance": instance,
+                    "traits": traits,
+                    "state": state
+                }
+
+            self._index_entities = EntityIndex(root=_indexed_entities)
+        return self._index_entities
+
+
+class IdPath:
+
+    def __init__(self, property: str, hash: bool):
+        self.hash = hash
+        self.property = property
+
+
+class Init:
+    def __init__(self, instance: str, id: Optional[str] = None, auto: bool = False):
+        if id is None and auto:
+            id = str(uuid4())
+
+        if id is not None:
+            instance = f"{instance}  #{id}"
+
+        self.instance = Instance(instance)
+        self.identification = None
+        self._id_path: Optional[IdPath] = None
+
+    def traits(self, traits: Optional[dict] = None,
+               state: Optional[Dict[str, InstanceLink]] = None) -> ObservationEntity:
+        if traits is None:
+            traits = {}
+
+        if self._id_path:
+            instance_string = self.instance.kind
+            _id = traits.get(self._id_path.property, None)
+            if _id:
+                if self._id_path.hash:
+                    instance_string += f" #{md5(_id.encode()).hexdigest()}"
+                else:
+                    instance_string += f" #{_id.replace(' ', '-').lower()}"
+        else:
+            instance_string = str(self.instance)
+
+        return ObservationEntity(
+            instance=Instance(instance_string),
+            traits=traits,
+            identification=self.identification,
+            state=state
+        )
+
+    def identified_by(self, properties: List[str]) -> 'Init':
+        self.identification = EntityIdentification.by(properties)
+        return self
+
+    def id(self, property: str, hashed: bool = False) -> 'Init':
+        self._id_path = IdPath(property, hashed)
+        return self

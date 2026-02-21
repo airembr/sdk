@@ -49,7 +49,7 @@ def convert_record_to_observation(flat: DotDict) -> Observation:
 
         actor_flag = (prefix == 'actor')
 
-        id_ = flat.get_or_none(f'{prefix}.id')
+        id_ = flat.get_or_none(f'{prefix}.id') or flat.get_or_none(f'{prefix}.pk')
         kind = flat.get_or_none(f'{prefix}.type')
         role = flat.get_or_none(f'{prefix}.role')
         instance = make_instance(kind, role, id_, actor=actor_flag)
@@ -77,8 +77,11 @@ def convert_record_to_observation(flat: DotDict) -> Observation:
         entities[InstanceLink.create(_create_link(id_, 'ref'))] = entity
 
     actor_id = flat.get_or_none('actor.id')
+    actor_pk = flat.get_or_none('actor.pk')
     if actor_id is not None:
         actor_instance = InstanceLink.create(_create_link(actor_id, 'ref'))
+    elif actor_pk is not None:
+        actor_instance = InstanceLink.create(_create_link(actor_pk, 'ref'))
     else:
         actor_instance = None
 
@@ -87,7 +90,6 @@ def convert_record_to_observation(flat: DotDict) -> Observation:
         id=flat.get('rel.id'),
         label=flat.get('rel.label'),
         type=flat.get('rel.type', 'event'),
-        observer=actor_instance,
         actor=actor_instance,
         objects=InstanceLink.create(_create_link(flat.get('object.id'), 'ref')) if flat.get('object.id', None) else None,
         traits=safe_json(flat.get('rel.traits', {})),
@@ -159,7 +161,7 @@ def convert_record_to_observation(flat: DotDict) -> Observation:
             longitude=flat.get_or_none("location.longitude"),
         ),
     )
-
+    print(actor_instance, flat)
     # --- Assemble Observation ---
     observation = Observation(
         id=flat.get_or_none('observation.id'),
@@ -167,6 +169,7 @@ def convert_record_to_observation(flat: DotDict) -> Observation:
         aspect=flat.get_or_none('aspect'),
         source=Entity(id=flat.get('source.id')),
         session=Session(id=flat.get('session.id')),
+        observer=actor_instance,
         entities=entities,
         relation=[relation],
         metadata=metadata

@@ -50,7 +50,7 @@ AiRembr requires both the **service infrastructure** and the **SDK library**.
 
 ### Install AiRembr Service
 
-1. Clone the repository and get the `docker-compose.yml` file
+1. Get the `docker-compose.yml` file (`wget https://raw.githubusercontent.com/airembr/sdk/master/docker-compose.yaml`)
 2. Run the service:
 
 ```bash
@@ -80,14 +80,31 @@ pip install airembr-sdk
 ### 1. Initialize the Client
 
 ```python
-from airembr.sdk.client import AiRembrChatClient
+from airembr.sdk.chat_client import AiRembrChatClient
+from airembr.sdk.model.instance import Instance
+from airembr.sdk.model.observation import ObservationEntity
+
+# Create references to entities that participate in the conversation
+observer, person, agent = AiRembrChatClient.get_references()
+
+# Define main actor
+actor = ObservationEntity(
+            instance=Instance.type("person", "1"),
+            traits={"name": "Adam"}
+        )
 
 client = AiRembrChatClient(
-    api="http://localhost:4002",
-    source_id="8351737-a9ad-4c29-a01b-2f3180bec592",
-    person_instance="person #1",
-    person_traits={"name": "Adam", "surname": "Nowak"},
-    agent_traits={"name": "ChatGPT", "model": "openai-5"},
+    api="http://localhost:14002",
+    source_id="701eeeb9-13f1-4263-9c59-98adeb3317c9",
+    entities={  # Entities that take part in the conversation.
+        observer: actor,
+        person: actor,
+        agent: ObservationEntity(
+            instance=Instance.type("agent"),
+            traits={"name": "ChatGPT", "model": "openai-5"}
+        )
+    },
+    observer=observer,  # Which entity is an observer? Observer is the owner of the conversation.
     chat_id="chat-1"
 )
 ```
@@ -96,17 +113,22 @@ client = AiRembrChatClient(
 
 ```python
 # Person sends a message. This should be somewhere in your chat code. It does not query LLM just saves the message.
-client.chat("Hi, how are you?", "person")
+client.chat("Hi, how are you?", person)
 
 # Agent responds
-client.chat("I'm fine.", "agent")
+client.chat("I'm fine.", agent)
 ```
 
 ### 3. Retrieve Conversation Memory
 
 ```python
 # Save Facts (messages)  and retrieve conversation memory for this chat
-memory = client.remember(realtime='collect,store,destination')
+status, response = client.remember(realtime='collect,store,destination')
+
+if status.ok():
+    print(response.get_chat_memory(client.chat_id).format())
+else:
+    print(status)
 ```
 
 > The `remember()` method retrieves **conversation memory** for the specific `chat_id`.
@@ -192,13 +214,13 @@ Each retrieved conversation memory includes:
 Sends a message to the AiRembr system and stores it as an observation.
 
 ```python
-client.chat("Hello!", "person")
+client.chat("Hello!", person)
 ```
 
 **Parameters**
 
 * `message` *(str)* – Message text
-* `actor` *(str)* – `"person"` or `"agent"`
+* `actor` *(LinkInstance)* – `person` or `agent`
 
 ---
 

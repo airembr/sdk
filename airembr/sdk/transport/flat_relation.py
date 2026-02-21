@@ -13,7 +13,7 @@ class FlatRelation(DotDict):
     OBS_ID = "observation.id"
     CONTEXT = "context"
     CONSENTS_GRANTED = 'consents.granted'
-
+    OBSERVER_PK = 'observer.pk'
 
     # Iternal
-    _LIST_OF_PROPERTIES = 'sys_ent_property'
+    _OBSERVER_ID = 'sys_ent_property_observer_id'

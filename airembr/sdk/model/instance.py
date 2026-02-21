@@ -7,6 +7,7 @@ from durable_dot_dict.dotdict import DotDict
 from pydantic import ValidationInfo
 from pydantic_core import core_schema
 from pydantic import GetCoreSchemaHandler, GetJsonSchemaHandler
+from airembr.sdk.common.identification import generate_pk
 
 # Compile the regex pattern once
 OBJECT_TAG_PATTERN = re.compile(
@@ -191,6 +192,11 @@ class Instance(str):
         if self.role:
             return self.role
         return self.kind
+
+    def generate_pk(self, custom_id: Optional[str] = None):
+        if custom_id:
+            return generate_pk(self.kind, custom_id)
+        return generate_pk(self.kind, self.id)
 
     @classmethod
     def __get_pydantic_core_schema__(cls, source_type, handler: GetCoreSchemaHandler):

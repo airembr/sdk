@@ -4,6 +4,8 @@ from typing import Union
 from airembr.sdk.model.observation import Observation
 from durable_dot_dict.dotdict import DotDict
 
+from airembr.sdk.service.text.cleanup import _clean_value
+
 
 def terminal_supports_colors() -> bool:
     """Return True if stdout is a terminal that supports ANSI escapes."""
@@ -23,15 +25,9 @@ def _format_header(text: str) -> str:
     return f"┌{border}┐\n│  {text}  │\n└{border}┘"
 
 
-def _clean_value(value):
-    """Remove newlines and truncate long values safely for tree output."""
-    if isinstance(value, str):
-        # Replace any line breaks or tabs with a single space
-        value = " ".join(value.split())
-        if len(value) > 100:
-            value = value[:100] + "..."
-    return str(value)
-
+def _stringify_dict(data: dict):
+    flat_dict = DotDict(data).flat()
+    return " ".join([f"{key}: {value}" for key, value in flat_dict.items()]).strip()
 
 def _format_traits_tree(traits: dict, prefix: str, is_last: bool) -> list[str]:
     """Format traits as a subtree."""
@@ -52,7 +48,6 @@ def format_observation(observation: Observation) -> str:
     lines = []
     lines.append(_format_header(f"Observation: {observation.name or observation.id}"))
     lines.append(f"├── ID: {observation.id or 'N/A'}")
-    lines.append(f"├── Aspects: {observation.aspects or 'N/A'}")
     source_label = observation.source.label() if hasattr(observation.source, 'label') else observation.source.id
     lines.append(f"├── Source: {source_label}")
 
@@ -65,6 +60,7 @@ def format_observation(observation: Observation) -> str:
             connector = "└── " if is_last_entity else "├── "
             label = entity.instance.label() if hasattr(entity.instance, "label") else entity.instance.id
             lines.append(f"│   {connector}{link}: {label}")
+            lines.append(f"│   │   ├── Instance ID: {entity.instance.id}")
             lines += _format_traits_tree(entity.traits, "│   │   ", is_last_entity)
             if entity.consents:
                 lines.append(f"│   │   └── Consent: {'allowed' if entity.consents.allow else 'denied'}")
@@ -102,7 +98,7 @@ def format_observation(observation: Observation) -> str:
         if actor_link:
             actor_entity = observation.entities.get(actor_link.link)
             if actor_entity:
-                lines.append(f"{rel_prefix}├── Actor: {actor_entity.instance.label()} {actor_link.link}")
+                lines.append(f"{rel_prefix}├── Actor: {actor_entity.instance.label()} {actor_link.link} (ID: {actor_entity.instance.id})")
                 lines += _format_traits_tree(actor_entity.traits, rel_prefix + "│   ", False)
 
         # Objects
@@ -113,7 +109,7 @@ def format_observation(observation: Observation) -> str:
                 if obj_entity:
                     obj_is_last = (o_idx == len(object_links) - 1)
                     connector = "└── " if obj_is_last else "├── "
-                    lines.append(f"{rel_prefix}{connector}Object: {obj_entity.instance.label()} {obj_link.link}")
+                    lines.append(f"{rel_prefix}{connector}Object: {obj_entity.instance.label()} {obj_link.link} (ID: {obj_entity.instance.id})")
                     lines += _format_traits_tree(
                         obj_entity.traits,
                         rel_prefix + "│   ",

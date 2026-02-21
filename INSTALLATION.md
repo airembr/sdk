@@ -6,9 +6,9 @@ services:
 
   gui-api:
     # GUI API
-    container_name: airembr-api
+    container_name: airembr-gui-api
     pull_policy: always
-    image: tracardi/airembr-api-gui:0.0.1
+    image: tracardi/airembr-os-api-gui:0.0.1
     environment:
       QUEUE_ENABLED: 'no'
       META_DATA_ADAPTER: 'sqlite'
@@ -29,7 +29,7 @@ services:
   collector-api:
     # GUI API
     container_name: airembr-collector-api
-    image: tracardi/airembr-collector-api:0.0.1
+    image: tracardi/airembr-os-collector-api:0.0.1
     pull_policy: always
     environment:
       QUEUE_ENABLED: 'no'
@@ -59,13 +59,14 @@ services:
       - gui-api
 
 
-  imap:
-    image: tracardi/airembr-job-imap-source:0.0.1
+  imap-worker:
+    image: tracardi/airembr-os-job-imap-source:0.0.1
     pull_policy: always
     environment:
       REDIS_HOST: redis
       STARROCKS_HOST: starrocks
       STARROCKS_FORCE_BE_HOST: starrocks
+      META_DATA_ADAPTER: 'sqlite'
       LOGGING_LEVEL: debug
       WORKER: true
     volumes:
