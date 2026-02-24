@@ -13,7 +13,6 @@ logger = get_logger(__name__)
 
 class RedisClient(metaclass=Singleton):
     def __init__(self):
-        uri = redis_config.get_redis_with_password()
         self.client = redis.Redis(connection_pool=get_redis_connection_pool(redis_config))
 
     @staticmethod

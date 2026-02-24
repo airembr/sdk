@@ -1,4 +1,5 @@
 import os
+import redis
 
 from airembr.sdk.service.environment import get_env_as_int
 
@@ -7,34 +8,32 @@ class RedisConfig:
 
     def __init__(self, env):
         self.env = env
-        self.host = env.get('REDIS_HOST', 'localhost')
+        self.host = env.get('REDIS_HOST', 'redis://localhost')
         self.port = get_env_as_int('REDIS_PORT', 6379)
-        self.redis_host = env.get('REDIS_HOST', 'redis://localhost:6379')
-        self.redis_password = env.get('REDIS_PASSWORD', None)
+        self.database = get_env_as_int('REDIS_DATABASE', 0)
+        self.password = env.get('REDIS_PASSWORD', None)
+        self.username = env.get('REDIS_USERNAME', None)
 
-        if self.host.startswith("redis://"):
-            self.host = self.host[8:]
+        connection = redis.from_url(self.host)
+        c = connection.connection_pool.connection_kwargs
 
-        if self.host.startswith("rediss://"):
-            self.host = self.host[9:]
+        self.redis_protocol = 'rediss' if self.host.startswith('rediss') else 'redis'
+        self.redis_user = c['username'] if 'username' in c else self.username
+        self.redis_password = c['password'] if 'password' in c else self.password
+        self.redis_host = c['host'] if 'host' in c else 'localhost:6379'
+        self.redis_port = c['port'] if 'port' in c else self.port
+        self.redis_db = c['db'] if 'db' in c else self.database
 
-        if ":" in self.host:
-            self.host = self.host.split(":")[0]
+    def recreate_redis_uri(self, database=None):
+        if self.redis_user and self.redis_password:
+            host = f"{self.redis_protocol}://{self.redis_user}:{self.redis_password}@{self.redis_host}"
+        elif self.redis_password:
+            host = f"{self.redis_protocol}://:{self.redis_password}@{self.redis_host}"
+        else:
+            host = f"{self.redis_protocol}://{self.redis_host}"
 
-    def get_redis_with_password(self):
-        if self.redis_password:
-            return self.get_redis_uri(self.redis_host, password=self.redis_password)
-        return self.get_redis_uri(self.redis_host)
-
-    @staticmethod
-    def get_redis_uri(host, user=None, password=None, protocol="redis", database="0"):
-        if not host.startswith('redis://'):
-            host = f"{protocol}://{host}"
-
-        if user and password:
-            host = f"{protocol}://{user}:{password}@{host[8:]}/{database}"
-        elif password:
-            host = f"{protocol}://:{password}@{host[8:]}/{database}"
+        if database:
+            host = f"{host}/{database}"
 
         return host
 
