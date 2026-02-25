@@ -5,6 +5,10 @@ class MetaLangEntityBase(BaseModel):
     type: str
     properties: Optional[List[Tuple[str, Any]]] = []
 
+    def __init__(self, /, **data: Any):
+        super().__init__(**data)
+        self.type = self.type.lower()
+
 class MetaLangEntity(MetaLangEntityBase):
     negation: Optional[bool] = False
 
