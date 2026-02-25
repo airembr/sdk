@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 from pydantic import BaseModel, Field
 
@@ -9,23 +9,21 @@ from airembr.sdk.ai.taxonomy.entity_taxonomy_printer import get_unique_categorie
 flat_taxonomy = flatten_taxonomy(taxonomy)
 
 
-class ExtractedEntity(BaseModel):
-    id: int
-    classification: str
-    type: str
-    attributes: Dict[str, Any]
-    text: str = Field(..., alias="Text or Summary of text that should be annotated with this entity. It points to the text chunk that refers to this entity.")
+class ExtractedQueryEntity(BaseModel):
+    classification: str = Field(..., description="Entity classification according to the taxonomy.")
+    types: List[str] = Field(..., description="List of possible entity types that belong to the classification.")
+    attributes: Dict[str, Any] = Field(..., description="List of attributes that belong to the entity.")
 
 
-class ExtractedEntities(BaseModel):
-    entities: list[ExtractedEntity]
+class ExtractedQueryEntities(BaseModel):
+    entities: list[ExtractedQueryEntity]
 
 
-system_prompt = ("You specialize in extracting entities and its directly related attributes from given text. "
+system_prompt = ("You specialize in extracting entities from queries. "
                  "Output should of your job be in JSON format holding all possible extracted entities. "
-                 "Example {{\"entities\":[{{\"id\":1,\"type\":\"<abstract-entity>\",\"attributes\":{{\"name\":\"<entity-name>\"}}}}, more...], \"text\" : \"<text chunk that refers to this entity>\"}}"),
+                 "Example {{\"entities\":[{{\"types\":\"[<abstract-entity>, ...]\",\"attributes\":{{\"name\":\"<entity-name>\"}}}}, more...]}}"),
 user_prompt = lambda text: f"""
-Your task is to extract entities classes, entity types together with their attributes from the text below, and point the text chunk that points to this entity. 
+Your task is to extract entities classes, entity types together with their attributes from the text below.
 
 Follow these rules carefully:
 
@@ -34,7 +32,7 @@ Follow these rules carefully:
 Entity classes + their definition should guide you how to classify entity:
 {get_unique_categories_md(flat_taxonomy)}
 
-2. Entity type extraction - use the following rules to extract entity types:
+2. Entity types extraction - use the following rules to extract entity types:
 
 Here are some entities and examples for each class. Use this as guidance.
 
@@ -42,7 +40,6 @@ Here are some entities and examples for each class. Use this as guidance.
 
 3. Identify entities according to this rules:
 
-   * Assign a unique `Id` to each entity.
    * Classify each entity according to the entity classification.
    * Identify an abstract entity type aligned with to Entity type provided above.
    * Resolve pronouns and references: if a pronoun or description refers to an already-mentioned entity, include its attribute under the same `Id`. For example, in "Adam is a child. He is 7 years old," `He` refers to `Adam`.
@@ -68,7 +65,6 @@ type: <entity_type>
 Attributes:
 - <attribute_label>: <attribute_value>
 - <attribute_label>: <attribute_value>
-Text: <text chunk or summary of larger text that refers to this entity>
 ---
 
 <attribute-label> should NOT include verb
@@ -82,7 +78,6 @@ Attributes should NOT include relations to other entities.
    * If multiple entities are present, extract each separately with a unique `Id`.
    * Include location, date, size, weight, appearance, behavior, and other key attributes when available.
    * Avoid including irrelevant information not directly describing the entity.
-   * Find text chunks that refer to the entity and include them in the output.
 
 6. Pronouns and references example
 
@@ -94,26 +89,23 @@ Output:
 ```json
 Id: 1
 classification: Entity > Continuant > PhysicalObject > Agent
-type: Person
+type: ['Person', 'Child', 'Human', 'Man']
 Attributes:
 - name: Adam
 - age: 7 years
-Text: "Adam is a child and is 7 years old."
 
 Id: 2
 classification: Entity > Continuant > PhysicalObject > Location
-type: City
+type: ['City', 'Town', 'Capital']
 Attributes:
 - type: City
 - name: Paris
-Text: "Adam lives in Paris"
 
 Id: 3
 classification: Entity > Occurrent > Process > Sport
-type: Soccer
+types: ['Soccer']
 Attributes:
 - type: soccer
-Text: "Adam loves soccer"
 ```
 
 7. Simple Example
@@ -135,7 +127,7 @@ Output:
 ```json
 Id: 1
 classification: Entity > Continuant > PhysicalObject > NaturalEntity
-type: Animal
+types: ['Animal', 'Squirrel']
 Attributes:
 - name: European ground squirrel
 - scientific_name: Spermophilus citellus
@@ -149,23 +141,27 @@ Attributes:
 - weight: 240–340 g (8.5–12 oz)
 - fur: Short, dense, yellowish grey tinged with red, with pale and dark spots
 - tail: Short, bushy
-Text: "The European ground squirrel (Spermophilus citellus), also known as the European souslik, is a species in the squirrel
-family, Sciuridae. Like all squirrels, it is a member of the order of rodents, and it is found in central
-and southeastern Europe, with its range divided into two parts by the Carpathian Mountains. It is a colonial animal
-and mainly diurnal. The European ground squirrel excavates a branching system of tunnels up to 2 metres (6 ft) deep,
-with several entrances. This requires a habitat of short turf, such as on steppes, pasture, dry banks, sports fields,
-parks and lawns. Its short, dense fur is yellowish grey, tinged with red, with a few indistinct pale and dark spots
-on the back. Adults typically measure 20 to 23 centimetres (8 to 9 in) with a weight of 240 to 340 grams (8.5 to 12.0 oz).
-It has a slender build with a short, bushy tail, and makes a shrill alarm call that causes all other individuals
-in the vicinity to dive for cover. "
+
 
 Id: 2
 classification: Entity > Continuant > PhysicalObject > Location
-type: Park
+types: ['Park', 'Region']
 Attributes:
 - address: Obrovisko Family Park, near Muráň, Slovakia
-Text: "This European ground squirrel was photographed in Obrovisko Family Park,
-near Muráň, Slovakia."
+
+Id: 3
+classification: Entity > Continuant > PhysicalObject > Location
+types: ['Country']
+Attributes:
+- name: Slovakia
+
+
+Id: 2
+classification: Entity > Continuant > PhysicalObject > Location
+types: ['Region']
+Attributes:
+- location: near Muráň
+
 ```
 
 8. Extend the number of entities if possible
@@ -176,24 +172,21 @@ Output should look for all possible entities:
 ```json
 Id: 1
 classification: Entity > Informational > Document
-type: Invoice
+type: ['Invoice']
 Attributes:
 - for: coffee machine
-Text: "I hid the invoice for the coffee machine in the drawer"
 
 Id: 2
 classification: Entity > Continuant > PhysicalObject > Artifact
-type: Home Appliance
+type: ['Home Appliance', 'Coffee Machine']
 Attributes:
 - type: coffee machine
-Text: "I hid the invoice for the coffee machine in the drawer"
 
 Id: 3
 classification: Entity > Continuant > PhysicalObject > Artifact
-type: Furniture
+type: ['Furniture', 'Drawer']
 Attributes:
 - type: drawer
-Text: "I hid the invoice for the coffee machine in the drawer
 ```
 
 9. Strict relevance of attribute to entity
@@ -203,14 +196,14 @@ Incorrect output:
 ```json
 Id: 1
 classification: Entity > Continuant > PhysicalObject > Agent
-type: Person
+types: ['Person', 'Chairman', 'Human', 'Man']
 Attributes:
 - name: Krishna Prasad Koirala
 - follower: "Krishna Prasad Koirala"  <- DO NOT include relations to other entities. This is irrelevant information for the attributes, as it does not directly describe the entity attribute, attibute or property.
 - chariman_of: "Fed"
 
 Id: 2
-type: Person
+types: ['Person', 'Human', 'Man']
 classification: Entity > Continuant > PhysicalObject > Agent
 Attributes:
 - name: "Bishweshwar Prasad Koirala"
@@ -221,28 +214,27 @@ Correct OUTPUT:
 ``json
 Id: 1
 classification: Entity > Continuant > PhysicalObject > Agent
-type: Person
+types: ['Person', 'Human', 'Man']
 Attributes:
 - name: Krishna Prasad Koirala
-Text: 'Krishna Prasad Koirala"
 
 Id: 2
 classification: Entity > Continuant > PhysicalObject > Agent
-type: Person
+types: ['Person', 'Human', 'Man']
 Attributes:
 - name: "Bishweshwar Prasad Koirala"
 Text: "Bishweshwar Prasad Koirala was raised in Banaras"
 
 Id: 3
 classification: Entity > Continuant > PhysicalObject > Agent
-type: Person
+types: ['Person', 'Human', 'Man']
 Attributes:
 - name: "Mahatma Gandhi"
 Text: "Mahatma Gandhi was chairman of Fed"
 
 Id: 4
 classification: Entity > Continuant > NonPhysicalObject > Organization
-type: Organization
+types: ['Organization', 'Company']
 Attributes:
 - name: "Fed"
 Text: "Mahatma Gandhi was chairman of Fed"

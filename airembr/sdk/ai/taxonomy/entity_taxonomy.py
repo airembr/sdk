@@ -100,10 +100,10 @@ taxonomy = [
             "Mountain": ["Mount Everest", "Mount Kilimanjaro", "Mount Fuji", "K2", "Denali"],
             "Building": ["Empire State Building", "Eiffel Tower", "Burj Khalifa", "White House", "Statue of Liberty"],
             "Continent": ["North America", "Europe", "Asia", "Africa", "Australia"],
-            "Region": ["Silicon Valley", "Pacific Northwest", "Middle East", "Scandinavia", "Caribbean"],
+            "Region": ["Silicon Valley", "Pacific Northwest", "Middle East", "close to White House", "Caribbean", "near Eiffel Tower"],
             "Landmark": ["Statue of Liberty", "Great Wall of China", "Pyramids of Giza", "Taj Mahal", "Colosseum"],
             "River": ["Amazon River", "Mississippi River", "Yangtze River", "Thames River", "Nile River"],
-            "Island": ["Bermuda", "Cuba", "Hawaii", "Iceland", "Maldives"]
+            "Island": ["Bermuda", "Cuba", "Hawaii", "Iceland", "Maldives"],
         }
     },
     {
