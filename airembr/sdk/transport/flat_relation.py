@@ -10,6 +10,7 @@ class FlatRelation(DotDict):
     SCHEMA_HASH = 'schema_hash'
     ENTITY_TRAITS = "entity.traits"
     ENTITY_TRAITS_TEXT = "entity.traits_text"
+    ENTITY_CLASSIFICATION = 'entity.classification'
     OBS_ID = "observation.id"
     CONTEXT = "context"
     CONSENTS_GRANTED = 'consents.granted'

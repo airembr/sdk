@@ -23,6 +23,7 @@ class ObservationEntity(DotDict):
     OBJECT_DATA_HASH = 'object_data_hash'
 
     CONSENTS_GRANTED = 'consents.granted'
+    ENTITY_CLASSIFICATION = 'entity.classification'
 
     TS = 'ts'
 
