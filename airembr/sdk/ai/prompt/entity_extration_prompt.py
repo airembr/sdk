@@ -40,6 +40,11 @@ Here are some entities and examples for each class. Use this as guidance.
 
 {get_category_entities(flat_taxonomy)}
 
+2.1 Entity type instructions:
+
+   * There may be multiple entity types for each class. All should be listed.
+   * If there are multiple person, locations or organizations mentioned in the text, all should be listed.
+
 3. Identify entities according to this rules:
 
    * Assign a unique `Id` to each entity.
