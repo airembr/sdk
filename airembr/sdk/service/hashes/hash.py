@@ -7,3 +7,7 @@ def dict_hash(d: dict) -> str:
         option=orjson.OPT_SORT_KEYS
     )
     return hashlib.sha1(encoded).hexdigest()
+
+
+def md5(s: str) -> str:
+    return hashlib.md5(s.encode()).hexdigest()

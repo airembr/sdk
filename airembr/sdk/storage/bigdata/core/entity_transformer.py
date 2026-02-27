@@ -3,6 +3,7 @@ from typing import List
 from durable_dot_dict.dotdict import DotDict
 
 from airembr.sdk.common.date import now_in_utc
+from airembr.sdk.service.hashes.hash import md5
 from airembr.sdk.storage.bigdata.flat_ent_property import FlatEntityProperty
 from airembr.sdk.transport.flat_relation import FlatRelation
 
@@ -41,4 +42,9 @@ def compute_entity_property_from_entities(storage_context_entities: List[DotDict
             # TODO this can be an issue as TS is added late in the pipeline
             row[FlatEntityProperty.TS] = now_in_utc()
             row[FlatEntityProperty.OBSERVER_PK] = _observer_pk
+            row[FlatEntityProperty.PROPERTY_ID] = md5(
+                f"{row[FlatEntityProperty.OBSERVER_PK]}"
+                f"-{row[FlatEntityProperty.PK]}"
+                f"-{row[FlatEntityProperty.TYPE]}"
+                f"-{row[FlatEntityProperty.VALUE]}")
             yield row
