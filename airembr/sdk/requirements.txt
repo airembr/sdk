@@ -13,6 +13,7 @@ sqlalchemy
 msgpack
 redis
 aiohttp
+lancedb
 
 git+https://github.com/Tracardi/dotty_dict@master
 

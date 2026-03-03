@@ -27,6 +27,7 @@ setup(
         'sqlalchemy',
         'msgpack'
         'redis',
+        'lancedb',
         'lark',
         'dateparser',
         'pytz',
