@@ -9,6 +9,7 @@ class MetaLangEntityBase(BaseModel):
         super().__init__(**data)
         self.type = self.type.lower()
 
+
 class MetaLangEntity(MetaLangEntityBase):
     negation: Optional[bool] = False
 

@@ -42,6 +42,7 @@ def compute_entity_property_from_entities(storage_context_entities: List[DotDict
             # TODO this can be an issue as TS is added late in the pipeline
             row[FlatEntityProperty.TS] = now_in_utc()
             row[FlatEntityProperty.OBSERVER_PK] = _observer_pk
+            row[FlatEntityProperty.OBSERVATION_ID] = entity[FlatRelation.OBS_ID]
             row[FlatEntityProperty.PROPERTY_ID] = md5(
                 f"{row[FlatEntityProperty.OBSERVER_PK]}"
                 f"-{row[FlatEntityProperty.PK]}"

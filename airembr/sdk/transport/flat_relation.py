@@ -15,6 +15,10 @@ class FlatRelation(DotDict):
     CONTEXT = "context"
     CONSENTS_GRANTED = 'consents.granted'
     OBSERVER_PK = 'observer.pk'
+    SESSION_ID = 'session.id'
+
+    REL_TYPE = 'rel.type'
+    REL_LABEL = 'rel.label'
 
     # Iternal
     _OBSERVER_ID = 'sys_ent_property_observer_id'

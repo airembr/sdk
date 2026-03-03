@@ -12,6 +12,8 @@ class FlatEntityHistory(DotDict):
     ENTITY_TYPE = 'entity.type'
     ENTITY_LABEL = 'entity.label'
 
+    SESSION_ID = 'session.id'
+
     DATA_HASH = 'data_hash'
     SCHEMA_HASH = 'schema_hash'
     FIELD_HASH = 'field_hash'

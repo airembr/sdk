@@ -11,3 +11,4 @@ class StoragePayload:
     context: List[DotDict|dict]
     timer: Optional[dict] = None
     trace_id: Optional[str] = None
+    session: Optional[dict] = None
