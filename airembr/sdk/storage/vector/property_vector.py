@@ -17,6 +17,5 @@ class LanceVectorDb(metaclass=Singleton):
     def drop(self, table_name: str):
         try:
             self.db.drop_table(table_name)
-            print(f"Table {table_name} dropped successfully")
         except Exception:
             pass
