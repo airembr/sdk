@@ -18,16 +18,16 @@ def flatten_taxonomy(taxonomy: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         node = nodes[node_id]
         current_path = path + [node_id]
 
-        examples = node.get("examples", {})
+        ents = node.get("entities", {})
 
-        if examples:
+        if ents:
             # Each example gets a separate entry
-            for example_name, values in examples.items():
+            for example_name, entities in ents.items():
                 results.append({
                     "path": " > ".join(current_path),   # category path only
                     "entity": example_name,             # separate entity
                     "definition": node["definition"],
-                    "examples": values
+                    "examples": entities.get('examples', [])
                 })
         else:
             # Node without examples
