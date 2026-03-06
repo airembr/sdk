@@ -12,12 +12,13 @@ class CurrToken(BaseModel):
 
 class EQLNextToken(BaseModel):
     current: CurrToken
-    property: str
+    property: str | None
     next: List[str] | None
 
 class EQLCompletion(BaseModel):
     current: CurrToken
-    property: str | None
+    property: str | None = None
+    query: str
     completion: List[str] = []
 
 class EQLAutocomplete(metaclass=Singleton):
@@ -41,7 +42,11 @@ class EQLAutocomplete(metaclass=Singleton):
                     curr_property = Token("VALUE", None)
 
             accepts = ip.accepts()
-            return EQLNextToken(**{"current": {"type": curr_token.type, "value": curr_token.value.strip('"')}, "property": curr_property.value, "next": sorted(accepts)})
+            return EQLNextToken(
+                current = CurrToken(type=curr_token.type, value = curr_token.value.strip('"')),
+                property = curr_property.value,
+                next = sorted(accepts)
+            )
 
         except UnexpectedCharacters as e:
             return  EQLNextToken(**{"current": {"type": curr_token.type, "value": curr_token.value}, "property": curr_property.value, "next":  sorted(e.allowed)})

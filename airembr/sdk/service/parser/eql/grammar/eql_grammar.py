@@ -1,4 +1,5 @@
 eql_grammar = r"""
+%import common.ESCAPED_STRING    -> ESCAPED_STRING
 %import common.SIGNED_NUMBER    -> SIGNED_NUMBER
 %import common.CNAME            -> CNAME
 
@@ -16,15 +17,15 @@ TRUE: "true"
 FALSE: "false"
 
 value: ESCAPED_STRING    -> string
+     | QUOTED_STRING     -> string
      | UNQUOTED_STRING   -> string
      | SIGNED_NUMBER     -> number
      | TRUE              -> true
      | FALSE             -> false
      
 // -------- Custom string implementation --------
-ESCAPED_STRING: START_QUOTE STRING_CONTENT END_QUOTE?
+QUOTED_STRING: START_QUOTE STRING_CONTENT
 START_QUOTE: "\""
-END_QUOTE: "\""
 STRING_CONTENT: /(?:\\.|[^"\\])*/
 UNQUOTED_STRING: /[a-zA-Z0-9]+/
 
