@@ -25,11 +25,11 @@ class Parser:
     def parse(self, query: str):
         return self.base_parser.parse(query)
 
-    def next(self, query):
-        interactive = self.base_parser.parse_interactive(query)
-
-        # feeds the text given to above into the parsers. This is not done automatically.
-        interactive.exhaust_lexer()
-
-        # returns the names of the Terminals that are currently accepted.
-        print(interactive.accepts())
+    # def next(self, query):
+    #     interactive = self.base_parser.parse_interactive(query)
+    #
+    #     # feeds the text given to above into the parsers. This is not done automatically.
+    #     interactive.exhaust_lexer()
+    #
+    #     # returns the names of the Terminals that are currently accepted.
+    #     print(interactive.accepts())

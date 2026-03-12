@@ -47,11 +47,11 @@ def get_category_vectors(taxonomy, vector_key='vector'):
     return category_vectors
 
 
-def embed_text(text):
+def embed_text(text, type='passage'):
     """
     Embed a single text using the same model and normalize.
     """
-    vec = model.encode(f"passage: {text}", normalize_embeddings=True)
+    vec = model.encode(f"{type}: {text}", normalize_embeddings=True)
     return vec
 
 
@@ -59,14 +59,14 @@ def cosine_similarity(a, b):
     return np.dot(a, b)  # vectors already normalized
 
 
-def categorize_text(text, entity_vectors, top_k=5):
+def categorize_text(text, entity_vectors, type, top_k=5):
     """
     text: string to match
     entity_vectors: list of (entity_name, category_id, vector)
     Returns top_k matches sorted by cosine similarity,
     including both cosine similarity and Euclidean distance.
     """
-    text_vec = embed_text(text)
+    text_vec = embed_text(text, type)
 
     results = []
     for entity_name, category_id, parent_id, vec in entity_vectors:
@@ -82,7 +82,7 @@ def categorize_text(text, entity_vectors, top_k=5):
     return results[:top_k]
 
 
-def yield_entity_classes_per_chunk(text, taxonomy):
+def yield_entity_classes_per_chunk(text, type, taxonomy):
     # Load taxonomy and entity vectors
     entity_vectors = get_entity_vectors(taxonomy)
 
@@ -95,7 +95,7 @@ def yield_entity_classes_per_chunk(text, taxonomy):
             top_k = 10
 
         # Categorize according to taxonomy
-        top_matches = categorize_text(chunk, entity_vectors, top_k=top_k)
+        top_matches = categorize_text(chunk, entity_vectors, type, top_k=top_k)
         categories = []
         category_list = []
         for score, l2, entity, category, parent in top_matches:
@@ -104,7 +104,7 @@ def yield_entity_classes_per_chunk(text, taxonomy):
 
         parent_categories = []
         category_vectors = get_category_vectors(taxonomy)
-        top_matches = categorize_text(" ".join(category_list), category_vectors, top_k=3)
+        top_matches = categorize_text(" ".join(category_list), category_vectors, type, top_k=3)
         for score, l2, entity, category, parent in top_matches:
             parent_categories.append((f"{parent}/{category}", score))
 
@@ -112,10 +112,10 @@ def yield_entity_classes_per_chunk(text, taxonomy):
 
 
 text = """
-Your shipment is on the way. Tracking number: 1Z762E3R6873802743  Carrier: UPS Estimated delivery: (not specified) If your order contains more than one product, items may be shipped separately from different locations. You will receive a separate tracking number by email for each package once it ships. Shipment contents: VIRTUOSO SE Mic Boom – Black (x1) You can track your order status online or add it to Apple Wallet to receive updates."""
-
+What did Calvin discuss with the cool artist he met at the gala?
+"""
 t = time()
-for chunk, c, a in yield_entity_classes_per_chunk(text, taxonomy):
+for chunk, c, a in yield_entity_classes_per_chunk(text, 'query', taxonomy):
     print(f"Chunk: {chunk}")
     print(f"Categories: {c}")
     print(f"Entities: {a}")
