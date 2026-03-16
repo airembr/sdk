@@ -6,7 +6,6 @@ class FlatEntityProperty(DotDict):
     ID = 'entity.id'
     TYPE = 'entity.type'
 
-    OBSERVATION_ID = "observation.id"
     PROPERTY_ID = "property.id"
     NAME = "property.name"
     VALUE = "property.value"
