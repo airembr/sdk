@@ -28,10 +28,13 @@ def _compute_properties_from_traits(relation: DotDict):
         yield row
 
 
-def compute_entity_property_from_entities(storage_context_entities: List[DotDict]):
+def compute_entity_property_from_entities(storage_context_entities: List[DotDict],
+                                          with_property_id: bool = False, exclude_relations: bool = False):
     for entity in storage_context_entities:
         if isinstance(entity, FlatRelation):
             # For for_rel
+            if exclude_relations:
+                continue
             entity_properties = _compute_properties_from_traits(entity)
         else:
             #  for_entity(FlatEntity)
@@ -43,9 +46,12 @@ def compute_entity_property_from_entities(storage_context_entities: List[DotDict
             row[FlatEntityProperty.TS] = now_in_utc()
             row[FlatEntityProperty.OBSERVER_PK] = _observer_pk
             row[FlatEntityProperty.OBSERVATION_ID] = entity[FlatRelation.OBS_ID]
-            row[FlatEntityProperty.PROPERTY_ID] = md5(
-                f"{row[FlatEntityProperty.OBSERVER_PK]}"
-                f"-{row[FlatEntityProperty.PK]}"
-                f"-{row[FlatEntityProperty.TYPE]}"
-                f"-{row[FlatEntityProperty.VALUE]}")
+            if with_property_id:
+                # This hash will keep historic values as well as it hashes value
+                row[FlatEntityProperty.PROPERTY_ID] = md5(
+                    f"{row[FlatEntityProperty.OBSERVER_PK]}"
+                    f"-{row[FlatEntityProperty.PK]}"
+                    f"-{row[FlatEntityProperty.TYPE]}"
+                    f"-{row[FlatEntityProperty.VALUE]}"
+                )
             yield row
