@@ -6,3 +6,4 @@ class FlatEntity2Gid(DotDict):
     ENTITY_TYPE = 'entity.type'
     ENTITY_GID = 'entity.gid'
     ENTITY_GID_TYPE = 'entity.gid_type'
+    TS = 'ts'
