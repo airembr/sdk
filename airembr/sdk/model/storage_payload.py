@@ -9,6 +9,7 @@ class StoragePayload:
     fact: dict
     relation: dict
     context: List[DotDict|dict]
+    gids: List[DotDict|dict]
     timer: Optional[dict] = None
     trace_id: Optional[str] = None
     session: Optional[dict] = None
