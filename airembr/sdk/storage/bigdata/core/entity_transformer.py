@@ -9,7 +9,7 @@ from airembr.sdk.transport.flat_relation import FlatRelation
 from airembr.sdk.transport.flat_observation_entity import ObservationEntity
 
 
-def _compute_properties_from_traits(relation: DotDict):
+def _compute_properties_from_traits(relation: DotDict, is_relation: bool):
     traits = DotDict(relation[FlatRelation.ENTITY_TRAITS])
     for key, value in traits.flat().items():
         row = {
@@ -18,6 +18,7 @@ def _compute_properties_from_traits(relation: DotDict):
             FlatEntityProperty.TYPE: relation[FlatRelation.ENTITY_TYPE],
             FlatEntityProperty.NAME: key,
             FlatEntityProperty.VALUE: value,
+            FlatEntityProperty._IS_RELATION: is_relation # This is not saved used only fo filtering
         }
 
         if isinstance(value, (int, float)):
@@ -29,21 +30,28 @@ def _compute_properties_from_traits(relation: DotDict):
         yield row
 
 
-def compute_entity_property_from_entities(storage_context_entities: List[DotDict],
-                                          with_property_id: bool = False, exclude_relations: bool = False):
+def compute_entity_property_from_entities(storage_context_entities: List[DotDict]):
     for entity in storage_context_entities:
 
-        if isinstance(entity, FlatRelation):
-            # For for_rel
-            if exclude_relations:
-                continue
+        is_relation = isinstance(entity, FlatRelation)
+        entity_properties = _compute_properties_from_traits(entity, is_relation)
 
-            entity_properties = _compute_properties_from_traits(entity)
-        else:
-            #  for_entity(FlatEntity)
-            entity_properties = _compute_properties_from_traits(entity)
+        _observer_pk = entity[FlatRelation.OBSERVER_PK]
+        for row in entity_properties:
+            # TODO this can be an issue as TS is added late in the pipeline
+            row[FlatEntityProperty.TS] = now_in_utc()
+            row[FlatEntityProperty.OBSERVER_PK] = _observer_pk
 
-        # Yield addition data
+            # This hash will keep historic values as well as it hashes value
+            row[FlatEntityProperty.PROPERTY_ID] = md5(
+                f"{row[FlatEntityProperty.OBSERVER_PK]}"
+                f"-{row[FlatEntityProperty.PK]}"
+                f"-{row[FlatEntityProperty.TYPE]}"
+                f"-{row[FlatEntityProperty.VALUE]}"
+            )
+            yield row
+
+        # --- Yield addition data
 
         if isinstance(entity, FlatRelation):
 
@@ -61,6 +69,8 @@ def compute_entity_property_from_entities(storage_context_entities: List[DotDict
                     FlatEntityProperty.NUMBER: None,
                     FlatEntityProperty.VECTOR: None,
                     FlatEntityProperty.TS: now_in_utc(),
+
+                    FlatEntityProperty._IS_RELATION: True,
 
                     FlatEntityProperty.OBSERVER_PK: entity[ObservationEntity.OBSERVER_PK]
                 }
@@ -87,6 +97,8 @@ def compute_entity_property_from_entities(storage_context_entities: List[DotDict
                     FlatEntityProperty.NUMBER: None,
                     FlatEntityProperty.VECTOR: None,
                     FlatEntityProperty.TS: now_in_utc(),
+
+                    FlatEntityProperty._IS_RELATION: True,
 
                     FlatEntityProperty.OBSERVER_PK: entity[ObservationEntity.OBSERVER_PK]
                 }
@@ -126,19 +138,3 @@ def compute_entity_property_from_entities(storage_context_entities: List[DotDict
                     f"-{row[FlatEntityProperty.VALUE]}"
                 )
                 yield row
-
-        _observer_pk = entity[FlatRelation.OBSERVER_PK]
-        for row in entity_properties:
-            # TODO this can be an issue as TS is added late in the pipeline
-            row[FlatEntityProperty.TS] = now_in_utc()
-            row[FlatEntityProperty.OBSERVER_PK] = _observer_pk
-
-            if with_property_id:
-                # This hash will keep historic values as well as it hashes value
-                row[FlatEntityProperty.PROPERTY_ID] = md5(
-                    f"{row[FlatEntityProperty.OBSERVER_PK]}"
-                    f"-{row[FlatEntityProperty.PK]}"
-                    f"-{row[FlatEntityProperty.TYPE]}"
-                    f"-{row[FlatEntityProperty.VALUE]}"
-                )
-            yield row

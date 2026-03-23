@@ -16,3 +16,5 @@ class FlatEntityProperty(DotDict):
 
     OBSERVER_PK = 'observer.pk'
 
+    _IS_RELATION = '_is_relation'
+
