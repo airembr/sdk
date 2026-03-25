@@ -415,6 +415,8 @@ class EntityIndex(BaseModel):
 
 class Observation(BaseModel):
     id: Optional[str] = Field(None, description="Observation id")
+    label: Optional[str] = Field(None, description="Observation label")
+    traits: Optional[dict] = Field(None, description="Observation traits")
     observer: InstanceLink = Field(..., description="Observation observer entity.")
     name: Optional[str] = Field(None, description="Observation name")
     source: Entity = Field(..., description="Observation source entity.")
