@@ -6,11 +6,11 @@ eql_grammar = r"""
 start: statement
 
 // ---------------- Keywords ----------------
-CLAUSE: "WHEN" | "WHERE" | "WHO"
-RETURN: "RETURN"
-AND: "AND"
-OR: "OR"
-NOT: "NOT"
+CLAUSE.10: /WHEN|WHERE|WHO/i
+RETURN.10: /RETURN/i
+AND.10: /AND/i
+OR.10: /OR/i
+NOT.10: /NOT/i
 
 // ---------------- Statement ----------------
 statement: CLAUSE? expr return_clause?
