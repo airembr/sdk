@@ -144,36 +144,6 @@ def format_observation(observation: Observation) -> str:
         else:
             lines.append(f"│   └── {observation.context.link}")
 
-    # --- Metadata ---
-    meta = observation.metadata
-    if meta:
-        lines.append("├── Metadata:")
-        if meta.application:
-            app = meta.application
-            lines.append(f"│   ├── App: {app.name or 'unknown'} {app.version or ''} ({app.agent})")
-        if meta.device:
-            dev = meta.device
-            lines.append(f"│   ├── Device:")
-            lines.append(f"│   │   ├── Name: {_clean_value(dev.name or dev.model or 'unknown')}")
-            lines.append(f"│   │   ├── Brand: {_clean_value(dev.brand or 'unknown')}")
-            if dev.ip:
-                lines.append(f"│   │   ├── IP: {dev.ip}")
-            if dev.resolution:
-                lines.append(f"│   │   ├── Resolution: {dev.resolution}")
-            if dev.orientation:
-                lines.append(f"│   │   └── Orientation: {dev.orientation}")
-        if meta.os:
-            os = meta.os
-            lines.append(
-                f"│   ├── OS: {_clean_value(os.name or '')} {_clean_value(os.version or '')} ({_clean_value(os.platform or '')})"
-            )
-        if meta.location:
-            loc = meta.location
-            loc_desc = ", ".join(filter(None, [loc.city, loc.country.name if loc.country else None]))
-            if loc.latitude and loc.longitude:
-                loc_desc += f" ({loc.latitude:.4f}, {loc.longitude:.4f})"
-            lines.append(f"│   └── Location: {_clean_value(loc_desc)}")
-
     # --- Aux (custom additional data) ---
     if observation.aux:
         lines.append("└── Aux:")

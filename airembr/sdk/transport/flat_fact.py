@@ -79,18 +79,6 @@ class FlatFact(DotDict):
     SYS_TIMER_ID = 'sys.timer.id'
     SYS_TIMER_STATUS = 'sys.timer.status'
 
-    DEVICE = 'device'
-    DEVICE_ID = f'{DEVICE}.id'
-    DEVICE_TYPE_ID = f'{DEVICE}.type_id'
-
-    LOCATION_ID = f'location.id'
-
-    APPLICATION_TYPE_ID = 'app.type_id'
-
-    OS_TYPE_ID = 'os.type_id'
-
-    HIT = 'hit.origin'
-
     SUBJECTIVE = 'subjective'
 
     SEMANTIC_DESCRIPTION = 'semantic.description'

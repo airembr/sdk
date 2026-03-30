@@ -276,9 +276,9 @@ class ObservationRelation(BaseModel):
             converted = [f'{key}: {value}' for key, value in DotDict(self.traits).flat().items()]
             return f"{self.label}:{self.type} ({', '.join(converted)})"
         return self.label
-    
+
     def semantic_summary(self) -> list[str]:
-        lines =[]
+        lines = []
         if self.semantic:
             lines.append(f"Time: {self.ts}")
             if self.semantic.summary:
@@ -289,85 +289,6 @@ class ObservationRelation(BaseModel):
                 lines.append(f"Context: {_clean_value(self.semantic.context)}")
             return lines
         return []
-
-
-class ObservationCountry(BaseModel):
-    name: Optional[str] = None
-    code: Optional[str] = None
-
-    def __eq__(self, other):
-        return self.name == other.name and self.code == other.code
-
-
-class ObservationPlace(BaseModel):
-    name: Optional[str] = None
-    type: Optional[str] = None
-
-
-class ObservationLocation(BaseModel):
-    type_id: Optional[str] = None
-    place: Optional[ObservationPlace] = None
-    country: Optional[ObservationCountry] = None
-    city: Optional[str] = None
-    county: Optional[str] = None
-    postal: Optional[str] = None
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
-
-
-class ObservationApp(BaseModel):
-    agent: Optional[str] = "unknown/1.0"
-    name: Optional[str] = None
-    version: Optional[str] = None
-    type_id: Optional[str] = None
-    language: Optional[List[str]] = None
-
-    aux: Optional[dict] = None
-
-
-class ObservationOs(BaseModel):
-    type_id: Optional[str] = None
-    name: Optional[str] = None
-    version: Optional[str] = None
-    platform: Optional[str] = None
-    aux: Optional[dict] = None
-
-
-class ObservationDeviceGpu(BaseModel):
-    name: Optional[str] = None
-    vendor: Optional[str] = None
-
-
-class ObservationDevice(BaseModel):
-    id: Optional[str] = None
-    type_id: Optional[str] = None
-    name: Optional[str] = None
-    brand: Optional[str] = None
-    model: Optional[str] = None
-    ip: Optional[str] = None
-    type: Optional[Entity] = None
-    touch: Optional[bool] = None
-    mobile: Optional[bool] = None
-    tablet: Optional[bool] = None
-    resolution: Optional[str] = None
-    color_depth: Optional[int] = None
-    orientation: Optional[str] = None
-    gpu: Optional[ObservationDeviceGpu] = None
-
-    aux: Optional[dict] = None
-
-    def get_hashed_id(self) -> Optional[str]:
-        if self.id:
-            return hashlib.md5(self.id.encode()).hexdigest()
-        return None
-
-
-class ObservationMetaContext(BaseModel):
-    application: Optional[ObservationApp] = None
-    device: Optional[ObservationDevice] = None
-    os: Optional[ObservationOs] = None
-    location: Optional[ObservationLocation] = None
-    trace_id: Optional[str] = None
 
 
 class EntityRefs(RootModel[Union[Tuple, Dict[InstanceLink, ObservationEntity]]]):
@@ -424,7 +345,6 @@ class Observation(BaseModel):
     entities: Optional[EntityRefs] = EntityRefs({})
     relation: List[ObservationRelation]  # Should be relation
     context: Optional[Union[List[InstanceLink], InstanceLink]] = None
-    metadata: Optional[ObservationMetaContext] = None
     consents: Optional[ObservationConsents] = None
     aux: Optional[dict] = None  # Put here all the additional dimensions
 
@@ -475,26 +395,6 @@ class Observation(BaseModel):
         if self.consents is None:
             return None
         return self.consents.granted
-
-    def get_device(self) -> Optional[ObservationDevice]:
-        if self.metadata and self.metadata.device:
-            return self.metadata.device
-        return None
-
-    def get_application(self) -> Optional[ObservationApp]:
-        if self.metadata and self.metadata.application:
-            return self.metadata.application
-        return None
-
-    def get_os(self) -> Optional[ObservationOs]:
-        if self.metadata and self.metadata.os:
-            return self.metadata.os
-        return None
-
-    def get_location(self) -> Optional[ObservationLocation]:
-        if self.metadata and self.metadata.location:
-            return self.metadata.location
-        return None
 
     def get_session_id(self, default=None) -> Optional[str]:
         if isinstance(self.session, Session):

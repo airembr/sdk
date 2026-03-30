@@ -7,9 +7,7 @@ from airembr.sdk.logging.log_handler import get_logger
 from airembr.sdk.model.entity import Entity
 from airembr.sdk.model.instance import Instance
 from airembr.sdk.model.instance_link import InstanceLink
-from airembr.sdk.model.observation import Observation, ObservationEntity, ObservationRelation, ObservationSemantic, \
-    ObservationMetaContext, ObservationApp, ObservationOs, ObservationDevice, ObservationLocation, \
-    ObservationDeviceGpu, ObservationPlace, ObservationCountry
+from airembr.sdk.model.observation import Observation, ObservationEntity, ObservationRelation, ObservationSemantic
 from airembr.sdk.model.session import Session
 from airembr.sdk.service.time.time import now_in_utc
 
@@ -102,65 +100,6 @@ def convert_record_to_observation(flat: DotDict) -> Observation:
         order=flat.get_or_none('metadata.order')
     )
 
-    # --- Metadata ---
-    metadata = ObservationMetaContext(
-        application=ObservationApp(
-            agent=flat.get_or_none("app.agent") or "unknown/1.0",
-            name=flat.get_or_none("app.name"),
-            version=flat.get_or_none("app.version"),
-            type_id=flat.get_or_none("app.type_id"),
-            language=safe_json(flat.get_or_none("app.language")),
-            aux=safe_json(flat.get_or_none("app.aux")),
-        ),
-        os=ObservationOs(
-            type_id=flat.get_or_none("os.type_id"),
-            name=flat.get_or_none("os.name"),
-            version=flat.get_or_none("os.version"),
-            platform=flat.get_or_none("os.platform"),
-            aux=safe_json(flat.get_or_none("os.aux")),
-        ),
-        device=ObservationDevice(
-            id=flat.get_or_none("device.id"),
-            type_id=flat.get_or_none("device.type_id"),
-            name=flat.get_or_none("device.name"),
-            brand=flat.get_or_none("device.brand"),
-            model=flat.get_or_none("device.model"),
-            ip=flat.get_or_none("device.ip"),
-            touch=flat.get_or_none("device.touch"),
-            mobile=flat.get_or_none("device.mobile"),
-            tablet=flat.get_or_none("device.tablet"),
-            resolution=flat.get_or_none("device.resolution"),
-            color_depth=flat.get_or_none("device.color_depth"),
-            orientation=flat.get_or_none("device.orientation"),
-            gpu=ObservationDeviceGpu(
-                name=flat.get_or_none("device.gpu.name"),
-                vendor=flat.get_or_none("device.gpu.vendor"),
-            ),
-            aux=safe_json(flat.get_or_none("device.aux")),
-        ),
-        location=ObservationLocation(
-            type_id=flat.get_or_none("location.type_id"),
-            place=ObservationPlace(
-                name=flat.get_or_none("location.place.name"),
-                type=flat.get_or_none("location.place.type"),
-            ) if (
-                    flat.get_or_none("location.place.name")
-                    or flat.get_or_none("location.place.type")
-            ) else None,
-            country=ObservationCountry(
-                name=flat.get_or_none("location.country.name"),
-                code=flat.get_or_none("location.country.code"),
-            ) if (
-                    flat.get_or_none("location.country.name")
-                    or flat.get_or_none("location.country.code")
-            ) else None,
-            city=flat.get_or_none("location.city"),
-            county=flat.get_or_none("location.county"),
-            postal=flat.get_or_none("location.postal"),
-            latitude=flat.get_or_none("location.latitude"),
-            longitude=flat.get_or_none("location.longitude"),
-        ),
-    )
     print(actor_instance, flat)
     # --- Assemble Observation ---
     observation = Observation(
@@ -172,7 +111,6 @@ def convert_record_to_observation(flat: DotDict) -> Observation:
         observer=actor_instance,
         entities=entities,
         relation=[relation],
-        metadata=metadata
     )
 
     return observation
