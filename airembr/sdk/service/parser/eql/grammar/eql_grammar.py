@@ -32,7 +32,7 @@ sep: ","
 pair: PROPERTY_NAME ASSIGN value
 
 ENTITY_NAME: CNAME
-PROPERTY_NAME: CNAME ("." CNAME)*
+PROPERTY_NAME: /[a-zA-Z_$!][a-zA-Z0-9_$!]*/ ("." /[a-zA-Z_$!][a-zA-Z0-9_$!]*/)*
 ASSIGN: ":" | "="
 
 // ---------------- Values ----------------

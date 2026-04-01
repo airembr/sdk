@@ -63,7 +63,7 @@ def compute_entity_property_from_entities(storage_context_entities: List[DotDict
                     FlatEntityProperty.ID: entity['entity.id'],
                     FlatEntityProperty.TYPE: entity['entity.type'],
 
-                    FlatEntityProperty.NAME: "_label",
+                    FlatEntityProperty.NAME: "$label",
                     FlatEntityProperty.VALUE: label,
                     FlatEntityProperty.TEXT: label,
                     FlatEntityProperty.NUMBER: None,
@@ -91,7 +91,7 @@ def compute_entity_property_from_entities(storage_context_entities: List[DotDict
                     FlatEntityProperty.ID: entity['entity.id'],
                     FlatEntityProperty.TYPE: entity['entity.type'],
 
-                    FlatEntityProperty.NAME: "_type",
+                    FlatEntityProperty.NAME: "$type",
                     FlatEntityProperty.VALUE: event_type,
                     FlatEntityProperty.TEXT: event_type,
                     FlatEntityProperty.NUMBER: None,
@@ -121,7 +121,7 @@ def compute_entity_property_from_entities(storage_context_entities: List[DotDict
                     FlatEntityProperty.ID: entity['entity.id'],
                     FlatEntityProperty.TYPE: entity['entity.type'],
 
-                    FlatEntityProperty.NAME: "_label",
+                    FlatEntityProperty.NAME: "$label",
                     FlatEntityProperty.VALUE: label,
                     FlatEntityProperty.TEXT: label,
                     FlatEntityProperty.NUMBER: None,
