@@ -5,7 +5,7 @@ from airembr.sdk.model.observation import Observation
 from airembr.sdk.model.query.response import QueryEntityResponse, QueryResponse
 from airembr.sdk.model.query.status import QueryStatus
 from airembr.sdk.model.query.time_range_query import DatePayload
-from airembr.sdk.service.fact_record_converter import convert_record_to_observation
+from airembr.sdk.service.fact_record_converter import convert_fact_to_observation
 from airembr.sdk.service.remote.airembr_api import AirembrApi
 
 
@@ -61,7 +61,7 @@ class AirembrQuery:
             counter = 0
             for fact in response.result:
                 counter += 1
-                observation: Observation = convert_record_to_observation(fact)
+                observation: Observation = convert_fact_to_observation(fact)
                 yield observation
 
             if counter == 0:

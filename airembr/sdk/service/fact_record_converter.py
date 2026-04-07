@@ -3,11 +3,13 @@ import json
 from durable_dot_dict.dotdict import DotDict
 from pydantic import ValidationError
 
+from airembr.sdk.common.json_string import try_json
 from airembr.sdk.logging.log_handler import get_logger
 from airembr.sdk.model.entity import Entity
 from airembr.sdk.model.instance import Instance
 from airembr.sdk.model.instance_link import InstanceLink
-from airembr.sdk.model.observation import Observation, ObservationEntity, ObservationRelation, ObservationSemantic
+from airembr.sdk.model.observation import Observation, ObservationEntity, ObservationRelation, ObservationSemantic, \
+    EntityIdentification
 from airembr.sdk.model.session import Session
 from airembr.sdk.service.time.time import now_in_utc
 
@@ -17,7 +19,7 @@ logger = get_logger(__name__)
 def _create_link(id, kind):
     return f"{kind}-{id[:16]}"
 
-def convert_record_to_observation(flat: DotDict) -> Observation:
+def convert_fact_to_observation(flat: DotDict) -> Observation:
     def safe_json(value):
         try:
             return json.loads(value) if isinstance(value, str) and value.startswith('{') else value
@@ -115,10 +117,118 @@ def convert_record_to_observation(flat: DotDict) -> Observation:
 
     return observation
 
+def convert_record_to_observation(record: dict) -> Observation:
+
+    def safe_json(value):
+        try:
+            return json.loads(value) if isinstance(value, str) and value.startswith('{') else value
+        except Exception:
+            return value
+
+    def make_instance(kind: str | None, role: str | None, id_: str | None, actor=False) -> Instance | None:
+        """
+        Construct Instance like '*kind:role#id' (or without * if not actor)
+        """
+        if not kind:
+            return None
+
+        parts = []
+        if actor:
+            parts.append('*')
+        parts.append(kind)
+        if role:
+            parts.append(f":{role}")
+        if id_:
+            parts.append(f"#{id_}")
+        return Instance("".join(parts))
+
+    # --- Entities ---
+    entities = {}
+    for prefix in ['actor', 'object']:
+
+        actor_flag = (prefix == 'actor')
+
+        id_ = record.get(f'{prefix}_id', None)
+        kind = record.get(f'{prefix}_type', None)
+        role = record.get(f'{prefix}_role', None)
+        instance = make_instance(kind, role, id_)
+
+        if not instance:
+            continue
+
+        if actor_flag and (not id_ or not kind):
+            # Skip abstract actor
+            continue
+
+        traits = safe_json(record.get(f'{prefix}_traits', '{}'))
+        part_of_id = record.get(f'{prefix}_part_of_id', None)
+        part_of_kind = record.get(f'{prefix}_part_of_kind', None)
+        is_a_id = record.get(f'{prefix}_is_a_id', None)
+        is_a_kind = record.get(f'{prefix}_is_a_kind', None)
+
+        entity = ObservationEntity(
+            instance=instance,
+            part_of=make_instance(part_of_kind, None, part_of_id) if part_of_id else None,
+            is_a=make_instance(is_a_kind, None, is_a_id) if is_a_id else None,
+            traits=(DotDict() << traits) if traits else {}
+        )
+
+        iid_type = record.get(f'{prefix}_iid_type', None)
+        if iid_type:
+            entity.identification = EntityIdentification(properties=iid_type.split(','))
+
+        entities[InstanceLink.create(_create_link(id_, 'ref'))] = entity
+
+    actor_id = record.get('actor_id', None)
+    actor_pk = record.get('actor_pk', None)
+
+    if actor_id is not None:
+        actor_instance = InstanceLink.create(_create_link(actor_id, 'ref'))
+    elif actor_pk is not None:
+        actor_instance = InstanceLink.create(_create_link(actor_pk, 'ref'))
+    else:
+        actor_instance = None
+
+    # --- Relation ---
+    rel_type = record.get('rel_type', 'event')
+    rel_label = record.get('rel_label', None)
+
+    tags = try_json(record.get('tags', '[]'))
+    relation = ObservationRelation(
+        id=record.get('rel_id'),
+        label=rel_label if rel_label else rel_type,
+        type=rel_type,
+        actor=actor_instance,
+        objects=InstanceLink.create(_create_link(record.get('object_id'), 'ref')) if record.get('object_id', None) else None,
+        traits=safe_json(record.get('rel_traits', {})),
+        semantic=ObservationSemantic(
+            summary=record.get('semantic_summary', None),
+            description=record.get('semantic_description', None),
+            context=record.get('semantic_context', None)
+        ),
+        ts=record.get('metadata_time_create', now_in_utc()),
+        order=record.get('metadata_order', None),
+        tags = tags if tags else []
+    )
+
+    # --- Assemble Observation ---
+    observation = Observation(
+        id=record.get('obs_id', None),
+        name=record.get('obs_name', None),
+        label=record.get('obs_name', None),
+        source=Entity(id=record.get('source_id', None)),
+        session=Session(id=record.get('session_id', None)),
+        observer=actor_instance,
+        entities=entities,
+        relation=[relation],
+    )
+
+    return observation
+
 
 def yield_records_as_observations(records):
     for record in records:
         try:
-            yield convert_record_to_observation(record)
+            yield convert_fact_to_observation(record)
         except ValidationError as e:
             logger.warning(f"Error while converting record to observation. Reason: {str(e)}")
