@@ -32,6 +32,7 @@ class FlatFact(DotDict):
     OBSERVER_SCHEMA_HASH = 'observer.schema_hash'
 
     ACTOR_ID = 'actor.id'
+    ACTOR_HID = 'actor.hid'  # history_id
     ACTOR_PK = 'actor.pk'  # actor.type + actor.id
     ACTOR_IID = 'actor.iid' # actor identification ID
     ACTOR_IID_TYPE = 'actor.iid_type'  # actor identification ID
@@ -46,6 +47,7 @@ class FlatFact(DotDict):
     ACTOR_PART_OF_KIND = 'actor.part_of.kind'
 
     OBJECT_ID = 'object.id'
+    OBJECT_HID = 'object.hid'  # history_id
     OBJECT_PK = 'object.pk'  # object.type + object.id
     OBJECT_IID = 'object.iid' # object identification ID
     OBJECT_IID_TYPE = 'object.iid_type'  # object identification ID
@@ -60,6 +62,7 @@ class FlatFact(DotDict):
     OBJECT_PART_OF_KIND = 'object.part_of.kind'
 
     REL_ID = 'rel.id'
+    REL_HID = 'rel.hid'  # history_id
     REL_TID = 'rel.tid' # This is triplet ID generated for actor_pk, rel.label and object_pk
     REL_PK = "rel.pk" # global event id
     REL_LABEL = 'rel.label'  # eg. viewed

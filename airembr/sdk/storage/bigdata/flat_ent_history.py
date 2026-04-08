@@ -6,6 +6,7 @@ class FlatEntityHistory(DotDict):
 
     ENTITY_PK= 'entity.pk'
     ENTITY_ID = 'entity.id'
+    ENTITY_HID = 'entity.hid'
     ENTITY_IID = 'entity.iid'
     ENTITY_IID_TYPE = 'entity.iid_type'
     ENTITY_CLASSIFICATION = 'entity.classification'
@@ -37,4 +38,3 @@ class FlatEntityHistory(DotDict):
 
     TIME_CREATE = 'time.create'
     TIME_MERGE= 'time.merge'
-

@@ -5,6 +5,7 @@ class FlatRelation(DotDict):
     TS = 'ts'
     ENTITY_PK = 'entity.pk'
     ENTITY_ID = 'entity.id'
+    ENTITY_HID = 'entity.hid'
     ENTITY_TYPE = 'entity.type'
     DATA_HASH = 'data_hash'
     SCHEMA_HASH = 'schema_hash'
