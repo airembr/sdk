@@ -1,6 +1,7 @@
 import json
 
 from durable_dot_dict.dotdict import DotDict
+from numpy import ndarray
 from pydantic import ValidationError
 
 from airembr.sdk.common.json_string import try_json
@@ -160,7 +161,9 @@ def convert_record_to_observation(record: dict) -> Observation:
             # Skip abstract actor
             continue
 
-        traits = safe_json(record.get(f'{prefix}_traits', '{}'))
+        traits = record.get(f'{prefix}_traits', '{}')
+
+        traits = safe_json(traits)
         part_of_id = record.get(f'{prefix}_part_of_id', None)
         part_of_kind = record.get(f'{prefix}_part_of_kind', None)
         is_a_id = record.get(f'{prefix}_is_a_id', None)
@@ -193,7 +196,13 @@ def convert_record_to_observation(record: dict) -> Observation:
     rel_type = record.get('rel_type', 'event')
     rel_label = record.get('rel_label', None)
 
-    tags = try_json(record.get('tags', '[]'))
+    tags = record.get('tags', '[]')
+
+    if isinstance(tags, str):
+        tags = try_json(tags)
+    elif isinstance(tags, ndarray):
+        tags = list(tags)
+
     relation = ObservationRelation(
         id=record.get('rel_id'),
         label=rel_label if rel_label else rel_type,
