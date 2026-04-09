@@ -90,7 +90,6 @@ def test_format_observation():
     fact.get_objects.return_value = []
     fact.semantic.summary = None
     fact.semantic.description = "Hello world"
-    fact.semantic.context = None
     fact.timer = None
     
     obs.relation = [fact]

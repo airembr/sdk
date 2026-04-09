@@ -9,7 +9,7 @@ from airembr.sdk.logging.log_handler import get_logger
 from airembr.sdk.model.entity import Entity
 from airembr.sdk.model.instance import Instance
 from airembr.sdk.model.instance_link import InstanceLink
-from airembr.sdk.model.observation import Observation, ObservationEntity, ObservationRelation, ObservationSemantic, \
+from airembr.sdk.model.observation import Observation, ObservationEntity, ObservationRelation, Semantic, \
     EntityIdentification
 from airembr.sdk.model.session import Session
 from airembr.sdk.service.time.time import now_in_utc
@@ -94,16 +94,14 @@ def convert_fact_to_observation(flat: DotDict) -> Observation:
         actor=actor_instance,
         objects=InstanceLink.create(_create_link(flat.get('object.id'), 'ref')) if flat.get('object.id', None) else None,
         traits=safe_json(flat.get('rel.traits', {})),
-        semantic=ObservationSemantic(
+        semantic=Semantic(
             summary=flat.get_or_none('semantic.summary'),
             description=flat.get_or_none('semantic.description'),
-            context=flat.get_or_none('semantic.context')
         ),
         ts=flat.get('metadata.time.create', now_in_utc()),
         order=flat.get_or_none('metadata.order')
     )
 
-    print(actor_instance, flat)
     # --- Assemble Observation ---
     observation = Observation(
         id=flat.get_or_none('observation.id'),
@@ -210,10 +208,9 @@ def convert_record_to_observation(record: dict) -> Observation:
         actor=actor_instance,
         objects=InstanceLink.create(_create_link(record.get('object_id'), 'ref')) if record.get('object_id', None) else None,
         traits=safe_json(record.get('rel_traits', {})),
-        semantic=ObservationSemantic(
+        semantic=Semantic(
             summary=record.get('semantic_summary', None),
             description=record.get('semantic_description', None),
-            context=record.get('semantic_context', None)
         ),
         ts=record.get('metadata_time_create', now_in_utc()),
         order=record.get('metadata_order', None),

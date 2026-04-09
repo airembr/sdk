@@ -11,6 +11,8 @@ class StoragePayload:
     relation: dict
     context: List[DotDict|dict]
     gids: List[DotDict|dict]
+    description: Optional[str] = None
+    summary: Optional[str] = None
     timer: Optional[dict] = None
     trace_id: Optional[str] = None
     session: Optional[dict] = None

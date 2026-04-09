@@ -125,8 +125,6 @@ def format_observation(observation: Observation) -> str:
                 lines.append(f"{rel_prefix}│   ├── Summary: {_clean_value(relation.semantic.summary)}")
             if relation.semantic.description:
                 lines.append(f"{rel_prefix}│   └── Description: {_clean_value(relation.semantic.description)}")
-            if relation.semantic.context:
-                lines.append(f"{rel_prefix}│   └── Context: {_clean_value(relation.semantic.context)}")
 
         # Timer
         if relation.timer:
@@ -236,7 +234,6 @@ def format_semantic_description(dot_dict_fact: DotDict):
     relation_label = dot_dict_fact.get('relation.label', '')
     summary = dot_dict_fact.get('relation.semantic.summary', '')
     description = dot_dict_fact.get('relation.semantic.description', '')
-    context = dot_dict_fact.get('relation.semantic.context', '')
 
     output = []
     if description:
@@ -245,8 +242,5 @@ def format_semantic_description(dot_dict_fact: DotDict):
     output.append(f"Metadata:\nFact: {relation_type.upper()}: {relation_label}")
     if summary:
         output.append(f"Summary: {summary}")
-
-    if context:
-        output.append(f"Context: {context}")
 
     return "\n".join(output)

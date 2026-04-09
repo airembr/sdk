@@ -1,8 +1,7 @@
 from airembr.sdk.client import AirembrClient
 from airembr.sdk.model.entity import Entity
-from airembr.sdk.model.observation import Observation, ObservationRelation, Init, ObservationSemantic
+from airembr.sdk.model.observation import Observation, ObservationRelation, Init, Semantic
 from airembr.sdk.model.session import Session
-from airembr.sdk.service.format.formaters import format_observation
 
 # Entities
 location = Init('location').identified_by(["address", "code", "city"]).traits(
@@ -46,7 +45,7 @@ located = ObservationRelation(
     traits={"by": "GPS"},
     tags=["prefix:tag"],
 
-    semantic=ObservationSemantic(description="Mark Doe was located at 123 Main Street, Paris, SW1")
+    semantic=Semantic(description="Mark Doe was located at 123 Main Street, Paris, SW1")
 )
 
 # Observations
