@@ -318,6 +318,9 @@ class EntityRefs(RootModel[Union[Tuple, Dict[InstanceLink, ObservationEntity]]])
     def links(self):
         return self.root.keys()
 
+    def total(self) -> int:
+        return len(self.root)
+
 
 class EntityIndex(BaseModel):
     root: Dict[str, dict] = Field(default_factory=dict)
@@ -343,10 +346,9 @@ class Observation(BaseModel):
     _index_entities: Optional[EntityIndex] = PrivateAttr(None)
 
     def __init__(self, /, **data: Any):
+        if 'id' not in data:
+            data['id'] = f"anon-{str(uuid4())}"
         super().__init__(**data)
-        if not self.id:
-            self.id = f"anon-{str(uuid4())}"
-
         self._validate_links()
 
     # @model_validator(mode="after")

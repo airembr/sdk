@@ -5,7 +5,7 @@ from durable_dot_dict.dotdict import DotDict
 
 
 @dataclass
-class StoragePayload:
+class FactTransportPayload:
     source_id: str
     observation: dict
     fact: dict
@@ -20,3 +20,12 @@ class StoragePayload:
 
     def has_relation(self) -> bool:
         return bool(self.fact) and bool(self.relation)
+
+@dataclass
+class ObsTransportPayload:
+    id: str
+    source_id: str
+    entities: int
+    label: Optional[str] = None
+    session_id: Optional[str] = None
+    description: Optional[str] = None

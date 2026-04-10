@@ -1,5 +1,6 @@
 OBSERVATION_COLLECTOR_TAG = 'obs-collector-wk'
 OBSERVATION_STORAGE_TAG = 'obs-storage-wk'
+FACT_STORAGE_TAG = 'fact-storage-wk'
 
 DF_EVENT_ATTACHMENT_JOB_TAG = 'df-ev-attachment-wk'
 DF_EVENT_ATTACHMENT_DESTINATION_TAG = 'df-attachment-wk'
