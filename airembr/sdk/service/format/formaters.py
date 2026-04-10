@@ -46,7 +46,7 @@ def _format_traits_tree(traits: dict, prefix: str, is_last: bool) -> list[str]:
 def format_observation(observation: Observation) -> str:
     """Visual tree representation of Observation."""
     lines = []
-    lines.append(_format_header(f"Observation: {observation.name or observation.id}"))
+    lines.append(_format_header(f"Observation: {observation.label or observation.id}"))
     lines.append(f"├── ID: {observation.id or 'N/A'}")
     source_label = observation.source.label() if hasattr(observation.source, 'label') else observation.source.id
     lines.append(f"├── Source: {source_label}")

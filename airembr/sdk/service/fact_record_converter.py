@@ -105,7 +105,7 @@ def convert_fact_to_observation(flat: DotDict) -> Observation:
     # --- Assemble Observation ---
     observation = Observation(
         id=flat.get_or_none('observation.id'),
-        name=flat.get_or_none('observation.name'),
+        label=flat.get_or_none('observation.label'),
         aspect=flat.get_or_none('aspect'),
         source=Entity(id=flat.get('source.id')),
         session=Session(id=flat.get('session.id')),
@@ -220,8 +220,8 @@ def convert_record_to_observation(record: dict) -> Observation:
     # --- Assemble Observation ---
     observation = Observation(
         id=record.get('obs_id', None),
-        name=record.get('obs_name', None),
-        label=record.get('obs_name', None),
+        name=record.get('obs_label', None),
+        label=record.get('obs_label', None),
         source=Entity(id=record.get('source_id', None)),
         session=Session(id=record.get('session_id', None)),
         observer=actor_instance,

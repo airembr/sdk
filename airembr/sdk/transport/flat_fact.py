@@ -71,7 +71,7 @@ class FlatFact(DotDict):
     REL_SCHEMA_HASH = 'rel.schema_hash'
 
     OBS_ID = 'observation.id'
-    OBS_NAME = 'observation.name'
+    OBS_LABEL = 'observation.label'
 
     LABEL = 'label'
     TYPE = 'type'
