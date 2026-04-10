@@ -6,6 +6,7 @@ from durable_dot_dict.dotdict import DotDict
 
 @dataclass
 class StoragePayload:
+    source_id: str
     observation: dict
     fact: dict
     relation: dict
