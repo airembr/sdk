@@ -17,3 +17,6 @@ class StoragePayload:
     timer: Optional[dict] = None
     trace_id: Optional[str] = None
     session: Optional[dict] = None
+
+    def has_relation(self) -> bool:
+        return bool(self.fact) and bool(self.relation)

@@ -26,6 +26,7 @@ class ObservationEntity(DotDict):
     CONSENTS_GRANTED = 'consents.granted'
     ENTITY_CLASSIFICATION = 'entity.classification'
 
+    OBS_ID = "observation.id"
     SESSION_ID = 'session.id'
 
     TS = 'ts'

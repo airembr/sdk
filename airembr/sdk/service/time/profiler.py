@@ -1,5 +1,10 @@
 from contextlib import contextmanager
 from time import time
+from typing import Optional
+
+from airembr.sdk.logging.log_handler import get_logger
+
+logger = get_logger(__name__)
 
 class Counter:
     def __init__(self):
@@ -12,10 +17,12 @@ class Counter:
         return self.records_total / self.duration
 
 @contextmanager
-def time_profiler():
+def time_profiler(name: Optional[str] = None):
     t1 = time()
     counter = Counter()
     try:
         yield counter
     finally:
         counter.duration = time() - t1
+        if name:
+            logger.info(f"{name}: {counter.duration}")

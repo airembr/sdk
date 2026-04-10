@@ -336,7 +336,7 @@ class Observation(BaseModel):
     source: Entity = Field(..., description="Observation source entity.")
     session: Optional[Session] = Field(Session(), description="Observation session entity.")
     entities: Optional[EntityRefs] = EntityRefs({})
-    relation: List[ObservationRelation]  # Should be relation
+    relation: Optional[List[ObservationRelation]] = []
     context: Optional[Union[List[InstanceLink], InstanceLink]] = None
     consents: Optional[ObservationConsents] = None
     aux: Optional[dict] = None  # Put here all the additional dimensions
