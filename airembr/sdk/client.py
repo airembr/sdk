@@ -92,3 +92,9 @@ class AirembrClient:
     @property
     def query(self) -> AirembrQuery:
         return AirembrQuery(self.transport)
+
+
+class AirembrChatPeer:
+
+    def peer(self, type: str):
+        pass
