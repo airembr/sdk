@@ -3,11 +3,14 @@ from typing import Optional, Protocol, Dict, Any, Tuple
 
 import requests
 
+from airembr.sdk.logging.log_handler import get_logger
 from airembr.sdk.model.memory.conversation_memory import ConversationMemory, MemorySessions
 from airembr.sdk.model.query.response import QueryResponse, QueryEntityResponse
 
 from airembr.sdk.model.query.status import QueryStatus
 from airembr.sdk.model.query.time_range_query import DatetimeRangePayload, DatePayload
+
+logger = get_logger(__name__)
 
 
 class ApiProtocol(Protocol):
@@ -109,7 +112,9 @@ class AirembrApi:
     def remember(self, data, realtime: Optional[str] = None, skip: Optional[str] = None, response: bool = True,
                  context: Optional[str] = None, tenant: Optional[str] = None) -> Tuple[QueryStatus, MemorySessions]:
 
-        response = requests.post(self.url, headers=self._get_headers(realtime, skip, response, context, tenant),
+        logger.debug(f"Request sent to POST: {self.url}")
+        response = requests.post(self.url,
+                                 headers=self._get_headers(realtime, skip, response, context, tenant),
                                  json=data)
 
         body = response.json()
