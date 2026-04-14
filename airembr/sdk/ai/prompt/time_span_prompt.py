@@ -11,6 +11,7 @@ class ExtractedTimeRange(BaseModel):
 
 
 class ExtractedTimeSpan(BaseModel):
+    is_question: bool
     is_time_scoped: bool
     time_expression_detected: Optional[str] = None
     time_range: Optional[ExtractedTimeRange] = None
@@ -23,19 +24,21 @@ A question is TIME-SCOPED only if answering it requires limiting facts to a spec
 If the question merely mentions time narratively but does not restrict required facts, it is NOT time-scoped.
 
 You must:
-
-1. Detect whether the question is time-scoped.
-2. Extract the time expression if present.
-3. Normalize it into an exact datetime range.
-4. Resolve relative expressions using CURRENT_DATETIME.
-5. Return STRICT JSON ONLY.
-6. Do NOT include explanations.
-7. Do NOT include reasoning.
-8. Do NOT include any text outside JSON.
+1. Detect if the text is rather a question or a statement.
+2. Detect whether the question is time-scoped. Meaning asks for more information that is time restricted.
+3. Extract the time expression if present.
+4. Normalize it into an exact datetime range.
+5. Resolve relative expressions using CURRENT_DATETIME.
+6. Return STRICT JSON ONLY.
+7. Do NOT include explanations.
+8. Do NOT include reasoning.
+9. Do NOT include any text outside JSON.
 
 ---
 
 TIME-SCOPED if examples:
+
+Question ask about facts from:
 
 * today
 * yesterday
@@ -50,9 +53,10 @@ TIME-SCOPED if examples:
 * specific datetime
 
 NOT time-scoped examples:
-
+* Text is not a question.
+* Text is timestamped but question does not ask for some time span, eg. 2012-02-01: Have I arrived home already? 
 * "Where is Paris located?"
-* "When I was last time in Paris, where is Paris located?"
+* "When was I last time in Paris, where is Paris located?"
   (These do not restrict facts by time.)
 
 ---
@@ -92,6 +96,7 @@ OUTPUT FORMAT (STRICT)
 Return ONLY:
 
 {{
+"is_question": true
 "is_time_scoped": true
 "time_expression_detected": string | null,
 "time_range": {{
@@ -103,6 +108,7 @@ Return ONLY:
 OR
 
 {{
+"is_question": false
 "is_time_scoped": false
 "time_expression_detected": null,
 "time_range": null
