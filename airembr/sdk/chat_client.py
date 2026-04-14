@@ -5,11 +5,11 @@ from typing import Optional, Tuple, List, Union, Dict, Set
 from uuid import uuid4
 
 from airembr.sdk.model.entity import Entity
-from airembr.sdk.model.fact import Relation
 from airembr.sdk.model.instance import Instance
 from airembr.sdk.model.instance_link import InstanceLink
 from airembr.sdk.model.memory.conversation_memory import MemorySessions
-from airembr.sdk.model.observation import Observation, ObservationEntity, ObservationRelation, Semantic
+from airembr.sdk.model.observation import Observation, ObservationEntity, ObservationRelation, Semantic, \
+    EntityIdentification
 from airembr.sdk.model.query.status import QueryStatus
 from airembr.sdk.model.session import Session, ChatSession
 from airembr.sdk.service.remote.airembr_api import AirembrApi
@@ -19,10 +19,13 @@ from airembr.sdk.service.time.time import now_in_utc
 def entity(type: str,
            traits: Optional[dict] = None,
            label: Optional[str] = None,
-           id: Optional[str] = None) -> 'AiRembrEntity':
+           id: Optional[str] = None,
+           identification: Optional[EntityIdentification] = None) -> 'AiRembrEntity':
+
     return AiRembrEntity(
         entity=ObservationEntity(
             instance=Instance.type(type, id),
+            identification=identification,
             label=label,
             traits=traits
         )
@@ -203,7 +206,7 @@ class AirembrObservation:
                  traits: Optional[dict] = None):
 
         self.client = client
-        self.observation_id = id or str(uuid4())
+        self.observation_id = id
         self.session_id = session_id or str(uuid4())
         self.observer_link = observer.link
         self.label = label
@@ -257,6 +260,7 @@ class AirembrObservation:
             entities = {}
 
         return Observation(
+            id = self.observation_id,
             label=self.label,
             text=self.description,
             traits=self.traits,
