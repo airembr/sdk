@@ -201,6 +201,9 @@ def convert_record_to_observation(record: dict) -> Observation:
     elif isinstance(tags, ndarray):
         tags = list(tags)
 
+    summary = record.get('semantic_summary', None)
+    description = record.get('semantic_description', None)
+
     relation = ObservationRelation(
         id=record.get('rel_id'),
         label=rel_label if rel_label else rel_type,
@@ -209,8 +212,8 @@ def convert_record_to_observation(record: dict) -> Observation:
         objects=InstanceLink.create(_create_link(record.get('object_id'), 'ref')) if record.get('object_id', None) else None,
         traits=safe_json(record.get('rel_traits', {})),
         semantic=Semantic(
-            summary=record.get('semantic_summary', None),
-            description=record.get('semantic_description', None),
+            summary=summary if isinstance(summary, str) else None,
+            description=description if isinstance(description, str) else None,
         ),
         ts=record.get('metadata_time_create', now_in_utc()),
         order=record.get('metadata_order', None),
