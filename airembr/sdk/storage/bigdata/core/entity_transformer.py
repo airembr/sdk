@@ -57,11 +57,68 @@ def compute_entity_property_from_entities(storage_context_entities: List[DotDict
 
             # Yield label for realtion
             label = entity.get(FlatRelation.REL_LABEL, None)
+            entity_pk = entity.get(FlatRelation.ENTITY_PK, None)
+            entity_id = entity.get(FlatRelation.ENTITY_ID, None)
+            event_type = entity.get(FlatRelation.REL_TYPE, None)
+            entity_type = entity.get(FlatRelation.ENTITY_TYPE, None)
+
+            if entity_id:
+                row = {
+                    FlatEntityProperty.PK: entity_pk,
+                    FlatEntityProperty.ID: entity_id,
+                    FlatEntityProperty.TYPE: entity_type,
+
+                    FlatEntityProperty.NAME: "$id",
+                    FlatEntityProperty.VALUE: entity_id,
+                    FlatEntityProperty.TEXT: entity_id,
+                    FlatEntityProperty.NUMBER: None,
+                    FlatEntityProperty.VECTOR: None,
+                    FlatEntityProperty.TS: now_in_utc(),
+
+                    FlatEntityProperty._IS_RELATION: True,
+
+                    FlatEntityProperty.OBSERVER_PK: entity[ObservationEntity.OBSERVER_PK]
+                }
+
+                row[FlatEntityProperty.PROPERTY_ID] = md5(
+                    f"{row[FlatEntityProperty.OBSERVER_PK]}"
+                    f"-{row[FlatEntityProperty.PK]}"
+                    f"-{row[FlatEntityProperty.TYPE]}"
+                    f"-{row[FlatEntityProperty.VALUE]}"
+                )
+                yield row
+
+            if entity_pk:
+                row = {
+                    FlatEntityProperty.PK: entity_pk,
+                    FlatEntityProperty.ID: entity_id,
+                    FlatEntityProperty.TYPE: entity_type,
+
+                    FlatEntityProperty.NAME: "$pk",
+                    FlatEntityProperty.VALUE: entity_pk,
+                    FlatEntityProperty.TEXT: entity_pk,
+                    FlatEntityProperty.NUMBER: None,
+                    FlatEntityProperty.VECTOR: None,
+                    FlatEntityProperty.TS: now_in_utc(),
+
+                    FlatEntityProperty._IS_RELATION: True,
+
+                    FlatEntityProperty.OBSERVER_PK: entity[ObservationEntity.OBSERVER_PK]
+                }
+
+                row[FlatEntityProperty.PROPERTY_ID] = md5(
+                    f"{row[FlatEntityProperty.OBSERVER_PK]}"
+                    f"-{row[FlatEntityProperty.PK]}"
+                    f"-{row[FlatEntityProperty.TYPE]}"
+                    f"-{row[FlatEntityProperty.VALUE]}"
+                )
+                yield row
+
             if label:
                 row = {
-                    FlatEntityProperty.PK: entity['entity.pk'],
-                    FlatEntityProperty.ID: entity['entity.id'],
-                    FlatEntityProperty.TYPE: entity['entity.type'],
+                    FlatEntityProperty.PK: entity_pk,
+                    FlatEntityProperty.ID: entity_id,
+                    FlatEntityProperty.TYPE: entity_type,
 
                     FlatEntityProperty.NAME: "$label",
                     FlatEntityProperty.VALUE: label,
@@ -84,12 +141,12 @@ def compute_entity_property_from_entities(storage_context_entities: List[DotDict
                 yield row
 
             # Yield type for relation
-            event_type = entity.get(FlatRelation.REL_TYPE, None)
+
             if event_type:
                 row = {
-                    FlatEntityProperty.PK: entity['entity.pk'],
-                    FlatEntityProperty.ID: entity['entity.id'],
-                    FlatEntityProperty.TYPE: entity['entity.type'],
+                    FlatEntityProperty.PK: entity_pk,
+                    FlatEntityProperty.ID: entity_id,
+                    FlatEntityProperty.TYPE: entity_type,
 
                     FlatEntityProperty.NAME: "$type",
                     FlatEntityProperty.VALUE: event_type,
@@ -115,11 +172,65 @@ def compute_entity_property_from_entities(storage_context_entities: List[DotDict
 
             # Yield label for entity
             label = entity.get(ObservationEntity.ENTITY_LABEL, None)
+            entity_pk = entity.get(ObservationEntity.ENTITY_PK, None)
+            entity_id = entity.get(ObservationEntity.ENTITY_ID, None)
+            entity_type = entity.get(ObservationEntity.ENTITY_TYPE, None)
+
+            if entity_pk:
+                row = {
+                    FlatEntityProperty.PK: entity_pk,
+                    FlatEntityProperty.ID: entity_id,
+                    FlatEntityProperty.TYPE: entity_type,
+
+                    FlatEntityProperty.NAME: "$pk",
+                    FlatEntityProperty.VALUE: entity_pk,
+                    FlatEntityProperty.TEXT: entity_pk,
+                    FlatEntityProperty.NUMBER: None,
+                    FlatEntityProperty.VECTOR: None,
+                    FlatEntityProperty.TS: now_in_utc(),
+
+                    FlatEntityProperty.OBSERVER_PK: entity[ObservationEntity.OBSERVER_PK]
+                }
+
+                row[FlatEntityProperty.PROPERTY_ID] = md5(
+                    f"{row[FlatEntityProperty.OBSERVER_PK]}"
+                    f"-{row[FlatEntityProperty.PK]}"
+                    f"-{row[FlatEntityProperty.TYPE]}"
+                    f"-{row[FlatEntityProperty.VALUE]}"
+                )
+                yield row
+
+            if entity_id:
+                row = {
+                    FlatEntityProperty.PK: entity_pk,
+                    FlatEntityProperty.ID: entity_id,
+                    FlatEntityProperty.TYPE: entity_type,
+
+                    FlatEntityProperty.NAME: "$id",
+                    FlatEntityProperty.VALUE: entity_id,
+                    FlatEntityProperty.TEXT: entity_id,
+                    FlatEntityProperty.NUMBER: None,
+                    FlatEntityProperty.VECTOR: None,
+                    FlatEntityProperty.TS: now_in_utc(),
+
+                    FlatEntityProperty._IS_RELATION: True,
+
+                    FlatEntityProperty.OBSERVER_PK: entity[ObservationEntity.OBSERVER_PK]
+                }
+
+                row[FlatEntityProperty.PROPERTY_ID] = md5(
+                    f"{row[FlatEntityProperty.OBSERVER_PK]}"
+                    f"-{row[FlatEntityProperty.PK]}"
+                    f"-{row[FlatEntityProperty.TYPE]}"
+                    f"-{row[FlatEntityProperty.VALUE]}"
+                )
+                yield row
+
             if label:
                 row = {
-                    FlatEntityProperty.PK: entity['entity.pk'],
-                    FlatEntityProperty.ID: entity['entity.id'],
-                    FlatEntityProperty.TYPE: entity['entity.type'],
+                    FlatEntityProperty.PK: entity_pk,
+                    FlatEntityProperty.ID: entity_id,
+                    FlatEntityProperty.TYPE: entity_type,
 
                     FlatEntityProperty.NAME: "$label",
                     FlatEntityProperty.VALUE: label,
@@ -127,6 +238,8 @@ def compute_entity_property_from_entities(storage_context_entities: List[DotDict
                     FlatEntityProperty.NUMBER: None,
                     FlatEntityProperty.VECTOR: None,
                     FlatEntityProperty.TS: now_in_utc(),
+
+                    FlatEntityProperty._IS_RELATION: True,
 
                     FlatEntityProperty.OBSERVER_PK: entity[ObservationEntity.OBSERVER_PK]
                 }
