@@ -1,4 +1,3 @@
-from cProfile import label
 from collections import defaultdict
 from datetime import datetime
 from typing import Optional, Tuple, List, Union, Dict, Set
@@ -178,6 +177,7 @@ class AirembrChat:
                  realtime: Optional[str] = None,
                  skip: Optional[str] = None,
                  response: bool = True,
+                 bridge: Optional[str] = None,
                  context: Optional[str] = None) -> Tuple[QueryStatus, MemorySessions]:
 
         chats = [len(peer.chats) > 0 for peer in self.peers]
@@ -190,7 +190,11 @@ class AirembrChat:
 
         return transport.remember(
             payload,
-            realtime, skip, response, context
+            realtime,
+            skip,
+            response,
+            bridge,
+            context
         )
 
 
@@ -199,15 +203,17 @@ class AirembrObservation:
     def __init__(self,
                  client: 'AiRembrChatClient',
                  observer: AiRembrEntity,
-                 label: str,
+                 label: Optional[str] = None,
                  description: Optional[str] = None,
                  id: Optional[str] = None,
                  session_id: Optional[str] = None,
+                 source_id: Optional[str] = None,
                  traits: Optional[dict] = None):
 
         self.client = client
         self.observation_id = id
         self.session_id = session_id or str(uuid4())
+        self.source_id = source_id
         self.observer_link = observer.link
         self.label = label
         self.traits = traits
@@ -265,7 +271,7 @@ class AirembrObservation:
             text=self.description,
             traits=self.traits,
             observer=self.observer_link,
-            source=Entity(id=self.client.source_id),
+            source=Entity(id=self.source_id) if self.source_id else Entity(id=self.client.source_id),
             entities=entities,
             relation=self.relations
         )
@@ -273,40 +279,41 @@ class AirembrObservation:
     def remember(self,
                  realtime: Optional[str] = None,
                  skip: Optional[str] = None,
+                 bridge: Optional[str] = None,
                  context: Optional[str] = None) -> Tuple[QueryStatus, MemorySessions]:
 
         observation = self._get_observation()
         transport = AirembrApi(self.client.api)
-
         return transport.remember(
-            observation.model_dump(mode="json"),
-            realtime, skip, False, context
+            observation.model_dump(mode="json", exclude_none=True),
+            realtime,
+            skip,
+            False,
+            bridge,
+            context
         )
 
 
 class AiRembrChatClient:
 
-    def __init__(self,
-                 api: str,
-                 source_id: str,
-
-                 ):
+    def __init__(self, api: str):
         self.observation_id: Optional[str] = None
         self.session_id: Optional[str] = None
         self._observer: Optional[InstanceLink] = None
 
         self.api = api
-        self.source_id = source_id
         self.chat_ttl: Optional[int] = None
         self.chat_id: Optional[str] = None
 
     def observation(self,
                     observer: AiRembrEntity,
-                    label: str,
+                    source_id: str,
+                    label: Optional[str] = None,
                     id: Optional[str] = None,
                     session_id: Optional[str] = None,
                     description: Optional[str] = None,
                     traits=None) -> AirembrObservation:
+
         if traits is None:
             traits = {}
 
@@ -316,6 +323,7 @@ class AiRembrChatClient:
                                   description,
                                   id,
                                   session_id,
+                                  source_id,
                                   traits)
 
     @staticmethod

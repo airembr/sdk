@@ -77,11 +77,17 @@ class AirembrClient:
                 observations: List[Observation],
                 realtime: Optional[str] = None,
                 skip: Optional[str] = None,
+                bridge: Optional[str] = None,
                 response: bool = True,
                 context: Optional[str] = None) -> Tuple[QueryStatus, MemorySessions]:
         payload = [observation.model_dump(mode="json") for observation in observations]
 
-        return self.transport.remember(payload, realtime, skip, response, context=context)
+        return self.transport.remember(payload,
+                                       realtime,
+                                       skip,
+                                       response,
+                                       bridge,
+                                       context=context)
 
     def authenticate(self, username: str, password: str) -> "AirembrClient":
         status, _ = self.transport.authenticate(username, password)

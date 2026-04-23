@@ -56,8 +56,14 @@ class AirembrApi:
 
         return headers
 
-    def _get_headers(self, realtime: Optional[str] = None, skip: Optional[str] = None, response: bool = True,
-                     context: Optional[str] = None, tenant: Optional[str] = None):
+    def _get_headers(self,
+                     realtime: Optional[str] = None,
+                     skip: Optional[str] = None,
+                     response: bool = True,
+                     context: Optional[str] = None,
+                     tenant: Optional[str] = None,
+                     bridge: Optional[str] = None,
+                     ):
         headers = {
             "user-agent": "AiRembrSdkClient/0.0.1",
             "accept": "application/json"
@@ -81,6 +87,9 @@ class AirembrApi:
             headers["x-context"] = context
         else:
             headers["x-context"] = context if context else "staging"
+
+        if bridge:
+            headers["x-bridge"] = bridge
 
         return headers
 
@@ -109,18 +118,31 @@ class AirembrApi:
 
         return QueryStatus(response.status_code), payload
 
-    def remember(self, data, realtime: Optional[str] = None, skip: Optional[str] = None, response: bool = True,
-                 context: Optional[str] = None, tenant: Optional[str] = None) -> Tuple[QueryStatus, MemorySessions]:
+    def remember(self,
+                 data,
+                 realtime: Optional[str] = None,
+                 skip: Optional[str] = None,
+                 response: bool = True,
+                 bridge: Optional[str] = None,
+                 context: Optional[str] = None,
+                 tenant: Optional[str] = None) -> Tuple[QueryStatus, MemorySessions]:
 
         logger.debug(f"Request sent to POST: {self.url}")
-        response = requests.post(self.url,
-                                 headers=self._get_headers(realtime, skip, response, context, tenant),
+        _response = requests.post(self.url,
+                                 headers=self._get_headers(
+                                     realtime,
+                                     skip,
+                                     response,
+                                     context,
+                                     tenant,
+                                     bridge
+                                 ),
                                  json=data)
 
-        body = response.json()
+        body = _response.json()
 
-        return QueryStatus(response.status_code), MemorySessions(
-            {key: ConversationMemory(**value) for key, value in body.items()} if response else {})
+        return QueryStatus(_response.status_code), MemorySessions(
+            {key: ConversationMemory(**value) for key, value in body.items()} if _response else {})
 
     def query_computed_entity(self, query, entity_type: str = None, page: int = 0, headers=None) -> Tuple[
         QueryStatus, QueryEntityResponse]:
