@@ -9,4 +9,5 @@ class FlatObs(DotDict):
     DESCRIPTION = "description"
     ENTITIES = "entities"
     TS = "ts"
-
+    METADATA_TIME_CREATE = "metadata.time.create"
+    METADATA_TIME_INSERT = "metadata.time.insert"

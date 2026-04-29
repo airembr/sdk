@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 from typing import List, Optional
 
 from durable_dot_dict.dotdict import DotDict
@@ -29,3 +30,5 @@ class ObsTransportPayload:
     label: Optional[str] = None
     session_id: Optional[str] = None
     description: Optional[str] = None
+    metadata_time_insert: Optional[datetime] = None
+    metadata_time_create: Optional[datetime] = None

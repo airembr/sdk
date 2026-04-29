@@ -331,6 +331,8 @@ class EntityIndex(BaseModel):
 
 class Observation(BaseModel):
     id: Optional[str] = Field(None, description="Observation id")
+    insert_ts: Optional[datetime] = Field(None, description="Observation insert timestamp")
+    create_ts: Optional[datetime] = Field(None, description="Observation create timestamp")
     label: Optional[str] = Field(None, description="Observation label")
     traits: Optional[dict] = Field(None, description="Observation traits")
     text: Optional[str] = Field(None, description="Observation text")

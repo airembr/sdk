@@ -154,7 +154,7 @@ class DatePayload(BaseModel):
     def _is_delta_set(self) -> bool:
         return self.delta is not None
 
-    def _get_delta(self) -> Tuple[delta, int]:
+    def _get_delta(self) -> Tuple[timedelta | None, int]:
         return self.delta.get_delta(), (-1 if self.delta.value < 0 else 1)
 
     @staticmethod
