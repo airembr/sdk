@@ -20,7 +20,7 @@ class ExtractedQueryEntities(BaseModel):
 
 
 system_prompt = ("You specialize in extracting entities from queries. "
-                 "Output should of your job be in JSON format holding all possible extracted entities. "
+                 "Output should be in JSON format holding all possible extracted entities. "
                  "Example {{\"entities\":[{{\"types\":\"[<abstract-entity>, ...]\",\"attributes\":{{\"name\":\"<entity-name>\"}}}}, more...]}}"),
 user_prompt = lambda text: f"""
 Your task is to extract entities classes, entity types together with their attributes from the text below.
@@ -32,9 +32,9 @@ Follow these rules carefully:
 Entity classes + their definition should guide you how to classify entity:
 {get_unique_categories_md(flat_taxonomy)}
 
-2. Entity types extraction - use the following rules to extract entity types:
+2. Entity types extraction - extract ONLY the following entity types:
 
-Here are some entities and examples for each class. Use this as guidance.
+Here are some entities and examples for each class.
 
 {get_category_entities(flat_taxonomy)}
 
@@ -42,7 +42,9 @@ Here are some entities and examples for each class. Use this as guidance.
 
    * Classify each entity according to the entity classification.
    * Identify an abstract entity type aligned with to Entity type provided above.
-   * Resolve pronouns and references: if a pronoun or description refers to an already-mentioned entity, include its attribute under the same `Id`. For example, in "Adam is a child. He is 7 years old," `He` refers to `Adam`.
+   * Resolve pronouns and references: if a pronoun or description refers to an already-mentioned entity, 
+     include its attribute under the same `Id`. For example, in "Adam is a child. He is 7 years old," `He` refers to `Adam`.
+   * If Id of an entity is mention in text always include this ID in the entity attributes. 
 
 4. Entity Attributes Extraction
 
@@ -51,7 +53,7 @@ Here are some entities and examples for each class. Use this as guidance.
    * Attribute should not rate to other entity, e.g. NOT allowed attribute example belongs_to: some-organization.
    * Include numeric values, measurements, dates, locations, and descriptive characteristics.
    * Avoid merging multiple attributes into one field; keep them separate.
-   * Use clear labels for attributes (e.g., `type`, `name`, `age`, `size`, `version`,etc.).
+   * Use clear labels for attributes (e.g., `type`, `name`, `surname`, `age`, `size`, `version`,etc.).
    * Labels which should not to be added as attributes: verbs, separate entities: like `location` , `organization`, `product`, etc. which should be separate entities
 
 5. Formatting
@@ -77,12 +79,13 @@ Attributes should NOT include relations to other entities.
    * Omit emotional statements and other non-essential information.
    * If multiple entities are present, extract each separately with a unique `Id`.
    * Include location, date, size, weight, appearance, behavior, and other key attributes when available.
+   * Always split name and surname of a person entity.
    * Avoid including irrelevant information not directly describing the entity.
 
 6. Pronouns and references example
 
 Text:
-Adam is a child. He is 7 years old and loves soccer. He lives in Paris.
+Adam Smith is a child. He is 7 years old and loves soccer. He lives in Paris.
 
 Output:
 
@@ -92,6 +95,7 @@ classification: Entity > Continuant > PhysicalObject > Agent
 type: ['Person', 'Child', 'Human', 'Man']
 Attributes:
 - name: Adam
+- surname: Smith
 - age: 7 years
 
 Id: 2
