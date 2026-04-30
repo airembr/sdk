@@ -106,7 +106,7 @@ class AiRembrChatPeer:
             label=label,
             actor=self.entity.link,
             objects=[who.entity.link],
-            semantic=Semantic(
+            text=Semantic(
                 description=message,
                 summary=summary
             )
@@ -245,7 +245,7 @@ class AirembrObservation:
             actor=actor.link,
             actor_label=actor.entity.label,
             objects=[object.link for object in objects] if objects is not None else [],
-            semantic=Semantic(
+            text=Semantic(
                 description=description,
                 summary=summary,
             ),

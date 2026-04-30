@@ -179,6 +179,7 @@ class ObservationTimer(Entity):
 class Semantic(BaseModel):
     summary: Optional[str] = None
     description: Optional[str] = None
+    ner: Optional[bool] = False  # Named Entity Description
 
     def render(self, actor_link, object_link, observation) -> tuple[Optional[str], Optional[str]]:
         summary, description, context = None, None, None
@@ -197,6 +198,23 @@ class Semantic(BaseModel):
     def is_empty(self):
         return self.summary is None and self.description is None
 
+    def to_string(self) -> Optional[str]:
+        if self.is_empty():
+            return None
+
+        output = ""
+
+        if self.summary:
+            output += self.summary
+
+        if self.description:
+            if self.summary:
+                output += f"\n\n{self.description}"
+            else:
+                output += self.description
+
+        return output
+
 
 class ObservationRelation(BaseModel):
     id: Optional[str] = None
@@ -206,7 +224,7 @@ class ObservationRelation(BaseModel):
     actor_label: Optional[str] = None
     type: Optional[str] = 'fact'
     label: str
-    semantic: Optional[Semantic] = None
+    text: Optional[Semantic] = Semantic()
     objects: Optional[Union[List[InstanceLink], InstanceLink, List[ObservationEntity], ObservationEntity]] = None
     traits: Optional[dict] = None
     context: Optional[List[InstanceLink]] = []
@@ -263,7 +281,7 @@ class ObservationRelation(BaseModel):
         return self.consents.allow
 
     def has_sematic_part(self) -> bool:
-        return self.semantic is not None
+        return self.text is not None
 
     def __str__(self):
         if self.traits:
@@ -273,12 +291,12 @@ class ObservationRelation(BaseModel):
 
     def semantic_summary(self) -> list[str]:
         lines = []
-        if self.semantic:
+        if self.text:
             lines.append(f"Time: {self.ts}")
-            if self.semantic.summary:
-                lines.append(f"Summary: {_clean_value(self.semantic.summary)}")
-            if self.semantic.description:
-                lines.append(f"Description: {_clean_value(self.semantic.description)}")
+            if self.text.summary:
+                lines.append(f"Summary: {_clean_value(self.text.summary)}")
+            if self.text.description:
+                lines.append(f"Description: {_clean_value(self.text.description)}")
             return lines
         return []
 
@@ -335,7 +353,7 @@ class Observation(BaseModel):
     create_ts: Optional[datetime] = Field(None, description="Observation create timestamp")
     label: Optional[str] = Field(None, description="Observation label")
     traits: Optional[dict] = Field(None, description="Observation traits")
-    text: Optional[str] = Field(None, description="Observation text")
+    text: Semantic = Field(Semantic(), description="Observation semantics")
     observer: InstanceLink = Field(..., description="Observation observer entity.")
     source: Entity = Field(..., description="Observation source entity.")
     session: Optional[Session] = Field(Session(), description="Observation session entity.")

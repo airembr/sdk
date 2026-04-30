@@ -45,7 +45,7 @@ located = ObservationRelation(
     traits={"by": "GPS"},
     tags=["prefix:tag"],
 
-    semantic=Semantic(description="Mark Doe was located at 123 Main Street, Paris, SW1")
+    text=Semantic(description="Mark Doe was located at 123 Main Street, Paris, SW1")
 )
 
 # Observations
@@ -75,7 +75,7 @@ obs1 = Observation(
 #                 "quantity": 1
 #             },
 #             tags=["prefix:tag"],
-#             semantic=ObservationSemantic(description="{{actor.traits.name}} {{actor.traits.surname}} purchased {{object.traits.name}}")
+#             text=ObservationSemantic(description="{{actor.traits.name}} {{actor.traits.surname}} purchased {{object.traits.name}}")
 #         )],
 # )
 

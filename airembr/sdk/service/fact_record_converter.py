@@ -94,7 +94,7 @@ def convert_fact_to_observation(flat: DotDict) -> Observation:
         actor=actor_instance,
         objects=InstanceLink.create(_create_link(flat.get('object.id'), 'ref')) if flat.get('object.id', None) else None,
         traits=safe_json(flat.get('rel.traits', {})),
-        semantic=Semantic(
+        text=Semantic(
             summary=flat.get_or_none('semantic.summary'),
             description=flat.get_or_none('semantic.description'),
         ),
@@ -211,7 +211,7 @@ def convert_record_to_observation(record: dict) -> Observation:
         actor=actor_instance,
         objects=InstanceLink.create(_create_link(record.get('object_id'), 'ref')) if record.get('object_id', None) else None,
         traits=safe_json(record.get('rel_traits', {})),
-        semantic=Semantic(
+        text=Semantic(
             summary=summary if isinstance(summary, str) else None,
             description=description if isinstance(description, str) else None,
         ),

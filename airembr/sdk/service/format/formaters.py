@@ -119,12 +119,12 @@ def format_observation(observation: Observation) -> str:
             lines.append(f"{rel_prefix}├── Object: None")
 
         # Semantic
-        if relation.semantic:
+        if relation.text:
             lines.append(f"{rel_prefix}├── Semantic:")
-            if relation.semantic.summary:
-                lines.append(f"{rel_prefix}│   ├── Summary: {_clean_value(relation.semantic.summary)}")
-            if relation.semantic.description:
-                lines.append(f"{rel_prefix}│   └── Description: {_clean_value(relation.semantic.description)}")
+            if relation.text.summary:
+                lines.append(f"{rel_prefix}│   ├── Summary: {_clean_value(relation.text.summary)}")
+            if relation.text.description:
+                lines.append(f"{rel_prefix}│   └── Description: {_clean_value(relation.text.description)}")
 
         # Timer
         if relation.timer:

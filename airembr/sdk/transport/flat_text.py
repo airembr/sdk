@@ -9,6 +9,7 @@ class FlatText(DotDict):
     REL_LABEL = "rel.label"
     REL_TYPE = "rel.type"
     DESCRIPTION = "description"
+    ORIGIN = "origin"
     TAGS = "tags"
     MODEL = "model"
     VECTOR = "vector"

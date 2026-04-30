@@ -14,6 +14,7 @@ class FactTransportPayload:
     context: List[DotDict|dict]
     gids: List[DotDict|dict]
     description: Optional[str] = None
+    ner: Optional[bool] = False
     summary: Optional[str] = None
     timer: Optional[dict] = None
     trace_id: Optional[str] = None
@@ -30,5 +31,6 @@ class ObsTransportPayload:
     label: Optional[str] = None
     session_id: Optional[str] = None
     description: Optional[str] = None
+    ner: Optional[bool] = False
     metadata_time_insert: Optional[datetime] = None
     metadata_time_create: Optional[datetime] = None
