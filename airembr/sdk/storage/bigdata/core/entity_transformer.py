@@ -12,6 +12,9 @@ from airembr.sdk.transport.flat_observation_entity import ObservationEntity
 def _compute_properties_from_traits(relation: DotDict, is_relation: bool):
     traits = DotDict(relation[FlatRelation.ENTITY_TRAITS])
     for key, value in traits.flat().items():
+        # Skip null values in properties
+        if value is None:
+            continue
         row = {
             FlatEntityProperty.PK: relation[FlatRelation.ENTITY_PK],
             FlatEntityProperty.ID: relation[FlatRelation.ENTITY_ID],
