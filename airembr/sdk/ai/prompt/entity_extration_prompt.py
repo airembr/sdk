@@ -2,92 +2,111 @@ from typing import Any, Dict
 
 from pydantic import BaseModel, Field
 
+from airembr.sdk.ai.taxonomy.entity_ontology import ontology, render_ontology, yield_entity_types
 from airembr.sdk.ai.taxonomy.entity_taxonomy import taxonomy
 from airembr.sdk.ai.taxonomy.entity_taxonomy_converter import flatten_taxonomy
-from airembr.sdk.ai.taxonomy.entity_taxonomy_printer import get_unique_categories_md, get_category_entities
+from airembr.sdk.db.aspects import aspects, render_aspects_sorted
 
 flat_taxonomy = flatten_taxonomy(taxonomy)
 
 
 class ExtractedEntity(BaseModel):
-    id: int
-    classification: str
-    type: str
-    attributes: Dict[str, Any]
-    text: str = Field(..., alias="Text or Summary of text that should be annotated with this entity. It points to the text chunk that refers to this entity.")
+    type: str =Field(..., description="Type of entity.")
+    traits: Dict[str, Any]
 
 
 class ExtractedEntities(BaseModel):
     entities: list[ExtractedEntity]
 
 
-system_prompt = ("You specialize in extracting entities and its directly related attributes from given text. "
+system_prompt = ("You specialize in extracting  key information as entities and its directly related traits/attributes from given text. "
                  "Output should of your job be in JSON format holding all possible extracted entities. "
-                 "Example {{\"entities\":[{{\"id\":1,\"type\":\"<abstract-entity>\",\"attributes\":{{\"name\":\"<entity-name>\"}}}}, more...], \"text\" : \"<text chunk that refers to this entity>\"}}"),
+                 "Example {{\"entities\":[{{\"type\": Person, \"traits\":{{\"$name\":\"<entity-name>\"}}}}, more...]}}"),
 user_prompt = lambda text: f"""
-Your task is to extract entities classes, entity types together with their attributes from the text below, and point the text chunk that points to this entity. 
+Your task is to extract, from the text below, key information that can serve as hooks for information retrival. In order to do that use predefined 
+entities classes, entity types together with their traits.
 
 Follow these rules carefully:
 
-1. Use only this entity classification
+1. Use only this entities and its traits from this list. 
 
-Entity classes + their definition should guide you how to classify entity:
-{get_unique_categories_md(flat_taxonomy)}
+{render_ontology(ontology)}
 
-2. Entity type extraction - use the following rules to extract entity types:
+Extraction Rules
 
-Here are some entities and examples for each class. Use this as guidance.
+1. Entity Types
 
-{get_category_entities(flat_taxonomy)}
+- Extraction must be done in English
+- Use only the entity types and traits defined above.
+- Allowed entity types: {list(yield_entity_types())}
+- Always extract at least on Topic entity. If there are many topic extract many.
+- Always extract all possible aspects that are covered in text.
+  Available aspect $type: {render_aspects_sorted(aspects)}
+- Extract entities at every applicable level of abstraction (e.g., a Company is also an Organization and an Agent — extract whichever levels add meaningful information).
+- If multiple instances of the same type appear (e.g., several people or locations), extract each as a separate entity.
 
-2.1 Entity type instructions:
+2. Attributes
+- Use only traits listed for the entity's type.
+- Trait $type value is a subtype of entity type.
+- Attribute values must match the declared data type. 
+- Not all traits are required, if you do not know the value of trait do not include it.
+- One identified entity must have all its traits in this identified entity.
+- Do not use attributes to reference other entities (e.g., do not add belongs_to: some-organization). Relations between entities are not captured in attributes.
+- Keep attributes separate — do not merge multiple values into one field.
 
-   * There may be multiple entity types for each class. All should be listed.
-   * If there are multiple person, locations or organizations mentioned in the text, all should be listed.
+3. Identification, Pronoun and Reference Resolution
+- Assign a unique $id (random string) to every entity but keep the identification conistant, meaning identified entity must have all its traits. Incorrect exmaple: 
+   entities = [
+    ExtractedEntity(
+     type='Person',
+        traits={{
+            '$id': '8f9a0f4e-5b2a-4b3e-9e6a-1d2c3b4a5f6e',
+            '$name': 'John Smith'
+        }}
+    ),
+    ExtractedEntity(
+     type='Person',
+        traits={{
+            '$id': '1a2b3c4d-5e6f-7081-92a3-b4c5d6e7f809',
+            '$email': 'John.Smith@linkedunion.com'
+        }}
+    )
+] - Extracted entities have different id but it is the same person. 
 
-3. Identify entities according to this rules:
+Correct extraction will have all traits belonging to entity under one entity:
 
-   * Assign a unique `Id` to each entity.
-   * Classify each entity according to the entity classification.
-   * Identify an abstract entity type aligned with to Entity type provided above.
-   * Resolve pronouns and references: if a pronoun or description refers to an already-mentioned entity, include its attribute under the same `Id`. For example, in "Adam is a child. He is 7 years old," `He` refers to `Adam`.
+entities = [
+    ExtractedEntity(
+    type='Person',
+        traits={{
+            '$id': '8f9a0f4e-5b2a-4b3e-9e6a-1d2c3b4a5f6e',
+            '$name': 'John Smith',
+            '$email': 'John.Smith@linkedunion.com'
+        }},
+    )
+]
 
-4. Entity Attributes Extraction
+- When a pronoun or description refers to a previously mentioned entity, assign the resolved information to the same entity ID.
+- Example: "Adam is a child. He is 7 years old." — both sentences describe entity Id: abc1 (Adam).
 
-   * Group all attributes under the entity they belong to.
-   * Each attribute should be precise and self-contained.
-   * Attribute should not rate to other entity, e.g. NOT allowed attribute example belongs_to: some-organization.
-   * Include numeric values, measurements, dates, locations, and descriptive characteristics.
-   * Avoid merging multiple attributes into one field; keep them separate.
-   * Use clear labels for attributes (e.g., `type`, `name`, `age`, `size`, `version`,etc.).
-   * Labels which should not to be added as attributes: verbs, separate entities: like `location` , `organization`, `product`, etc. which should be separate entities
+4. Text Chunks
+
+For each entity, include the exact excerpt or a brief summary of the text that refers to it.
 
 5. Formatting
 
    * Use the following JSON-like format:
 
 ```json
-Id: <unique_number>
-classification: <Entity class according to classification>
-type: <entity_type>
+Type: <entity-type>
 Attributes:
 - <attribute_label>: <attribute_value>
 - <attribute_label>: <attribute_value>
-Text: <text chunk or summary of larger text that refers to this entity>
 ---
 
 <attribute-label> should NOT include verb
 Attributes should NOT include relations to other entities. 
 ```
-
-6. Additional Guidelines
-
-   * Focus on core attributes of the entity mentioned in the text. 
-   * Omit emotional statements and other non-essential information.
-   * If multiple entities are present, extract each separately with a unique `Id`.
-   * Include location, date, size, weight, appearance, behavior, and other key attributes when available.
-   * Avoid including irrelevant information not directly describing the entity.
-   * Find text chunks that refer to the entity and include them in the output.
 
 6. Pronouns and references example
 
@@ -97,31 +116,45 @@ Adam is a child. He is 7 years old and loves soccer. He lives in Paris.
 Output:
 
 ```json
-Id: 1
-classification: Entity > Continuant > PhysicalObject > Agent
-type: Person
+Type: Person
 Attributes:
-- name: Adam
-- age: 7 years
-Text: "Adam is a child and is 7 years old."
-
-Id: 2
-classification: Entity > Continuant > PhysicalObject > Location
-type: City
+- $id: as5hs34d98g2
+- $name: Adam  # No age as there is not age trait for person.
+---
+Type: City
 Attributes:
-- type: City
-- name: Paris
-Text: "Adam lives in Paris"
-
-Id: 3
-classification: Entity > Occurrent > Process > Sport
-type: Soccer
+- $id: abs34d98g2
+- $type: Capital
+- $name: Paris
+---
+Type: Sport
 Attributes:
-- type: soccer
-Text: "Adam loves soccer"
+- $id: 3ask93jdnfur6
+- $type: soccer
+---
+Type: Topic
+Attributes:
+- $id: aeafd996-9893-4f48-4504--40d95410e057
+- $type: personal
+---
+Type: Aspect
+Attributes:
+- $id: 4dffd996-6663-4128-45564--40d9560e057
+- $type: informational
+---
+Type: Aspect
+Attributes:
+- $id: aa23996-9893-4f48-4504--40d95410e057
+- $type: personal
 ```
 
-7. Simple Example
+7. What to do when some keywords can not be matched with entities.
+
+In this case lower the abstraction for entity. Each key information can be extracted as type  Entity so there is always way to 
+extract some key meaning as Entity or other lower entityt type. Example: I paid for my English course yesterday. There is not Payment entity type. The closest to Payment is Process. Because Payment is Process. The use Process and set $type = "payment". 
+Extract as many as possible key infromations that could server as a hook for information retrival.
+
+8. Simple Example
 
 Text:
 The European ground squirrel (Spermophilus citellus), also known as the European souslik, is a species in the squirrel
@@ -136,122 +169,69 @@ in the vicinity to dive for cover. This European ground squirrel was photographe
 near Muráň, Slovakia.
 
 Output:
-
-```json
-Id: 1
-classification: Entity > Continuant > PhysicalObject > NaturalEntity
-type: Animal
+Type: Animal
 Attributes:
-- name: European ground squirrel
-- scientific_name: Spermophilus citellus
-- common_name: European souslik
-- family: Sciuridae
-- order: Rodentia
-- habitat: Central and Southeastern Europe, steppes, pastures, dry banks, sports fields, parks, lawns
-- behavior: Colonial, diurnal
-- burrow_depth: Up to 2 metres (6 ft)
-- size: 20–23 cm (8–9 in)
-- weight: 240–340 g (8.5–12 oz)
-- fur: Short, dense, yellowish grey tinged with red, with pale and dark spots
-- tail: Short, bushy
-Text: "The European ground squirrel (Spermophilus citellus), also known as the European souslik, is a species in the squirrel
-family, Sciuridae. Like all squirrels, it is a member of the order of rodents, and it is found in central
-and southeastern Europe, with its range divided into two parts by the Carpathian Mountains. It is a colonial animal
-and mainly diurnal. The European ground squirrel excavates a branching system of tunnels up to 2 metres (6 ft) deep,
-with several entrances. This requires a habitat of short turf, such as on steppes, pasture, dry banks, sports fields,
-parks and lawns. Its short, dense fur is yellowish grey, tinged with red, with a few indistinct pale and dark spots
-on the back. Adults typically measure 20 to 23 centimetres (8 to 9 in) with a weight of 240 to 340 grams (8.5 to 12.0 oz).
-It has a slender build with a short, bushy tail, and makes a shrill alarm call that causes all other individuals
-in the vicinity to dive for cover. "
+- $id: 5b90f2f6-dc2e-437a-a86b-764c6bf12006
+- $name: European ground squirrel
+- $species: Spermophilus citellus
+- $age: adult (20–23 cm body length, 240–340 g weight)
 
-Id: 2
-classification: Entity > Continuant > PhysicalObject > Location
-type: Park
+-- 
+Type: Topic
 Attributes:
-- address: Obrovisko Family Park, near Muráň, Slovakia
-Text: "This European ground squirrel was photographed in Obrovisko Family Park,
-near Muráň, Slovakia."
-```
-
-8. Extend the number of entities if possible
-
-For the text: I hid the invoice for the coffee machine in the drawer.
-Output should look for all possible entities:
-
-```json
-Id: 1
-classification: Entity > Informational > Document
-type: Invoice
+- $id: aeafd996-4f48-4504-9893-50d954410e056
+- $name: Zoology
+---
+Type: Aspect
 Attributes:
-- for: coffee machine
-Text: "I hid the invoice for the coffee machine in the drawer"
-
-Id: 2
-classification: Entity > Continuant > PhysicalObject > Artifact
-type: Home Appliance
+- $id: aeafd996-9893-4f48-4504--40d95410e057
+- $type: environmental
+---
+Type: Concept
 Attributes:
-- type: coffee machine
-Text: "I hid the invoice for the coffee machine in the drawer"
-
-Id: 3
-classification: Entity > Continuant > PhysicalObject > Artifact
-type: Furniture
+- $id: 59afd996-4504-4f48-9893-30d95410e057
+- $name: Sciuridae
+- $domain: zoological taxonomy
+---
+Type: Concept
 Attributes:
-- type: drawer
-Text: "I hid the invoice for the coffee machine in the drawer
-```
-
-9. Strict relevance of attribute to entity
-
-For text: The second son of Krishna Prasad Koirala, a follower of Mahatma Gandhi, Bishweshwar Prasad Koirala was raised in Banaras, Krishna Prasad Koirala was chairman of Fed. 
-Incorrect output:
-```json
-Id: 1
-classification: Entity > Continuant > PhysicalObject > Agent
-type: Person
+- $id: 5e8c309b-f2a0-4363-af1f-5d51ac7ef2bc
+- $type: zoological
+- $name: Rodentia
+- $domain: zoological taxonomy
+---
+Type: NaturalEntity
 Attributes:
-- name: Krishna Prasad Koirala
-- follower: "Krishna Prasad Koirala"  <- DO NOT include relations to other entities. This is irrelevant information for the attributes, as it does not directly describe the entity attribute, attibute or property.
-- chariman_of: "Fed"
-
-Id: 2
-type: Person
-classification: Entity > Continuant > PhysicalObject > Agent
+- $id: 4f7ab51d-f5e3-44bd-97a9-ecb5f275ad68
+- $type: mountain range
+- $name: Carpathian Mountains
+---
+Type: Location
 Attributes:
-- name: "Bishweshwar Prasad Koirala"
-- raised_in: "Banaras" <- DO NOT include relations to other entities. This is irrelevant information for the attributes, as it does not directly describe the entity attribute, attibute or property.
-```
+- $id: cc13f689-af87-4366-bbb6-6b21f99bd550
+- $type: region
+- $address: central and southeastern Europe
 
-Correct OUTPUT:
-``json
-Id: 1
-classification: Entity > Continuant > PhysicalObject > Agent
-type: Person
+---
+Type: Place
 Attributes:
-- name: Krishna Prasad Koirala
-Text: 'Krishna Prasad Koirala"
+- $id: 756598ce-a8d1-4e5b-8d75-72e4ee316988
+- $type: park
+- $name: Obrovisko Family Park
+- $address: near Muráň, Slovakia
 
-Id: 2
-classification: Entity > Continuant > PhysicalObject > Agent
-type: Person
+---
+Type: City
 Attributes:
-- name: "Bishweshwar Prasad Koirala"
-Text: "Bishweshwar Prasad Koirala was raised in Banaras"
+- $id: d56ef58a-16e1-4bf3-8e20-71ea74aaf60e
+- $name: Muráň
+---
+Type: Country
+Attributes:
+- $id: d23e1b44-0092-4460-9cdc-15b376ec75fb
+- $name: Slovakia
+---
 
-Id: 3
-classification: Entity > Continuant > PhysicalObject > Agent
-type: Person
-Attributes:
-- name: "Mahatma Gandhi"
-Text: "Mahatma Gandhi was chairman of Fed"
-
-Id: 4
-classification: Entity > Continuant > NonPhysicalObject > Organization
-type: Organization
-Attributes:
-- name: "Fed"
-Text: "Mahatma Gandhi was chairman of Fed"
-```
 Now it's your turn!
 
 Text: {text}"""

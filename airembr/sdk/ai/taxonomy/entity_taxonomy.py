@@ -1,6 +1,9 @@
 import json
 import os
+from pprint import pprint
+
 import numpy as np
+from durable_dot_dict.dotdict import DotDict
 
 
 def load_taxonomy(path="taxonomy.json"):
@@ -31,3 +34,4 @@ def load_taxonomy(path="taxonomy.json"):
 
 
 taxonomy = load_taxonomy(os.path.join(os.path.dirname(__file__), "taxonomy.json"))
+
