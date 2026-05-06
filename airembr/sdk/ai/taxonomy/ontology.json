@@ -146,7 +146,7 @@
     "definition": "A conceptual subject or theme used to classify, organize, or describe the content or focus of entities such as documents, discussions, or processes",
     "traits": {
       "$id": "string",
-      "$name": "string",
+      "$type": "string",
       "$domain": "string",
       "$description": "string"
     }
@@ -438,7 +438,7 @@
   "definition": "A specific dimension, perspective, or facet used to analyze, describe, or evaluate an entity such as a text, event, or process",
   "traits": {
     "$id": "string",
-    "$name": "string"
+    "$type": "string"
   }
 }
 ]

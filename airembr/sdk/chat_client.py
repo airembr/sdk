@@ -268,7 +268,7 @@ class AirembrObservation:
         return Observation(
             id = self.observation_id,
             label=self.label,
-            text=self.description,
+            text=Semantic(description=self.description, ner=False),
             traits=self.traits,
             observer=self.observer_link,
             source=Entity(id=self.source_id) if self.source_id else Entity(id=self.client.source_id),

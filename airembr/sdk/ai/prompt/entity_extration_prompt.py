@@ -1,4 +1,5 @@
-from typing import Any, Dict
+from typing import Any, Dict, Optional, List, Tuple
+from uuid import uuid4
 
 from pydantic import BaseModel, Field
 
@@ -6,22 +7,65 @@ from airembr.sdk.ai.taxonomy.entity_ontology import ontology, render_ontology, y
 from airembr.sdk.ai.taxonomy.entity_taxonomy import taxonomy
 from airembr.sdk.ai.taxonomy.entity_taxonomy_converter import flatten_taxonomy
 from airembr.sdk.db.aspects import aspects, render_aspects_sorted
+from airembr.sdk.service.hashes.hash import md5
 
 flat_taxonomy = flatten_taxonomy(taxonomy)
 
 
 class ExtractedEntity(BaseModel):
-    type: str =Field(..., description="Type of entity.")
+    type: str = Field(..., description="Type of entity.")
     traits: Dict[str, Any]
+
+    def get_type(self) -> str:
+        return self.type.replace(" ", "").strip().lower()
+
+    def get_entity_id(self) -> str:
+        entity_id = None
+        entity_type = self.get_type()
+        if entity_type in ['topic', 'aspect']:
+            entity_id = self.traits.get('$type', None)
+
+        if entity_type in ['device']:
+            entity_id = self.traits.get('$serial_number', None)
+
+        if entity_type in ['place', 'location']:
+            entity_id = self.traits.get('$address', None)
+
+        if entity_type in ['country']:
+            entity_id = self.traits.get('$name', None)
+
+        if not entity_id:
+            entity_id: str = self.traits.get('$id', str(uuid4()))
+
+        return md5(f"{entity_type}-{entity_id}")
+
+    def get_global_identification(self) -> Optional[Tuple[List[str], bool]]:
+        entity_type = self.get_type()
+        if entity_type in ['person', 'organization']:
+            return ['$email'], True
+
+        if entity_type in ['document']:
+            return ['$type', '$number'], True
+
+        return None
 
 
 class ExtractedEntities(BaseModel):
     entities: list[ExtractedEntity]
+    summary: str = Field(..., description="Plain text summary in English.")
+
+    def yield_entities(self):
+        for ent in self.entities:
+            for key, value in ent.traits.items():
+                if key in ['$type', '$id']:
+                    ent.traits[key] = value.lower()
+            yield ent
 
 
-system_prompt = ("You specialize in extracting  key information as entities and its directly related traits/attributes from given text. "
-                 "Output should of your job be in JSON format holding all possible extracted entities. "
-                 "Example {{\"entities\":[{{\"type\": Person, \"traits\":{{\"$name\":\"<entity-name>\"}}}}, more...]}}"),
+system_prompt = (
+    "You specialize in extracting key information as entities and its directly related traits/attributes from given text. "
+    "Output should of your job be in JSON format holding all possible extracted entities. You also specialize in summarization of the texts."
+    "Example {{\"entities\":[{{\"type\": Person, \"traits\":{{\"$name\":\"<entity-name>\"}}, \"summary\": \"Summary of the text. Max 5 sentences.\"}}, more...]}}"),
 user_prompt = lambda text: f"""
 Your task is to extract, from the text below, key information that can serve as hooks for information retrival. In order to do that use predefined 
 entities classes, entity types together with their traits.
@@ -40,7 +84,7 @@ Extraction Rules
 - Use only the entity types and traits defined above.
 - Allowed entity types: {list(yield_entity_types())}
 - Always extract at least on Topic entity. If there are many topic extract many.
-- Always extract all possible aspects that are covered in text.
+- Always extract all possible aspects that are covered in text. 
   Available aspect $type: {render_aspects_sorted(aspects)}
 - Extract entities at every applicable level of abstraction (e.g., a Company is also an Organization and an Agent — extract whichever levels add meaningful information).
 - If multiple instances of the same type appear (e.g., several people or locations), extract each as a separate entity.
@@ -232,6 +276,12 @@ Attributes:
 - $name: Slovakia
 ---
 
-Now it's your turn!
+9. Summarization
 
-Text: {text}"""
+Summarize the text in the English language. Keep the most relevant information in teh summary in a factual manner. Just pure facts in triplet from: Subject precicate object. Use plain text NO MARKUP.
+
+Now it's your turn!
+---
+Text to process: 
+
+{text}"""

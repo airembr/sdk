@@ -1,5 +1,7 @@
 import json
+from datetime import datetime
 
+from dateutil.parser import parse, ParserError
 from durable_dot_dict.dotdict import DotDict
 from numpy import ndarray
 from pydantic import ValidationError
@@ -204,6 +206,14 @@ def convert_record_to_observation(record: dict) -> Observation:
     summary = record.get('semantic_summary', None)
     description = record.get('semantic_description', None)
 
+    create_ts = record.get('metadata_time_create', now_in_utc())
+
+    if not isinstance(create_ts, datetime):
+        try:
+            create_ts = parse(create_ts)
+        except ParserError as e:
+            logger.error(str(e))
+
     relation = ObservationRelation(
         id=record.get('rel_id'),
         label=rel_label if rel_label else rel_type,
@@ -215,7 +225,7 @@ def convert_record_to_observation(record: dict) -> Observation:
             summary=summary if isinstance(summary, str) else None,
             description=description if isinstance(description, str) else None,
         ),
-        ts=record.get('metadata_time_create', now_in_utc()),
+        ts=create_ts,
         order=record.get('metadata_order', None),
         tags = tags if tags else []
     )
@@ -229,6 +239,7 @@ def convert_record_to_observation(record: dict) -> Observation:
         session=Session(id=record.get('session_id', None)),
         observer=actor_instance,
         entities=entities,
+        create_ts=create_ts,
         relation=[relation],
     )
 

@@ -1,9 +1,7 @@
-import hashlib
 from datetime import datetime
 from enum import Enum
 from typing import Optional, List, Any, Dict, Generator, Set, Union, Tuple
 from uuid import uuid4
-from hashlib import md5
 
 from durable_dot_dict.dotdict import DotDict
 from pydantic import BaseModel, RootModel, model_validator, Field, PrivateAttr
@@ -13,6 +11,7 @@ from airembr.sdk.model.identification_id import IdentificationId
 from airembr.sdk.model.instance import Instance
 from airembr.sdk.model.instance_link import InstanceLink
 from airembr.sdk.model.session import Session
+from airembr.sdk.service.hashes.hash import md5
 from airembr.sdk.service.sementic import render_description
 from airembr.sdk.service.text.cleanup import _clean_value
 from airembr.sdk.service.time.time import now_in_utc
@@ -109,7 +108,14 @@ class ObservationEntity(BaseModel):
                 if self.identification.values_only:
                     yield self.traits[trait_path]
                     continue
-                yield trait_path, self.traits[trait_path]
+
+                # Remove ontology indicator
+                if trait_path.startswith('$'):
+                    normalized_trait_path = trait_path[1:]
+                else:
+                    normalized_trait_path = trait_path
+
+                yield normalized_trait_path, self.traits[trait_path]
 
     def _resolve_id_from_properties(self) -> IdentificationId:
 
@@ -120,6 +126,7 @@ class ObservationEntity(BaseModel):
             return IdentificationId()  # No properties defined, nothing to do here.
 
         # Try to revolve id from properties
+        # Returns a list of paths and its values (for merge keys)
         hash_base = list(self._yield_traits_from_properties())
 
         if len(hash_base) == 0:
@@ -133,7 +140,7 @@ class ObservationEntity(BaseModel):
         hash_base = sorted(hash_base)
         hash_base = f"{self.instance.kind}:{hash_base}"
 
-        return IdentificationId(iid=hashlib.md5(hash_base.encode()).hexdigest(),
+        return IdentificationId(iid=md5(hash_base),
                                 type=self.identification.to_comma_separated_value())
 
     def is_consent_granted(self) -> bool:
