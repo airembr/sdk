@@ -20,7 +20,6 @@ def entity(type: str,
            label: Optional[str] = None,
            id: Optional[str] = None,
            identification: Optional[EntityIdentification] = None) -> 'AiRembrEntity':
-
     return AiRembrEntity(
         entity=ObservationEntity(
             instance=Instance.type(type, id),
@@ -232,7 +231,7 @@ class AirembrObservation:
              objects: Optional[List[AiRembrEntity]] = None,
              description: Optional[str] = None,
              summary: Optional[str] = None,
-             ts:Optional[datetime] = None,
+             ts: Optional[datetime] = None,
              tags: Optional[Set[str]] = None,
              ):
         if not self.entities:
@@ -249,7 +248,7 @@ class AirembrObservation:
                 description=description,
                 summary=summary,
             ),
-            ts = ts,
+            ts=ts,
             tags=list(tags) if tags else [],
         )
 
@@ -266,7 +265,7 @@ class AirembrObservation:
             entities = {}
 
         return Observation(
-            id = self.observation_id,
+            id=self.observation_id,
             label=self.label,
             text=Semantic(description=self.description, ner=False),
             traits=self.traits,
@@ -305,6 +304,14 @@ class AiRembrChatClient:
         self.chat_ttl: Optional[int] = None
         self.chat_id: Optional[str] = None
 
+    @staticmethod
+    def get_references() -> Tuple[InstanceLink, InstanceLink, InstanceLink]:
+        observer = InstanceLink.create('observer')
+        person = InstanceLink.create('person')
+        agent = InstanceLink.create('agent')
+
+        return observer, person, agent
+
     def observation(self,
                     observer: AiRembrEntity,
                     source_id: str,
@@ -313,7 +320,6 @@ class AiRembrChatClient:
                     session_id: Optional[str] = None,
                     description: Optional[str] = None,
                     traits=None) -> AirembrObservation:
-
         if traits is None:
             traits = {}
 
@@ -325,11 +331,3 @@ class AiRembrChatClient:
                                   session_id,
                                   source_id,
                                   traits)
-
-    @staticmethod
-    def get_references() -> Tuple[InstanceLink, InstanceLink, InstanceLink]:
-        observer = InstanceLink.create('observer')
-        person = InstanceLink.create('person')
-        agent = InstanceLink.create('agent')
-
-        return observer, person, agent

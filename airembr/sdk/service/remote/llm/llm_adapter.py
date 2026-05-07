@@ -1,5 +1,5 @@
 import logging
-from typing import Literal, Optional, Type
+from typing import Literal, Optional, Type, TypeVar
 
 from pydantic import BaseModel
 
@@ -11,6 +11,7 @@ from airembr.sdk.service.remote.llm.driver.open_router import OpenRouterProvider
 from airembr.sdk.service.remote.llm.exception import ProviderNotSupportedError
 from airembr.sdk.service.remote.llm.llm_config import LLMConfig
 
+T = TypeVar("T", bound=BaseModel)
 
 class LLMAdapter:
     """
@@ -19,7 +20,7 @@ class LLMAdapter:
 
     def __init__(
             self,
-            provider: Literal["open-router", "open-ai", "anthropic"],
+            provider: Literal["open-router", "open-ai", "anthropic"] | str,
             api_key: str,
             model: str,
             timeout: float = 30.0,
@@ -67,8 +68,8 @@ class LLMAdapter:
             system_prompt: str,
             user_prompt: str,
             temperature: float = 0.7,
-            structured_output: Optional[Type[BaseModel]] = None,
-    ) -> BaseModel:
+            structured_output: Optional[Type[T]] = None,
+    ) -> T:
 
         return await self._provider.infer(
             system_prompt=system_prompt,

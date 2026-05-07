@@ -5,7 +5,7 @@ from typing import Literal
 
 @dataclass(slots=True)
 class LLMConfig:
-    provider: Literal["open-router", "open-ai", "anthropic"]
+    provider: Literal["open-router", "open-ai", "anthropic"] | str
     api_key: str
     model: str
     timeout: float = 30.0
