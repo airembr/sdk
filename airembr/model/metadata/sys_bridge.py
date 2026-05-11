@@ -2,7 +2,7 @@ from hashlib import md5
 from typing import Optional
 
 from airembr.model.system.named_entity import NamedEntity
-from lib.common.form import Form
+from airembr.model.gui.form import Form
 from airembr.core.hash.hasher import uuid4_from_md5
 
 

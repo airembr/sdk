@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from airembr.model.system.named_entity import NamedEntity
 from typing import List, Optional
-from lib.common.form import Form
+from airembr.model.gui.form import Form
 
 
 class DestinationData(BaseModel):

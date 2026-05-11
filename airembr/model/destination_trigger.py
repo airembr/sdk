@@ -1,6 +1,6 @@
 from typing import Optional
 
-from lib.common.form import Form
+from airembr.model.gui.form import Form
 from airembr.model.system.named_entity import NamedEntity
 
 

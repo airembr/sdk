@@ -2,7 +2,7 @@ from datetime import datetime
 
 from hashlib import md5
 import json
-from system.config.sys_config import sys_config
+from airembr.system.config.sys_config import sys_config
 
 
 def uuid4_from_md5(hash: str):
