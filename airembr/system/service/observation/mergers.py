@@ -1,17 +1,9 @@
 import copy
 from collections import defaultdict
 from datetime import datetime
-from typing import Any, Dict, Iterable, List, Set, Tuple
+from typing import Iterable, List, Set, Tuple
 
-from durable_dot_dict.dotdict import DotDict
-
-
-def deep_merge_dicts(old: Dict[Any, Any], new: Dict[Any, Any]) -> Dict[Any, Any]:
-    old = DotDict(old).flat()
-    new = DotDict(new).flat()
-    old.update(new)
-    old = DotDict() << old
-    return old.to_dict()
+from airembr.core.dotdict.merger import deep_merge_dicts
 
 
 # Small helpers for relation sorting keys
@@ -50,7 +42,7 @@ def _ensure_list_of_links(val) -> List:
     return [val]
 
 
-def merge_observation_entities(old_entity, new_entity):
+def _merge_observation_entities(old_entity, new_entity):
     """
     Merge two ObservationEntity objects:
     - instance: newer (new_entity) wins
@@ -167,7 +159,7 @@ def merge_observations(observations: Iterable) -> List:
                     merged_entities_map[link] = copy.deepcopy(entity)
                 else:
                     # merge existing with new one
-                    merged_entities_map[link] = merge_observation_entities(merged_entities_map[link], entity)
+                    merged_entities_map[link] = _merge_observation_entities(merged_entities_map[link], entity)
 
         # Merge relations: gather all relations from all obs, then sort by (ts, order)
         all_relations = []

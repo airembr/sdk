@@ -3,7 +3,7 @@ from typing import Optional, List
 from hashlib import md5
 import os
 
-from airembr.sdk.service.environment import get_env_as_bool
+from airembr.core.env.validator import get_env_as_bool
 
 APP_NAME = 'airembr'
 VERSION = os.environ.get('_DEBUG_VERSION', '0.0.1')

@@ -1,5 +1,5 @@
 from random import uniform
-from airembr.sdk.service.environment import get_env_as_int
+from airembr.core.env.validator import get_env_as_int
 
 
 def _get_random_value(value) -> float:

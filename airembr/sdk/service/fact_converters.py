@@ -1,7 +1,5 @@
 from typing import List
 
-from durable_dot_dict.dotdict import DotDict
-
 from airembr.model.system.fact import EntityObject, DotDictFact
 from airembr.model.system.instance_link import InstanceLink
 from airembr.model.system.observation import Observation

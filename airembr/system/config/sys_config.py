@@ -12,7 +12,7 @@ from hashlib import md5
 
 from airembr.core.validator.url import is_valid_url
 from airembr.core.singleton import Singleton
-from airembr.sdk.service.environment import get_env_as_int, get_env_as_bool
+from airembr.core.env.validator import get_env_as_int, get_env_as_bool
 from airembr.model.system.version import version, APP_NAME, VERSION
 
 logger = get_logger(__name__)

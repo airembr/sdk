@@ -1,6 +1,6 @@
 import os
 
-from airembr.sdk.service.environment import get_env_as_int
+from airembr.core.env.validator import get_env_as_int
 
 
 class MysqlConfig:
