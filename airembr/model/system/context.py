@@ -7,7 +7,7 @@ from uuid import uuid4
 from airembr.model.system.headers import Headers
 from airembr.model.system.user import User
 from airembr.model.system.version import version as system_version
-from airembr.sdk.common.singleton import Singleton
+from airembr.core.singleton import Singleton
 from urllib.parse import parse_qs
 
 ctx_id: ContextVar[str] = ContextVar("request_id", default="")

@@ -1,9 +1,9 @@
-from typing import Tuple, List
+from typing import List
 
 from lark import Lark, UnexpectedCharacters, UnexpectedToken, Token
 from pydantic import BaseModel
 
-from airembr.sdk.common.singleton import Singleton
+from airembr.core.singleton import Singleton
 from airembr.sdk.service.parser.eql.grammar.eql_grammar import eql_grammar
 
 class CurrToken(BaseModel):

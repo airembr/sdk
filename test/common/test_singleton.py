@@ -1,4 +1,4 @@
-from airembr.sdk.common.singleton import Singleton
+from airembr.core.singleton import Singleton
 
 def test_singleton():
     class MyClass(metaclass=Singleton):

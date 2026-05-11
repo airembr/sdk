@@ -1,7 +1,7 @@
 import contextlib
 from datetime import datetime, timedelta
 
-from airembr.sdk.common.singleton import Singleton
+from airembr.core.singleton import Singleton
 
 
 class TimedFlag:

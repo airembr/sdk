@@ -1,8 +1,7 @@
 import asyncio
 
-from airembr.sdk.common.singleton import Singleton
+from airembr.core.singleton import Singleton
 from airembr.sdk.service.dot_accessor import DotAccessor
-
 from airembr.sdk.service.parser.tql.parser import Parser
 from airembr.sdk.service.parser.tql.transformer.expr_transformer import ExprTransformer
 

@@ -7,7 +7,7 @@ from durable_dot_dict.dotdict import DotDict
 from pydantic import ValidationInfo
 from pydantic_core import core_schema
 from pydantic import GetCoreSchemaHandler, GetJsonSchemaHandler
-from airembr.sdk.common.identification import generate_pk
+from airembr.core.entity.identification import generate_pk
 
 # Compile the regex pattern once
 OBJECT_TAG_PATTERN = re.compile(

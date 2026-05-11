@@ -8,7 +8,7 @@ from sqlalchemy import inspect, update, Column
 from airembr.sdk.logging.log_handler import get_logger
 from airembr.sdk.storage.metadata.proxy.sqlite.database_engine import AsyncSqliteEngine
 from airembr.model.system.context import get_context
-from airembr.sdk.common.singleton import Singleton
+from airembr.core.singleton import Singleton
 from airembr.sdk.storage.metadata.db_base import Base
 
 # Query utils

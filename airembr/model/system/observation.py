@@ -12,9 +12,9 @@ from airembr.model.system.instance import Instance
 from airembr.model.system.instance_link import InstanceLink
 from airembr.model.system.session import Session
 from airembr.core.hash.hash import md5
+from airembr.core.text.cleanup import _clean_value
 from airembr.sdk.service.sementic import render_description
-from airembr.sdk.service.text.cleanup import _clean_value
-from airembr.sdk.service.time.time import now_in_utc
+from airembr.sdk.common.date import now_in_utc
 from airembr.model.system.named_entity import NamedEntity
 
 

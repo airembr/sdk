@@ -1,6 +1,6 @@
 import re
 
-from airembr.sdk.common.singleton import Singleton
+from airembr.core.singleton import Singleton
 
 
 class EventDescriptionTemplate(metaclass=Singleton):

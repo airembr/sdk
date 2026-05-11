@@ -1,7 +1,7 @@
 import re
 
 from airembr.sdk.service.dot_accessor import DotAccessor
-from airembr.sdk.common.singleton import Singleton
+from airembr.core.singleton import Singleton
 
 class DotTemplate(metaclass=Singleton):
 

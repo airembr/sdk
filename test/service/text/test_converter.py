@@ -1,4 +1,4 @@
-from airembr.sdk.service.text.converter import to_camel_case
+from airembr.core.text.converter import to_camel_case
 
 def test_to_camel_case_simple():
     assert to_camel_case("hello world") == "HelloWorld"

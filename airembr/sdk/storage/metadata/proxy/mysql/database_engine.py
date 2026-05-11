@@ -3,7 +3,7 @@ from sqlalchemy.orm import sessionmaker
 
 from airembr.sdk.storage.metadata.db_context import current_md_database_name
 from airembr.sdk.storage.metadata.proxy.mysql.database_config import mysql_config
-from airembr.sdk.common.singleton import Singleton
+from airembr.core.singleton import Singleton
 
 class AsyncMySqlEngine(metaclass=Singleton):
 

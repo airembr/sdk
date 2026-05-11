@@ -1,6 +1,6 @@
 from unittest.mock import patch
 import sys
-from airembr.sdk.common.invoker import pip_install, import_package, load_callable, is_installed, is_coroutine
+from airembr.core.package.invoker import pip_install, import_package, load_callable, is_installed, is_coroutine
 
 @patch('subprocess.check_call')
 def test_pip_install(mock_check_call):

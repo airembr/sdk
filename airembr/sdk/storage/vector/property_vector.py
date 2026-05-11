@@ -2,7 +2,7 @@ from typing import List
 
 import lancedb
 
-from airembr.sdk.common.singleton import Singleton
+from airembr.core.singleton import Singleton
 
 
 class LanceVectorDb(metaclass=Singleton):

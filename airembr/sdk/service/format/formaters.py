@@ -4,7 +4,7 @@ from typing import Union
 from airembr.model.system.observation import Observation
 from durable_dot_dict.dotdict import DotDict
 
-from airembr.sdk.service.text.cleanup import _clean_value
+from airembr.core.text.cleanup import _clean_value
 
 
 def terminal_supports_colors() -> bool:

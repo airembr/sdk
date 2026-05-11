@@ -1,6 +1,6 @@
 from lark import Lark
 
-from airembr.sdk.common.singleton import Singleton
+from airembr.core.singleton import Singleton
 from airembr.model.system.meta_language.meta_lang_model import MetaLangQuery
 from airembr.sdk.service.parser.eql.eql_transformer import EQLTransformer
 from airembr.sdk.service.parser.eql.grammar.eql_grammar import eql_grammar

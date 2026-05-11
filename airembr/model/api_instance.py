@@ -1,6 +1,6 @@
 from uuid import uuid4
 from time import time
-from airembr.sdk.common.singleton import Singleton
+from airembr.core.singleton import Singleton
 
 
 class ApiInstance(metaclass=Singleton):

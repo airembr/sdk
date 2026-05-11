@@ -12,7 +12,7 @@ from airembr.model.system.observation import Observation, ObservationEntity, Obs
 from airembr.model.system.query.status import QueryStatus
 from airembr.model.system.session import Session, ChatSession
 from airembr.sdk.service.remote.airembr_api import AirembrApi
-from airembr.sdk.service.time.time import now_in_utc
+from airembr.sdk.common.date import now_in_utc
 
 
 def entity(type: str,
