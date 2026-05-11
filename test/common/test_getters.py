@@ -1,6 +1,6 @@
 import pytest
 from airembr.sdk.common.getters import get_entity_id, get_entity, get_primary_entity
-from airembr.sdk.model.entity import Entity, PrimaryEntity, FlatEntity
+from airembr.model.system.entity import Entity, PrimaryEntity, FlatEntity
 
 def test_get_entity_id_from_entity():
     entity = Entity(id="123")

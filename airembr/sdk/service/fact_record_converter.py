@@ -8,12 +8,12 @@ from pydantic import ValidationError
 
 from airembr.sdk.common.json_string import try_json
 from airembr.sdk.logging.log_handler import get_logger
-from airembr.sdk.model.entity import Entity
-from airembr.sdk.model.instance import Instance
-from airembr.sdk.model.instance_link import InstanceLink
-from airembr.sdk.model.observation import Observation, ObservationEntity, ObservationRelation, Semantic, \
+from airembr.model.system.entity import Entity
+from airembr.model.system.instance import Instance
+from airembr.model.system.instance_link import InstanceLink
+from airembr.model.system.observation import Observation, ObservationEntity, ObservationRelation, Semantic, \
     EntityIdentification
-from airembr.sdk.model.session import Session
+from airembr.model.system.session import Session
 from airembr.sdk.service.time.time import now_in_utc
 
 logger = get_logger(__name__)

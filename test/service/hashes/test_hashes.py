@@ -1,7 +1,7 @@
 import time
-from airembr.sdk.service.hashes.hash import dict_hash
-from airembr.sdk.service.hashes.sha1_hasher import SHA1Encoder
-from airembr.sdk.service.hashes.uuid_generator import get_time_based_uuid
+from airembr.core.hash.hash import dict_hash
+from airembr.core.hash.sha1_hasher import SHA1Encoder
+from airembr.core.hash.uuid_generator import get_time_based_uuid
 
 def test_dict_hash():
     d1 = {"a": 1, "b": 2}

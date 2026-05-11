@@ -1,4 +1,4 @@
-from airembr.sdk.model.instance_link import InstanceLink
+from airembr.model.system.instance_link import InstanceLink
 from jinja2 import Environment, Undefined
 from jinja2.exceptions import UndefinedError
 

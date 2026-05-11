@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from airembr.sdk.service.security.b64 import b64_encoder, b64_decoder, encrypt, decrypt
+from airembr.core.security.b64 import b64_encoder, b64_decoder, encrypt, decrypt
 
 class MockModel(BaseModel):
     name: str

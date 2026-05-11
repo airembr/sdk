@@ -1,4 +1,4 @@
-from airembr.sdk.model.named_entity import NamedEntity
+from airembr.model.system.named_entity import NamedEntity
 
 
 def map_to_named_entity(table) -> NamedEntity:

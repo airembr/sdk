@@ -6,8 +6,8 @@ from pydantic import BaseModel, Field
 from airembr.sdk.ai.taxonomy.entity_ontology import ontology, render_ontology, yield_entity_types
 from airembr.sdk.ai.taxonomy.entity_taxonomy import taxonomy
 from airembr.sdk.ai.taxonomy.entity_taxonomy_converter import flatten_taxonomy
-from airembr.sdk.db.aspects import aspects, render_aspects_sorted
-from airembr.sdk.service.hashes.hash import md5
+from airembr.db.aspects import aspects, render_aspects_sorted
+from airembr.core.hash.hash import md5
 
 flat_taxonomy = flatten_taxonomy(taxonomy)
 

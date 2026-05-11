@@ -2,7 +2,7 @@ from typing import List
 
 from pydantic import BaseModel, Field
 
-from airembr.sdk.db.topic import topic_tags
+from airembr.db.topic import topic_tags
 
 
 class ClearSummary(BaseModel):

@@ -81,8 +81,8 @@ pip install airembr-sdk
 
 ```python
 from airembr.sdk.chat_client import AiRembrChatClient
-from airembr.sdk.model.instance import Instance
-from airembr.sdk.model.observation import ObservationEntity
+from airembr.model.system.instance import Instance
+from airembr.model.system.observation import ObservationEntity
 
 # Create references to entities that participate in the conversation
 observer, person, agent = AiRembrChatClient.get_references()

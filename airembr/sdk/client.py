@@ -1,10 +1,10 @@
 from typing import List, Optional, Tuple, Generator
 
-from airembr.sdk.model.memory.conversation_memory import MemorySessions
-from airembr.sdk.model.observation import Observation
-from airembr.sdk.model.query.response import QueryEntityResponse, QueryResponse
-from airembr.sdk.model.query.status import QueryStatus
-from airembr.sdk.model.query.time_range_query import DatePayload
+from airembr.model.system.memory.conversation_memory import MemorySessions
+from airembr.model.system.observation import Observation
+from airembr.model.system.query.response import QueryEntityResponse, QueryResponse
+from airembr.model.system.query.status import QueryStatus
+from airembr.model.system.query.time_range_query import DatePayload
 from airembr.sdk.service.fact_record_converter import convert_fact_to_observation
 from airembr.sdk.service.remote.airembr_api import AirembrApi
 

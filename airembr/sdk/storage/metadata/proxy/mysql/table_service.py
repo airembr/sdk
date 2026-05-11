@@ -7,7 +7,7 @@ from sqlalchemy.sql import text
 
 from airembr.sdk.common.singleton import Singleton
 from airembr.sdk.logging.log_handler import get_logger
-from airembr.sdk.model.context import get_context
+from airembr.model.system.context import get_context
 from airembr.sdk.storage.metadata.proxy.mysql.database_engine import AsyncMySqlEngine
 from airembr.sdk.storage.metadata.db_base import Base
 

@@ -1,7 +1,7 @@
 from typing import Any, Optional
 from lark import Transformer, Token
 
-from airembr.sdk.model.meta_language.meta_lang_model import MetaLangEntity, MetaLangGroup, MetaLangLogic, MetaLangQuery
+from airembr.model.system.meta_language.meta_lang_model import MetaLangEntity, MetaLangGroup, MetaLangLogic, MetaLangQuery
 
 
 

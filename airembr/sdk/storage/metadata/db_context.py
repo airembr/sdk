@@ -1,5 +1,5 @@
-from airembr.sdk.model.context import get_context
-from airembr.sdk.model.version import APP_NAME
+from airembr.model.system.context import get_context
+from airembr.model.system.version import APP_NAME
 
 
 def current_md_database_name() -> str:

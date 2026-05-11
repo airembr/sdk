@@ -1,6 +1,6 @@
 from typing import Type, Callable, TypeVar
 
-from airembr.sdk.model.context import get_context
+from airembr.model.system.context import get_context
 from sqlalchemy import and_
 from sqlalchemy.sql import func
 

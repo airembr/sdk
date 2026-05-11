@@ -4,11 +4,11 @@ from typing import Optional, Protocol, Dict, Any, Tuple
 import requests
 
 from airembr.sdk.logging.log_handler import get_logger
-from airembr.sdk.model.memory.conversation_memory import ConversationMemory, MemorySessions
-from airembr.sdk.model.query.response import QueryResponse, QueryEntityResponse
+from airembr.model.system.memory.conversation_memory import ConversationMemory, MemorySessions
+from airembr.model.system.query.response import QueryResponse, QueryEntityResponse
 
-from airembr.sdk.model.query.status import QueryStatus
-from airembr.sdk.model.query.time_range_query import DatetimeRangePayload, DatePayload
+from airembr.model.system.query.status import QueryStatus
+from airembr.model.system.query.time_range_query import DatetimeRangePayload, DatePayload
 
 logger = get_logger(__name__)
 

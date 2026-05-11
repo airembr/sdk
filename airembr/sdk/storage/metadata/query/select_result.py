@@ -1,6 +1,6 @@
 from typing import Callable, Optional, List, Generator, TypeVar
 
-from airembr.sdk.model.named_entity import NamedEntity
+from airembr.model.system.named_entity import NamedEntity
 from airembr.sdk.storage.metadata.db_base import Base
 
 T = TypeVar('T')

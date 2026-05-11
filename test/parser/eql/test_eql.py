@@ -1,7 +1,7 @@
 import pytest
 from lark import Lark
 
-from airembr.sdk.model.meta_language.meta_lang_model import (
+from airembr.model.system.meta_language.meta_lang_model import (
     MetaLangEntity,
     MetaLangGroup,
     MetaLangLogic,

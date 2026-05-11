@@ -3,14 +3,14 @@ from datetime import datetime
 from typing import Optional, Tuple, List, Union, Dict, Set
 from uuid import uuid4
 
-from airembr.sdk.model.entity import Entity
-from airembr.sdk.model.instance import Instance
-from airembr.sdk.model.instance_link import InstanceLink
-from airembr.sdk.model.memory.conversation_memory import MemorySessions
-from airembr.sdk.model.observation import Observation, ObservationEntity, ObservationRelation, Semantic, \
+from airembr.model.system.entity import Entity
+from airembr.model.system.instance import Instance
+from airembr.model.system.instance_link import InstanceLink
+from airembr.model.system.memory.conversation_memory import MemorySessions
+from airembr.model.system.observation import Observation, ObservationEntity, ObservationRelation, Semantic, \
     EntityIdentification
-from airembr.sdk.model.query.status import QueryStatus
-from airembr.sdk.model.session import Session, ChatSession
+from airembr.model.system.query.status import QueryStatus
+from airembr.model.system.session import Session, ChatSession
 from airembr.sdk.service.remote.airembr_api import AirembrApi
 from airembr.sdk.service.time.time import now_in_utc
 

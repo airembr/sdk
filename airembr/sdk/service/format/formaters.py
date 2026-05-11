@@ -1,7 +1,7 @@
 import sys
 from typing import Union
 
-from airembr.sdk.model.observation import Observation
+from airembr.model.system.observation import Observation
 from durable_dot_dict.dotdict import DotDict
 
 from airembr.sdk.service.text.cleanup import _clean_value

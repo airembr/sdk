@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch, MagicMock
 from airembr.sdk.service.remote.airembr_api import AirembrApi
-from airembr.sdk.model.query.status import QueryStatus
+from airembr.model.system.query.status import QueryStatus
 
 class TestAirembrApi(unittest.TestCase):
     def setUp(self):

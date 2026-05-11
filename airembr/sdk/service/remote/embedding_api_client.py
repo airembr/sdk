@@ -4,7 +4,7 @@ from typing import List, Dict, Optional, Union, Generator, Tuple
 from requests import Response
 
 from airembr.sdk.logging.log_handler import get_logger
-from airembr.sdk.model.embedding.embedding import EmbeddingResponse
+from airembr.model.system.embedding.embedding import EmbeddingResponse
 
 logger = get_logger(__name__)
 

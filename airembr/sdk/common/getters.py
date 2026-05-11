@@ -1,6 +1,6 @@
 from typing import Optional, Union
 
-from airembr.sdk.model.entity import Entity, PrimaryEntity, FlatEntity
+from airembr.model.system.entity import Entity, PrimaryEntity, FlatEntity
 
 
 def get_entity_id(entity: Union[Optional[Entity], Optional[FlatEntity]], default=None) -> Optional[str]:

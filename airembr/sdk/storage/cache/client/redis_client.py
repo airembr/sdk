@@ -3,7 +3,7 @@ from typing import Optional, Awaitable, Union, List
 import redis
 
 from airembr.sdk.logging.log_handler import get_logger
-from airembr.sdk.model.context import get_context
+from airembr.model.system.context import get_context
 from airembr.sdk.common.singleton import Singleton
 from airembr.sdk.storage.cache.client.redis_connection_pool import get_redis_connection_pool
 from airembr.sdk.storage.cache.config import redis_config

@@ -1,6 +1,6 @@
 from unittest.mock import MagicMock
 from airembr.sdk.common.map_to_named_entity import map_to_named_entity
-from airembr.sdk.model.named_entity import NamedEntity
+from airembr.model.system.named_entity import NamedEntity
 
 def test_map_to_named_entity():
     mock_table = MagicMock()

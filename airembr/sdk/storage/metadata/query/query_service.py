@@ -4,7 +4,7 @@ from typing import Type, Callable, Optional, TypeVar, Tuple, Any
 from sqlalchemy import Column, update, delete, ChunkedIteratorResult, select, Select
 
 from airembr.sdk.storage.metadata.query.context_filter import context_filter
-from airembr.sdk.model.context import get_context, ServerContext
+from airembr.model.system.context import get_context, ServerContext
 from airembr.sdk.storage.metadata.db_base import Base
 from airembr.sdk.storage.metadata.query.select_result import SelectResult
 

@@ -1,5 +1,5 @@
 from datetime import datetime
-from airembr.sdk.common.time_parser import parse_date, parse_date_delta
+from airembr.core.time.time_parser import parse_date, parse_date_delta
 
 def test_parse_date():
     dt = parse_date("2023-01-01 12:00:00")
