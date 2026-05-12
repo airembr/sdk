@@ -1,10 +1,10 @@
 from airembr.system.logging.log_controller import log_controller
 from airembr.system.logging.log_handler import log_handler, get_installation_logger
-from system.worker.log_saver import log_saver_worker
+from airembr.system.process.logging.log_saver import log_saver_worker
 
 logger = get_installation_logger(__name__)
 
-
+# TODO Check if used
 def logger_guard(logs):
     return bool(logs)
 
