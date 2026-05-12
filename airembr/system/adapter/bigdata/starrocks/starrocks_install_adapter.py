@@ -13,7 +13,7 @@ from airembr.system.config.sys_config import sys_config
 
 from airembr.system.adapter.bigdata.env.bigdata_context import current_bd_database_name
 from airembr.system.schema.resource import Resource
-from system.tenant.multi_tenant_manager import MultiTenantManager
+from airembr.system.process.auth.tenant_manager import MultiTenantManager
 
 logger = get_installation_logger(__name__)
 _installed_tenants: Dict[str, bool] = {}

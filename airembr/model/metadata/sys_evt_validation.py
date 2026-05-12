@@ -1,8 +1,9 @@
-from airembr.model.system.named_entity import NamedEntityInContext
+import jsonschema
 from typing import Optional, List, Any
 from pydantic import field_validator, BaseModel
-import jsonschema
-from system.query.parser.tql.condition import Condition
+
+from airembr.model.system.named_entity import NamedEntityInContext
+from airembr.sdk.service.parser.tql.condition import Condition
 
 
 class ValidationSchema(BaseModel):

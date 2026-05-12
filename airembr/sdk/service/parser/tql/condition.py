@@ -23,10 +23,3 @@ class Condition(metaclass=Singleton):
         await asyncio.sleep(0)
         return ExprTransformer(dot=dot).transform(tree)
 
-#
-# async def main():
-#     x = await Condition().evaluate("param@a = 2", DotAccessor(param={"a": 1}))
-#     print(x)
-#
-# import asyncio
-# asyncio.run(main())

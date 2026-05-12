@@ -9,8 +9,8 @@ from airembr.model.entity_object import EntityPropertyPayload
 from airembr.system.config.sys_config import sys_config
 from airembr.system.adapter.bigdata.env.bigdata_context import current_bd_database_name
 
-from system.adapter.metadata.mysql.service.entity_object_service import EntityObjectService
-from system.adapter.metadata.mysql.interface import entity_object_dao
+from airembr.system.adapter.metadata.mysql.service.entity_object_service import EntityObjectService
+from airembr.system.adapter.metadata.mysql.interface import entity_object_dao
 
 _local_dir = os.path.dirname(__file__)
 eos = EntityObjectService()

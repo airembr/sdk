@@ -148,6 +148,3 @@ class Headers(dict):
 
     def has_no_queue_services(self) -> bool:
         return len(self._get_no_queue()) > 0
-
-    def should_identify_people(self) -> bool:
-        return self.get('x-identify-people', '0').lower() == '1'
