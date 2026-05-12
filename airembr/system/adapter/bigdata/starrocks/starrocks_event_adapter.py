@@ -5,17 +5,15 @@ from airembr.model.bigdata.flat_fact import FlatFact
 from airembr.core.time.time_converters import pretty_seconds
 from airembr.model.payload.query_result import QueryResult
 from airembr.model.system.query.time_range_query import DatetimeRangePayload
-
-from srd.domain.sql import Sql, Param
-
 from airembr.system.adapter.bigdata.env.bigdata_context import current_bd_database_name
 from airembr.system.adapter.bigdata.general.bd_event_adapter import BdEventAdapter
 from airembr.system.adapter.bigdata.general.helpers.filters import within
 from airembr.system.adapter.bigdata.starrocks.utils.sql_histogram import event_histogram_sql
-from system.driver.result_protocol import ResultProtocol
+from airembr.system.adapter.bigdata.protocol.result_protocol import ResultProtocol
 from airembr.system.adapter.bigdata.general.utils.mapping import event_mapping
 from airembr.system.adapter.bigdata.general.helpers.aggregations import bucket_data
 
+from srd.domain.sql import Sql, Param
 
 class StarrocksEventAdapter(BdEventAdapter):
 

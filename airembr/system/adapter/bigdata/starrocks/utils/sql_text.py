@@ -1,5 +1,5 @@
-from airembr.model.bigdata.flat_text import FlatText
 from srd.domain.sql import Sql, Param
+from airembr.model.bigdata.flat_text import FlatText
 from airembr.system.adapter.bigdata.general.utils.mapping import sys_text_mapping
 from airembr.system.adapter.bigdata.env.bigdata_context import current_bd_database_name
 

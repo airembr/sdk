@@ -1,8 +1,9 @@
 from typing import List
 
+from srd.domain.sql import Sql, Param
+
 from airembr.model.system.meta_language.meta_lang_model import MetaLangEntityBase
 from airembr.model.bigdata.flat_ent_property_state import FlatEntityPropertyState
-from srd.domain.sql import Sql, Param
 from airembr.system.adapter.bigdata.general.utils.mapping import sys_ent_2_obs, sys_ent_property_state
 from airembr.system.adapter.bigdata.env.bigdata_context import current_bd_database_name
 

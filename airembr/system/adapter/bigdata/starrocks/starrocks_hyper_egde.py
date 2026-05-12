@@ -1,18 +1,18 @@
 import json
+import itertools
 from typing import List, Optional, Dict
 
 from pydantic import BaseModel
 from enum import IntEnum
 
+from srd.domain.sql import Sql, Param
 from airembr.sdk.ai.response.memory_response import TimeStats
 from airembr.model.system.meta_language.meta_lang_model import MetaLangEntityBase
 from airembr.core.time.timer import timer
-from srd.domain.sql import Sql, Param
 from airembr.system.adapter.bigdata.adapter_router import AdapterRouter
 from airembr.system.adapter.bigdata.starrocks.utils.sql_entity_search import sql_entity_by_properties
 from airembr.system.adapter.bigdata.env.bigdata_context import current_bd_database_name
 from airembr.system.adapter.bigdata.general.utils.mapping import observation_2_entity_mapping
-import itertools
 
 
 def cartesian_product_size(data: dict):

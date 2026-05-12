@@ -6,7 +6,6 @@ from airembr.system.adapter.bigdata.general.helpers.aggregations import bucket_d
 from airembr.model.payload.query_result import QueryResult
 from airembr.system.adapter.bigdata.general.utils.mapping import log_mapping
 from airembr.system.adapter.bigdata.general.metadata import sys_log as sys_log_metadata
-
 from airembr.core.time.time_converters import pretty_seconds
 from airembr.model.system.query.time_range_query import DatetimeRangePayload
 from airembr.sdk.common.date import now_in_utc
