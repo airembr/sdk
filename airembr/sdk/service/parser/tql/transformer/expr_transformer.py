@@ -4,7 +4,7 @@ import dateparser
 import pytimeparse
 import pytz
 
-from airembr.sdk.logging.log_handler import get_logger
+from airembr.system.logging.log_handler import get_logger
 from airembr.sdk.service.dot_accessor import DotAccessor
 from typing import Union
 

@@ -1,9 +1,9 @@
 from dotenv import load_dotenv
 import os
 
-from airembr.sdk.logging import extra_info
-from airembr.sdk.logging.log_handler import get_logger
-from airembr.sdk.logging.log_level import get_logging_level
+from airembr.system.logging import extra_info
+from airembr.system.logging.log_handler import get_logger
+from airembr.system.logging.log_level import get_logging_level
 
 load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), ".env"))
 

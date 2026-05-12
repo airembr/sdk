@@ -2,7 +2,7 @@ from typing import Optional, Awaitable, Union, List
 
 import redis
 
-from airembr.sdk.logging.log_handler import get_logger
+from airembr.system.logging.log_handler import get_logger
 from airembr.model.system.context import get_context
 from airembr.core.singleton import Singleton
 from airembr.sdk.storage.cache.client.redis_connection_pool import get_redis_connection_pool

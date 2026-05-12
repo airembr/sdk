@@ -4,7 +4,7 @@ from typing import Dict, Optional
 
 from pydantic import BaseModel
 
-from airembr.sdk.logging.log_handler import get_logger
+from airembr.system.logging.log_handler import get_logger
 from time import time
 
 from airembr.core.security.b64 import b64_decoder

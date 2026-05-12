@@ -1,6 +1,6 @@
 import os
 
-from airembr.sdk.logging.log_handler import get_logger
+from airembr.system.logging.log_handler import get_logger
 from airembr.system.config.sys_config import sys_config
 from airembr.core.env.validator import get_env_as_int, get_env_as_bool
 

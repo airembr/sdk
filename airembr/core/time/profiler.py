@@ -2,7 +2,7 @@ from contextlib import contextmanager
 from time import time
 from typing import Optional
 
-from airembr.sdk.logging.log_handler import get_logger
+from airembr.system.logging.log_handler import get_logger
 
 logger = get_logger(__name__)
 

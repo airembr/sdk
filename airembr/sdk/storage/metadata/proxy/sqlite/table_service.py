@@ -5,7 +5,7 @@ from sqlalchemy.dialects.sqlite import insert
 from sqlalchemy.sql import text
 from sqlalchemy import inspect, update, Column
 
-from airembr.sdk.logging.log_handler import get_logger
+from airembr.system.logging.log_handler import get_logger
 from airembr.sdk.storage.metadata.proxy.sqlite.database_engine import AsyncSqliteEngine
 from airembr.model.system.context import get_context
 from airembr.core.singleton import Singleton

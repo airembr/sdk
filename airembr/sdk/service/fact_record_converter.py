@@ -7,7 +7,7 @@ from numpy import ndarray
 from pydantic import ValidationError
 
 from airembr.core.json.loader import try_json
-from airembr.sdk.logging.log_handler import get_logger
+from airembr.system.logging.log_handler import get_logger
 from airembr.model.system.entity import Entity
 from airembr.model.system.instance import Instance
 from airembr.model.system.instance_link import InstanceLink
