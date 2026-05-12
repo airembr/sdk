@@ -1,0 +1,529 @@
+{
+  "table": "sys_evt",
+  "distributed": "HASH(actor_pk, actor_data_hash)",
+  "duplicate_key": [
+    "actor_pk",
+    "actor_data_hash"
+  ],
+  "buckets": 10,
+  "partitioned": "RANGE(metadata_time_insert) ()",
+  "properties": [
+    "\"enable_persistent_index\" = \"true\"",
+    "\"dynamic_partition.enable\" = \"true\"",
+    "\"dynamic_partition.time_unit\" = \"MONTH\"",
+    "\"dynamic_partition.start\" = \"-24\"",
+    "\"dynamic_partition.end\" = \"1\"",
+    "\"dynamic_partition.prefix\" = \"p\""
+  ],
+  "engine": "olap",
+  "indexes": [
+    {
+      "index_name": "idx_name",
+      "columns": [
+        "rel_label"
+      ],
+      "type": "BITMAP"
+    },
+    {
+      "index_name": "idx_actor_id",
+      "columns": [
+        "actor_id"
+      ],
+      "type": "BITMAP"
+    },
+    {
+      "index_name": "idx_ssid",
+      "columns": [
+        "text_ssid"
+      ],
+      "type": "BITMAP"
+    },
+    {
+      "index_name": "idx_sdid",
+      "columns": [
+        "text_sdid"
+      ],
+      "type": "BITMAP"
+    }
+  ],
+  "columns": [
+    {
+      "column": "actor_pk",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "actor.pk",
+      "default": "NULL",
+      "comment": "Actor primary key. Primary key is unified ID for each entity. It's a hash of entity and instance id."
+    },
+    {
+      "column": "actor_data_hash",
+      "sr_column_type": "varchar(32)",
+      "ddb_column_type": "VARCHAR",
+      "property": "actor.data_hash",
+      "default": "NULL",
+      "comment": "Actor data hash. Hashed traits"
+    },
+    {
+      "column": "actor_type",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "actor.type",
+      "default": "NULL",
+      "comment": "Actor entity type"
+    },
+    {
+      "column": "actor_id",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "actor.id",
+      "default": "NULL"
+    },
+    {
+      "column": "actor_hid",
+      "sr_column_type": "varchar(32)",
+      "ddb_column_type": "VARCHAR",
+      "property": "actor.hid",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "actor_iid",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "actor.iid",
+      "default": "NULL",
+      "comment": "Actor identification id."
+    },
+    {
+      "column": "actor_iid_type",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "actor.iid_type",
+      "default": "NULL",
+      "comment": "Actor identification id type. Describes how iid was build, for example: email, phone, username, etc."
+    },
+    {
+      "column": "actor_schema_hash",
+      "sr_column_type": "varchar(32)",
+      "ddb_column_type": "VARCHAR",
+      "property": "actor.schema_hash",
+      "default": "NULL"
+    },
+    {
+      "column": "actor_role",
+      "sr_column_type": "varchar(32)",
+      "ddb_column_type": "VARCHAR",
+      "property": "actor.role",
+      "default": "NULL"
+    },
+    {
+      "column": "actor_label",
+      "sr_column_type": "varchar(60)",
+      "ddb_column_type": "VARCHAR",
+      "property": "actor.label",
+      "default": "NULL"
+    },
+    {
+      "column": "actor_is_a_id",
+      "sr_column_type": "varchar(40)",
+      "ddb_column_type": "VARCHAR",
+      "property": "actor.is_a.id",
+      "default": "NULL"
+    },
+    {
+      "column": "actor_is_a_kind",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "actor.is_a.kind",
+      "default": "NULL"
+    },
+    {
+      "column": "actor_part_of_kind",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "actor.part_of.kind",
+      "default": "NULL"
+    },
+    {
+      "column": "actor_part_of_id",
+      "sr_column_type": "varchar(40)",
+      "ddb_column_type": "VARCHAR",
+      "property": "actor.part_of.id",
+      "default": "NULL"
+    },
+    {
+      "column": "observer_id",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "observer.id",
+      "default": "NULL"
+    },
+    {
+      "column": "observer_pk",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "observer.pk",
+      "default": "NULL"
+    },
+    {
+      "column": "observer_type",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "observer.type",
+      "default": "NULL"
+    },
+    {
+      "column": "observer_role",
+      "sr_column_type": "varchar(32)",
+      "ddb_column_type": "VARCHAR",
+      "property": "observer.role",
+      "default": "NULL"
+    },
+    {
+      "column": "observer_data_hash",
+      "sr_column_type": "varchar(32)",
+      "ddb_column_type": "VARCHAR",
+      "property": "observer.data_hash",
+      "default": "NULL"
+    },
+    {
+      "column": "observer_schema_hash",
+      "sr_column_type": "varchar(32)",
+      "ddb_column_type": "VARCHAR",
+      "property": "observer.schema_hash",
+      "default": "NULL"
+    },
+    {
+      "column": "object_type",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "object.type",
+      "default": "NULL"
+    },
+    {
+      "column": "object_id",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "object.id",
+      "default": "NULL"
+    },
+    {
+      "column": "object_hid",
+      "sr_column_type": "varchar(32)",
+      "ddb_column_type": "VARCHAR",
+      "property": "object.hid",
+      "default": "NULL"
+    },
+    {
+      "column": "object_iid",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "object.iid",
+      "default": "NULL",
+      "comment": "Object identification id."
+    },
+    {
+      "column": "object_iid_type",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "object.iid_type",
+      "default": "NULL",
+      "comment": "Object identification id type. Describes how iid was build, for example: email, phone, username, etc."
+    },
+    {
+      "column": "object_pk",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "object.pk",
+      "default": "NULL",
+      "comment": "Object primary key. Primary key is unified ID for each entity. It's a hash of entity and instance id."
+    },
+    {
+      "column": "object_role",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "object.role",
+      "default": "NULL"
+    },
+    {
+      "column": "object_label",
+      "sr_column_type": "varchar(60)",
+      "ddb_column_type": "VARCHAR",
+      "property": "object.label",
+      "default": "NULL"
+    },
+    {
+      "column": "object_is_a_id",
+      "sr_column_type": "varchar(40)",
+      "ddb_column_type": "VARCHAR",
+      "property": "object.is_a.id",
+      "default": "NULL"
+    },
+    {
+      "column": "object_is_a_kind",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "object.is_a.kind",
+      "default": "NULL"
+    },
+    {
+      "column": "object_part_of_kind",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "object.part_of.kind",
+      "default": "NULL"
+    },
+    {
+      "column": "object_part_of_id",
+      "sr_column_type": "varchar(40)",
+      "ddb_column_type": "VARCHAR",
+      "property": "object.part_of.id",
+      "default": "NULL"
+    },
+    {
+      "column": "object_data_hash",
+      "sr_column_type": "varchar(32)",
+      "ddb_column_type": "VARCHAR",
+      "property": "object.data_hash",
+      "default": "NULL"
+    },
+    {
+      "column": "object_schema_hash",
+      "sr_column_type": "varchar(32)",
+      "ddb_column_type": "VARCHAR",
+      "property": "object.schema_hash",
+      "default": "NULL"
+    },
+    {
+      "column": "rel_label",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "rel.label",
+      "default": "NULL"
+    },
+    {
+      "column": "rel_type",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "rel.type",
+      "default": "NULL"
+    },
+    {
+      "column": "rel_id",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "rel.id",
+      "default": "NULL"
+    },
+    {
+      "column": "rel_tid",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "rel.tid",
+      "default": "NULL"
+    },
+    {
+      "column": "rel_hid",
+      "sr_column_type": "varchar(32)",
+      "ddb_column_type": "VARCHAR",
+      "property": "rel.hid",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "rel_pk",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "rel.pk",
+      "default": "NULL"
+    },
+    {
+      "column": "rel_data_hash",
+      "sr_column_type": "varchar(32)",
+      "ddb_column_type": "VARCHAR",
+      "property": "rel.data_hash",
+      "default": "NULL"
+    },
+    {
+      "column": "rel_schema_hash",
+      "sr_column_type": "varchar(32)",
+      "ddb_column_type": "VARCHAR",
+      "property": "rel.schema_hash",
+      "default": "NULL"
+    },
+    {
+      "column": "id",
+      "sr_column_type": "varchar(48)",
+      "ddb_column_type": "VARCHAR",
+      "property": "id",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "source_id",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "source.id",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "obs_id",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "observation.id",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "obs_label",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "observation.label",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "session_id",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "session.id",
+      "default": "NULL"
+    },
+    {
+      "column": "text_sdid",
+      "sr_column_type": "varchar(32)",
+      "ddb_column_type": "VARCHAR",
+      "property": "text.sdid",
+      "default": "NULL",
+      "comment": "Text Semantic Description ID"
+    },
+    {
+      "column": "text_ssid",
+      "sr_column_type": "varchar(32)",
+      "ddb_column_type": "VARCHAR",
+      "property": "text.ssid",
+      "default": "NULL",
+      "comment": "Text Semantic Summary ID"
+    },
+    {
+      "column": "semantic_summary",
+      "sr_column_type": "text",
+      "ddb_column_type": "TEXT",
+      "property": "semantic.summary",
+      "default": "NULL"
+    },
+    {
+      "column": "semantic_description",
+      "sr_column_type": "text",
+      "ddb_column_type": "TEXT",
+      "property": "semantic.description",
+      "default": "NULL"
+    },
+    {
+      "column": "subjective",
+      "sr_column_type": "boolean",
+      "ddb_column_type": "BOOLEAN",
+      "property": "subjective",
+      "default": "NOT NULL",
+      "default_value": "'1'"
+    },
+    {
+      "column": "tags",
+      "sr_column_type": "array<varchar(32)>",
+      "ddb_column_type": "VARCHAR[]",
+      "property": "tags",
+      "default": "NULL"
+    },
+    {
+      "column": "metadata_time_insert",
+      "sr_column_type": "datetime",
+      "ddb_column_type": "TIMESTAMP",
+      "property": "metadata.time.insert",
+      "default": "NOT NULL",
+      "default_value": "CURRENT_TIMESTAMP"
+    },
+    {
+      "column": "metadata_time_create",
+      "sr_column_type": "datetime",
+      "ddb_column_type": "TIMESTAMP",
+      "property": "metadata.time.create",
+      "default": "NULL"
+    },
+    {
+      "column": "metadata_time_due",
+      "sr_column_type": "datetime",
+      "ddb_column_type": "TIMESTAMP",
+      "property": "metadata.time.due",
+      "default": "NULL"
+    },
+    {
+      "column": "metadata_time_expire",
+      "sr_column_type": "datetime",
+      "ddb_column_type": "TIMESTAMP",
+      "property": "metadata.time.expire",
+      "default": "NULL"
+    },
+    {
+      "column": "metadata_order",
+      "sr_column_type": "BIGINT",
+      "ddb_column_type": "UBIGINT",
+      "property": "metadata.order",
+      "default": "NULL"
+    },
+    {
+      "column": "metadata_valid",
+      "sr_column_type": "boolean",
+      "ddb_column_type": "BOOLEAN",
+      "property": "metadata.valid",
+      "default": "NULL"
+    },
+    {
+      "column": "metadata_warning",
+      "sr_column_type": "boolean",
+      "ddb_column_type": "BOOLEAN",
+      "property": "metadata.warning",
+      "default": "NULL"
+    },
+    {
+      "column": "metadata_error",
+      "sr_column_type": "boolean",
+      "ddb_column_type": "BOOLEAN",
+      "property": "metadata.error",
+      "default": "NULL"
+    },
+    {
+      "column": "metadata_context_count",
+      "sr_column_type": "integer",
+      "ddb_column_type": "INTEGER",
+      "property": "metadata.context.count",
+      "default": "NULL",
+      "default_value": 0
+    },
+    {
+      "column": "metadata_context_entities",
+      "sr_column_type": "array<varchar(64)>",
+      "ddb_column_type": "VARCHAR[]",
+      "property": "metadata.context.entities",
+      "default": "NULL"
+    },
+    {
+      "column": "consents_granted",
+      "sr_column_type": "array<varchar(48)>",
+      "ddb_column_type": "VARCHAR[]",
+      "property": "consents.granted",
+      "default": "NULL"
+    },
+    {
+      "column": "sys_timer_id",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "sys.timer.id",
+      "default": "NULL",
+      "comment": "Timer ID"
+    },
+    {
+      "column": "sys_timer_status",
+      "sr_column_type": "integer",
+      "ddb_column_type": "INTEGER",
+      "property": "sys.timer.status",
+      "default": "NULL",
+      "comment": "Timer status: on, off, pending"
+    }
+  ]
+}
+

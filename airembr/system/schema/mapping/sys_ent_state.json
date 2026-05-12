@@ -1,0 +1,46 @@
+{
+  "table": "sys_ent_state",
+  "distributed": "HASH(entity_pk)",
+  "pk": "entity_pk",
+  "engine": "olap",
+  "properties": [
+    "\"enable_persistent_index\" = \"true\""
+  ],
+  "indexes": [
+    {
+      "index_name": "idx_pk",
+      "columns": [
+        "entity_pk"
+      ],
+      "type": "BITMAP"
+    }
+  ],
+  "columns": [
+    {
+      "column": "entity_pk",
+      "sr_column_type": "varchar(48)",
+      "ddb_column_type": "VARCHAR",
+      "property": "entity.pk",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "traits",
+      "sr_column_type": "JSON",
+      "ddb_column_type": "JSON",
+      "property": "entity.traits",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "stitch_ts",
+      "sr_column_type": "datetime",
+      "ddb_column_type": "TIMESTAMP",
+      "property": "stitch_ts"
+    },
+    {
+      "column": "ts",
+      "sr_column_type": "datetime",
+      "ddb_column_type": "TIMESTAMP",
+      "property": "ts"
+    }
+  ]
+}

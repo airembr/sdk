@@ -1,0 +1,31 @@
+{
+  "table": "sys_obs_trigger",
+  "distributed": "HASH(obs_id, trigger_id)",
+  "pk": "obs_id, trigger_id",
+  "engine": "olap",
+  "properties": [
+    "\"enable_persistent_index\" = \"true\""
+  ],
+  "columns": [
+    {
+      "column": "obs_id",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "obs.id",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "trigger_id",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "trigger.id",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "ts_end",
+      "sr_column_type": "datetime",
+      "ddb_column_type": "TIMESTAMP",
+      "property": "ts_end"
+    }
+  ]
+}

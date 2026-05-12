@@ -11,7 +11,7 @@ from airembr.system.config.log_config import logging_config
 from airembr.system.logging.log_handler import get_installation_logger
 from airembr.system.adapter.queue.queue_adapter import queue_adapter
 
-from system.adapter.bigdata.big_data_adapter import *
+from airembr.system.adapter.bigdata.big_data_adapter import *
 
 logger = get_installation_logger(__name__)
 

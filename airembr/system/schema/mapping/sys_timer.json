@@ -1,0 +1,114 @@
+{
+  "table": "sys_timer",
+  "distributed": "HASH(id)",
+  "pk": "id",
+  "engine": "olap",
+  "properties": [
+    "\"enable_persistent_index\" = \"true\""
+  ],
+  "columns": [
+    {
+      "column": "id",
+      "sr_column_type": "varchar(40)",
+      "ddb_column_type": "VARCHAR",
+      "property": "id",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "status",
+      "sr_column_type": "int",
+      "ddb_column_type": "INT32",
+      "property": "status"
+    },
+    {
+      "column": "ts",
+      "sr_column_type": "datetime",
+      "ddb_column_type": "TIMESTAMP",
+      "property": "ts"
+    },
+    {
+      "column": "timeout",
+      "sr_column_type": "integer",
+      "ddb_column_type": "INT32",
+      "property": "timeout"
+    },
+    {
+      "column": "event",
+      "sr_column_type": "varchar(32)",
+      "ddb_column_type": "VARCHAR",
+      "property": "event"
+    },
+    {
+      "column": "obs_id",
+      "sr_column_type": "varchar(128)",
+      "ddb_column_type": "VARCHAR",
+      "property": "obs.id"
+    },
+    {
+      "column": "obs_label",
+      "sr_column_type": "varchar(32)",
+      "ddb_column_type": "VARCHAR",
+      "property": "obs.label"
+    },
+    {
+      "column": "source_id",
+      "sr_column_type": "varchar(40)",
+      "ddb_column_type": "VARCHAR",
+      "property": "source.id"
+    },
+    {
+      "column": "actor_id",
+      "sr_column_type": "varchar(40)",
+      "ddb_column_type": "VARCHAR",
+      "property": "actor.id"
+    },
+    {
+      "column": "actor_role",
+      "sr_column_type": "varchar(32)",
+      "ddb_column_type": "VARCHAR",
+      "property": "actor.role"
+    },
+    {
+      "column": "actor_type",
+      "sr_column_type": "varchar(32)",
+      "ddb_column_type": "VARCHAR",
+      "property": "actor.type"
+    },
+    {
+      "column": "actor_data_hash",
+      "sr_column_type": "varchar(32)",
+      "ddb_column_type": "VARCHAR",
+      "property": "actor.data_hash"
+    },
+    {
+      "column": "object_id",
+      "sr_column_type": "varchar(40)",
+      "ddb_column_type": "VARCHAR",
+      "property": "object.id"
+    },
+    {
+      "column": "object_type",
+      "sr_column_type": "varchar(32)",
+      "ddb_column_type": "VARCHAR",
+      "property": "object.type"
+    },
+    {
+      "column": "object_role",
+      "sr_column_type": "varchar(32)",
+      "ddb_column_type": "VARCHAR",
+      "property": "object.role"
+    },
+    {
+      "column": "object_data_hash",
+      "sr_column_type": "varchar(32)",
+      "ddb_column_type": "VARCHAR",
+      "property": "object.data_hash"
+    },
+    {
+      "column": "traits",
+      "sr_column_type": "json",
+      "ddb_column_type": "VARCHAR",
+      "property": "traits"
+    }
+  ]
+}

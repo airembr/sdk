@@ -1,0 +1,63 @@
+{
+  "table": "sys_obs_2_obs",
+  "distributed": "HASH(observation_start_id, observation_end_id)",
+  "pk": "observation_start_id, observation_end_id",
+  "buckets": 5,
+  "properties": [
+    "\"enable_persistent_index\" = \"true\""
+  ],
+  "engine": "olap",
+  "indexes": [
+    {
+      "index_name": "idx_start",
+      "columns": [
+        "observation_start_id"
+      ],
+      "type": "BITMAP"
+    },
+    {
+      "index_name": "idx_end",
+      "columns": [
+        "observation_end_id"
+      ],
+      "type": "BITMAP"
+    },
+    {
+      "index_name": "idx_type",
+      "columns": [
+        "type"
+      ],
+      "type": "BITMAP"
+    }
+  ],
+  "columns": [
+    {
+      "column": "observation_start_id",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "observation.start",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "observation_end_id",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "observation.end",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "type",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "type",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "abstraction",
+      "sr_column_type": "integer",
+      "ddb_column_type": "INTEGER",
+      "property": "abstraction",
+      "default": "NOT NULL"
+    }
+  ]
+}

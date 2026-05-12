@@ -1,0 +1,213 @@
+{
+  "table": "sys_ent_history",
+  "pk": "entity_hid",
+  "distributed": "HASH(entity_hid)",
+  "buckets": 20,
+  "properties": [
+    "\"enable_persistent_index\" = \"true\""
+  ],
+  "engine": "olap",
+  "indexes": [
+    {
+      "index_name": "idx_observer_pk",
+      "columns": [
+        "observer_pk"
+      ],
+      "type": "BITMAP"
+    },
+    {
+      "index_name": "idx_entity_pk",
+      "columns": [
+        "entity_pk"
+      ],
+      "type": "BITMAP"
+    },
+        {
+      "index_name": "idx_entity_data_hash",
+      "columns": [
+        "data_hash"
+      ],
+      "type": "BITMAP"
+    },
+    {
+      "index_name": "idx_entity_id",
+      "columns": [
+        "entity_id"
+      ],
+      "type": "BITMAP"
+    },
+    {
+      "index_name": "idx_entity_traits_text",
+      "columns": [
+        "entity_traits_text"
+      ],
+      "type": "NGRAMBF (\"gram_num\" = \"4\", \"bloom_filter_fpp\" = \"0.05\")"
+    }
+  ],
+  "columns": [
+    {
+      "column": "entity_hid",
+      "sr_column_type": "varchar(32)",
+      "ddb_column_type": "VARCHAR",
+      "property": "entity.hid",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "entity_pk",
+      "sr_column_type": "varchar(48)",
+      "ddb_column_type": "VARCHAR",
+      "property": "entity.pk",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "data_hash",
+      "sr_column_type": "varchar(32)",
+      "ddb_column_type": "VARCHAR",
+      "property": "data_hash",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "entity_classification",
+      "sr_column_type": "varchar(128)",
+      "ddb_column_type": "VARCHAR",
+      "property": "entity.classification",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "entity_type",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "entity.type",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "entity_id",
+      "sr_column_type": "varchar(48)",
+      "ddb_column_type": "VARCHAR",
+      "property": "entity.id",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "entity_iid",
+      "sr_column_type": "varchar(48)",
+      "ddb_column_type": "VARCHAR",
+      "property": "entity.iid",
+      "default": "NULL"
+    },
+    {
+      "column": "entity_iid_type",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "entity.iid_type",
+      "default": "NULL",
+      "comment": "Entity identification id type. Describes how iid was build, for example: email, phone, username, etc."
+    },
+    {
+      "column": "entity_label",
+      "sr_column_type": "varchar(96)",
+      "ddb_column_type": "VARCHAR",
+      "property": "entity.label",
+      "default": "NULL"
+    },
+    {
+      "column": "entity_traits",
+      "sr_column_type": "json",
+      "ddb_column_type": "TEXT",
+      "property": "entity.traits",
+      "default": "NULL"
+    },
+    {
+      "column": "entity_traits_text",
+      "sr_column_type": "TEXT",
+      "ddb_column_type": "TEXT",
+      "property": "entity.traits_text",
+      "default": "NULL"
+    },
+    {
+      "column": "schema_hash",
+      "sr_column_type": "varchar(32)",
+      "ddb_column_type": "VARCHAR",
+      "property": "schema_hash",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "field_hash",
+      "sr_column_type": "array<varchar(32)>",
+      "ddb_column_type": "VARCHAR[]",
+      "property": "field_hash",
+      "default": "NULL"
+    },
+    {
+      "column": "observation_id",
+      "sr_column_type": "varchar(48)",
+      "ddb_column_type": "VARCHAR",
+      "property": "observation.id",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "observer_pk",
+      "sr_column_type": "varchar(32)",
+      "ddb_column_type": "VARCHAR",
+      "property": "observer.pk",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "rel_type",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "rel.type",
+      "default": "NULL"
+    },
+    {
+      "column": "rel_label",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "rel.label",
+      "default": "NULL"
+    },
+    {
+      "column": "session_id",
+      "sr_column_type": "varchar(48)",
+      "ddb_column_type": "VARCHAR",
+      "property": "session.id",
+      "default": "NULL"
+    },
+    {
+      "column": "context",
+      "sr_column_type": "varchar(16)",
+      "ddb_column_type": "VARCHAR",
+      "property": "context",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "consents_granted",
+      "sr_column_type": "array<varchar(48)>",
+      "ddb_column_type": "VARCHAR[]",
+      "property": "consents.granted",
+      "default": "NULL"
+    },
+    {
+      "column": "ts",
+      "sr_column_type": "datetime",
+      "ddb_column_type": "TIMESTAMP",
+      "property": "ts",
+      "default": "NOT NULL",
+      "default_value": "CURRENT_TIMESTAMP"
+    },
+    {
+      "column": "time_create",
+      "sr_column_type": "datetime",
+      "ddb_column_type": "TIMESTAMP",
+      "property": "time.create",
+      "default": "NULL"
+    },
+    {
+      "column": "time_merge",
+      "sr_column_type": "datetime",
+      "ddb_column_type": "TIMESTAMP",
+      "property": "time.merge",
+      "default": "NULL"
+    }
+  ]
+}
+

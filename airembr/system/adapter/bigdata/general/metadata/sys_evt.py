@@ -1,0 +1,7 @@
+SOURCE_ID = "source_id"
+TYPE = "type"
+ACTOR_ID = "actor_id"
+ACTOR_TYPE = "actor_type"
+ACTOR_DATA_HASH = "actor_data_hash"
+SYS_TIMER_ID = "sys_timer_id"
+SYS_TIMER_STATUS = "sys_timer_status"

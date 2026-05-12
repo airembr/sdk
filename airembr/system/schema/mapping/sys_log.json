@@ -1,0 +1,129 @@
+{
+  "table": "sys_log",
+  "distributed": "HASH(id)",
+  "pk": "id",
+  "order": "date",
+  "properties": [
+    "\"enable_persistent_index\" = \"true\""
+  ],
+  "engine": "olap",
+  "columns": [
+    {
+      "column": "id",
+      "sr_column_type": "varchar(48)",
+      "ddb_column_type": "VARCHAR",
+      "property": "id",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "date",
+      "sr_column_type": "datetime",
+      "ddb_column_type": "TIMESTAMP",
+      "property": "date",
+      "default_value": "CURRENT_TIMESTAMP"
+    },
+    {
+      "column": "message",
+      "sr_column_type": "varchar(4092)",
+      "ddb_column_type": "VARCHAR",
+      "property": "message"
+    },
+    {
+      "column": "logger",
+      "sr_column_type": "varchar(128)",
+      "ddb_column_type": "VARCHAR",
+      "property": "logger"
+    },
+    {
+      "column": "file",
+      "sr_column_type": "varchar(255)",
+      "ddb_column_type": "VARCHAR",
+      "property": "file"
+    },
+    {
+      "column": "line",
+      "sr_column_type": "int",
+      "ddb_column_type": "INT32",
+      "property": "line",
+      "default": "NULL"
+    },
+    {
+      "column": "level",
+      "sr_column_type": "varchar(48)",
+      "ddb_column_type": "VARCHAR",
+      "property": "level"
+    },
+    {
+      "column": "exc_info",
+      "sr_column_type": "varchar(10000)",
+      "ddb_column_type": "VARCHAR",
+      "property": "exc_info"
+    },
+    {
+      "column": "stack_info",
+      "sr_column_type": "varchar(10000)",
+      "ddb_column_type": "VARCHAR",
+      "property": "stack_info"
+    },
+    {
+      "column": "user_id",
+      "sr_column_type": "varchar(40)",
+      "ddb_column_type": "VARCHAR",
+      "property": "user.id"
+    },
+    {
+      "column": "event_id",
+      "sr_column_type": "varchar(40)",
+      "ddb_column_type": "VARCHAR",
+      "property": "event.id"
+    },
+    {
+      "column": "entity_name",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "entity.name"
+    },
+    {
+      "column": "entity_id",
+      "sr_column_type": "varchar(40)",
+      "ddb_column_type": "VARCHAR",
+      "property": "entity.id"
+    },
+    {
+      "column": "flow_id",
+      "sr_column_type": "varchar(40)",
+      "ddb_column_type": "VARCHAR",
+      "property": "flow.id"
+    },
+    {
+      "column": "node_id",
+      "sr_column_type": "varchar(40)",
+      "ddb_column_type": "VARCHAR",
+      "property": "node.id"
+    },
+    {
+      "column": "origin",
+      "sr_column_type": "varchar(40)",
+      "ddb_column_type": "VARCHAR",
+      "property": "origin"
+    },
+    {
+      "column": "class_name",
+      "sr_column_type": "varchar(255)",
+      "ddb_column_type": "VARCHAR",
+      "property": "class_name"
+    },
+    {
+      "column": "module",
+      "sr_column_type": "text",
+      "ddb_column_type": "VARCHAR",
+      "property": "module"
+    },
+    {
+      "column": "error_number",
+      "sr_column_type": "varchar(10)",
+      "ddb_column_type": "VARCHAR",
+      "property": "error_number"
+    }
+  ]
+}

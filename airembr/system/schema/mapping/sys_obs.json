@@ -1,0 +1,105 @@
+{
+  "table": "sys_obs",
+  "distributed": "HASH(id)",
+  "buckets": 10,
+  "duplicate_key": ["id"],
+  "partitioned": "RANGE(ts) ()",
+  "engine": "olap",
+  "properties": [
+    "\"enable_persistent_index\" = \"true\"",
+    "\"dynamic_partition.enable\" = \"true\"",
+    "\"dynamic_partition.time_unit\" = \"MONTH\"",
+    "\"dynamic_partition.start\" = \"-24\"",
+    "\"dynamic_partition.end\" = \"1\"",
+    "\"dynamic_partition.prefix\" = \"p\""
+  ],
+  "indexes": [
+    {
+      "index_name": "idx_source",
+      "columns": [
+        "source_id"
+      ],
+      "type": "BITMAP"
+    },
+    {
+      "index_name": "idx_session",
+      "columns": [
+        "session_id"
+      ],
+      "type": "BITMAP"
+    },
+    {
+      "index_name": "idx_label",
+      "columns": [
+        "label"
+      ],
+      "type": "BITMAP"
+    }
+  ],
+  "columns": [
+    {
+      "column": "id",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "id",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "source_id",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "source.id",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "session_id",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "session.id",
+      "default": "NULL"
+    },
+    {
+      "column": "label",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "label",
+      "default": "NULL"
+    },
+    {
+      "column": "description",
+      "sr_column_type": "text",
+      "ddb_column_type": "TEXT",
+      "property": "description",
+      "default": "NULL"
+    },
+    {
+      "column": "entities",
+      "sr_column_type": "integer",
+      "ddb_column_type": "INTEGER",
+      "property": "entities",
+      "default": "NULL",
+      "default_value": 0
+    },
+    {
+      "column": "metadata_time_insert",
+      "sr_column_type": "datetime",
+      "ddb_column_type": "TIMESTAMP",
+      "property": "metadata.time.insert",
+      "default_value": "CURRENT_TIMESTAMP"
+    },
+    {
+      "column": "metadata_time_create",
+      "sr_column_type": "datetime",
+      "ddb_column_type": "TIMESTAMP",
+      "property": "metadata.time.create",
+      "default": "NULL"
+    },
+    {
+      "column": "ts",
+      "sr_column_type": "datetime",
+      "ddb_column_type": "TIMESTAMP",
+      "property": "ts",
+      "default_value": "CURRENT_TIMESTAMP"
+    }
+  ]
+}

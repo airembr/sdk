@@ -1,0 +1,49 @@
+{
+  "table": "sys_ent_2_obs",
+  "distributed": "HASH(entity_pk, observation_id)",
+  "pk": "entity_pk, observation_id",
+  "buckets": 5,
+  "properties": [
+    "\"enable_persistent_index\" = \"true\""
+  ],
+  "engine": "olap",
+  "indexes": [
+    {
+      "index_name": "idx_id",
+      "columns": [
+        "observation_id"
+      ],
+      "type": "BITMAP"
+    },
+    {
+      "index_name": "idx_entity_pk",
+      "columns": [
+        "entity_pk"
+      ],
+      "type": "BITMAP"
+    }
+  ],
+  "columns": [
+    {
+      "column": "entity_pk",
+      "sr_column_type": "varchar(48)",
+      "ddb_column_type": "VARCHAR",
+      "property": "entity.pk",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "observation_id",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "observation.id",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "entity_type",
+      "sr_column_type": "varchar(48)",
+      "ddb_column_type": "VARCHAR",
+      "property": "entity.type",
+      "default": "NOT NULL"
+    }
+  ]
+}

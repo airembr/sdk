@@ -1,0 +1,65 @@
+{
+  "table": "sys_ent",
+  "pk": "entity_pk",
+  "distributed": "HASH(entity_pk)",
+  "buckets": 10,
+  "properties": [
+    "\"enable_persistent_index\" = \"true\""
+  ],
+  "engine": "olap",
+  "indexes": [],
+  "columns": [
+    {
+      "column": "entity_pk",
+      "sr_column_type": "varchar(48)",
+      "ddb_column_type": "VARCHAR",
+      "property": "entity.pk",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "entity_type",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "entity.type",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "entity_id",
+      "sr_column_type": "varchar(48)",
+      "ddb_column_type": "VARCHAR",
+      "property": "entity.id",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "entity_iid",
+      "sr_column_type": "varchar(48)",
+      "ddb_column_type": "VARCHAR",
+      "property": "entity.iid",
+      "default": "NULL"
+    },
+    {
+      "column": "entity_iid_type",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "entity.iid_type",
+      "default": "NULL",
+      "comment": "Entity identification id type. Describes how iid was build, for example: email, phone, username, etc."
+    },
+    {
+      "column": "persona",
+      "sr_column_type": "text",
+      "ddb_column_type": "TEXT",
+      "property": "persona",
+      "default": "NULL"
+    },
+    {
+      "column": "ts",
+      "sr_column_type": "datetime",
+      "ddb_column_type": "TIMESTAMP",
+      "property": "ts",
+      "default": "NOT NULL",
+      "default_value": "CURRENT_TIMESTAMP"
+    }
+  ]
+}
+

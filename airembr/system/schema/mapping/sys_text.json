@@ -1,0 +1,103 @@
+{
+  "table": "sys_text",
+  "distributed": "HASH(id)",
+  "pk": "id",
+  "order": "ts",
+  "properties": [
+    "\"enable_persistent_index\" = \"true\""
+  ],
+  "engine": "olap",
+  "columns": [
+    {
+      "column": "id",
+      "sr_column_type": "varchar(32)",
+      "ddb_column_type": "VARCHAR",
+      "property": "id",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "parent_id",
+      "sr_column_type": "varchar(32)",
+      "ddb_column_type": "VARCHAR",
+      "property": "parent_id",
+      "default": "NULL"
+    },
+    {
+      "column": "observation_id",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "observation.id",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "source_id",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "source.id",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "rel_label",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "rel.label",
+      "default": "NULL"
+    },
+    {
+      "column": "rel_type",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "rel.type",
+      "default": "NULL"
+    },
+    {
+      "column": "description",
+      "sr_column_type": "TEXT",
+      "ddb_column_type": "TEXT",
+      "property": "description",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "origin",
+      "sr_column_type": "varchar(24)",
+      "ddb_column_type": "VARCHAR",
+      "property": "origin",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "tags",
+      "sr_column_type": "array<varchar(64)>",
+      "ddb_column_type": "VARCHAR[]",
+      "property": "tags",
+      "default": "NULL"
+    },
+    {
+      "column": "model",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "model",
+      "default": "NULL"
+    },
+    {
+      "column": "vector",
+      "sr_column_type": "ARRAY<FLOAT>",
+      "ddb_column_type": "FLOAT[]",
+      "property": "vector",
+      "default": "NULL"
+    },
+    {
+      "column": "require_ner",
+      "sr_column_type": "boolean",
+      "ddb_column_type": "BOOLEAN",
+      "property": "require_ner",
+      "default_value": "'0'"
+    },
+    {
+      "column": "ts",
+      "sr_column_type": "datetime",
+      "ddb_column_type": "TIMESTAMP",
+      "property": "ts",
+      "default_value": "CURRENT_TIMESTAMP"
+    }
+  ]
+}
