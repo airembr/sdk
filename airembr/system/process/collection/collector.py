@@ -12,7 +12,7 @@ from airembr.model.system.headers import Headers
 from airembr.model.system.observation import Observation
 from airembr.model.system.context import get_context
 from airembr.system.config.global_config import global_settings
-from airembr.system.monitoring.metrics.metrics import QUEUE_PHASE_LATENCY
+from airembr.system.process.monitoring.metrics.metrics import QUEUE_PHASE_LATENCY
 from airembr.system.config.sys_config import sys_config
 from airembr.system.process.logging.log_handler import get_logger
 from airembr.system.process.logging import extra_info
