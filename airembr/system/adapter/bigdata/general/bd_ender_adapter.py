@@ -3,7 +3,7 @@ from typing import Optional, List
 
 from durable_dot_dict.collection import DotDictStream
 
-from airembr.sdk.common.date import now_in_utc
+from airembr_sdk.core.date import now_in_utc
 from airembr.model.system.query.time_range_query import DatetimeRangePayload
 from airembr.model.bigdata.flat_ent_2_obs import FlatEntity2Observation
 from airembr.model.bigdata.flat_fact import FlatFact

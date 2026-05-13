@@ -2,7 +2,7 @@ from typing import List
 
 from durable_dot_dict.dotdict import DotDict
 
-from airembr.sdk.common.date import now_in_utc
+from airembr_sdk.core.date import now_in_utc
 from airembr.core.hash.hash import md5
 from airembr.model.bigdata.flat_ent_property import FlatEntityProperty
 from airembr.model.bigdata.flat_relation import FlatRelation

@@ -1,4 +1,4 @@
-from airembr.core.entity.identification import generate_pk, generate_triplet_id
+from airembr_sdk.core.entity.identification import generate_pk, generate_triplet_id
 
 def test_generate_pk():
     pk = generate_pk("User", "123")

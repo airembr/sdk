@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Optional, Union, List, Any
 
 from airembr.model.system.named_entity import NamedEntity, NamedEntityInContext
-from airembr.sdk.common.date import now_in_utc
+from airembr_sdk.core.date import now_in_utc
 
 class EventSource(NamedEntityInContext):
     type: List[str]

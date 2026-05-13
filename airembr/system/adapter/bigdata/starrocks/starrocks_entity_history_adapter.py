@@ -9,7 +9,7 @@ from airembr.system.adapter.bigdata.tool.column_mapper import map_to_table_colum
 
 from airembr.model.payload.query_result import QueryResult
 from airembr.model.system.query.time_range_query import DatetimeRangePayload
-from airembr.sdk.common.date import now_in_utc
+from airembr_sdk.core.date import now_in_utc
 from airembr.model.bigdata.flat_ent_history import FlatEntityHistory
 from airembr.core.time.time_converters import pretty_seconds
 

@@ -6,7 +6,7 @@ from airembr.model.system.job_tags import RT_EVENT_DESTINATION_TAG
 from airembr.model.system.observation import Observation
 
 from airembr.system.process.dispatching.trigger_interface import TriggerInterface
-from airembr.system.process.preconfig.setup_destination_triggers import DT_EVENT_TRIGGER
+from airembr.system.preconfig.setup_destination_triggers import DT_EVENT_TRIGGER
 
 from airembr.system.process.logging.log_handler import get_logger, log_handler
 from airembr.system.config.sys_config import sys_config

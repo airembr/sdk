@@ -3,7 +3,8 @@ from collections.abc import Mapping, Sequence
 
 from durable_dot_dict.collection import DotDict
 
-from airembr.model.system.instance import Instance, OBJECT_TAG_PATTERN
+from airembr_sdk.api.model.collection.instance import Instance, OBJECT_TAG_PATTERN
+
 from airembr.model.system.observation import ObservationEntity
 
 def extract_entity_link(text):

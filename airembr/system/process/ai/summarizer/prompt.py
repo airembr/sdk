@@ -5,7 +5,7 @@ from pydantic_ai.settings import ModelSettings
 from pydantic_ai.providers.openrouter import OpenRouterProvider
 from pydantic_ai import Agent
 
-from system.process.ai.summarizer.model.summary_output import SummaryOutput
+from airembr.system.process.ai.summarizer.model.summary_output import SummaryOutput
 from airembr.system.config.llm_config import llm_config
 
 

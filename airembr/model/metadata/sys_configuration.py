@@ -5,7 +5,7 @@ from typing import Any, Optional, List, Union
 from datetime import datetime
 
 from airembr.model.system.named_entity import NamedEntity
-from airembr.sdk.common.date import now_in_utc
+from airembr_sdk.core.date import now_in_utc
 
 
 class Configuration(NamedEntity):

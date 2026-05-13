@@ -1,7 +1,8 @@
-from airembr.sdk.client import AirembrClient
-from airembr.model.system.entity import Entity
+from airembr_sdk.client.query import AirembrClient
+
+from airembr_sdk.api.model.entity import Entity
 from airembr.model.system.observation import Observation, ObservationRelation, Init, Semantic
-from airembr.model.system.session import Session
+from airembr_sdk.api.model.collection.session import Session
 
 # Entities
 location = Init('location').identified_by(["address", "code", "city"]).traits(

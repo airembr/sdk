@@ -1,12 +1,12 @@
-from typing import List, Optional, Tuple, Generator
+from typing import List, Optional, Tuple
 
-from airembr.model.system.memory.conversation_memory import MemorySessions
-from airembr.model.system.observation import Observation
-from airembr.model.system.query.response import QueryEntityResponse, QueryResponse
-from airembr.model.system.query.status import QueryStatus
 from airembr.model.system.query.time_range_query import DatePayload
-from airembr.sdk.service.fact_record_converter import convert_fact_to_observation
-from airembr.sdk.service.remote.airembr_api import AirembrApi
+
+from airembr_sdk.api.model.collection.response import QueryEntityResponse, QueryResponse
+from airembr_sdk.api.model.collection.response_status import QueryStatus
+from airembr_sdk.api.model.collection.conversation_memory import MemorySessions
+from airembr_sdk.api.model.collection.observation import IObservation
+from airembr_sdk.client.airembr_api import AirembrApi
 
 
 class AirembrQuery:
@@ -44,29 +44,6 @@ class AirembrQuery:
 
         return result
 
-    def yield_observations(self,
-                           query: Optional[str] = None,
-                           min_date: Optional[DatePayload] = None,
-                           max_date: Optional[DatePayload] = None,
-                           total: Optional[int] = 100) -> Generator[Observation, None, None]:
-        """
-        Scans facts in batches of 100 and yields observations.
-        """
-        per_page = 100
-        no_of_pages = total // per_page + 1
-
-        for page in range(no_of_pages):
-            response = self.facts(query, min_date, max_date, page=page, limit=per_page)
-
-            counter = 0
-            for fact in response.result:
-                counter += 1
-                observation: Observation = convert_fact_to_observation(fact)
-                yield observation
-
-            if counter == 0:
-                break
-
 
 class AirembrClient:
 
@@ -74,7 +51,7 @@ class AirembrClient:
         self.transport = AirembrApi(api)
 
     def observe(self,
-                observations: List[Observation],
+                observations: List[IObservation],
                 realtime: Optional[str] = None,
                 skip: Optional[str] = None,
                 bridge: Optional[str] = None,

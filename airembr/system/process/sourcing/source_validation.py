@@ -3,7 +3,7 @@ from typing import Optional, Set
 from airembr.system.config.sys_config import sys_config
 from airembr.model.metadata.sys_source import EventSource
 from airembr.system.adapter.metadata.mysql.interface import event_source_dao
-from airembr.system.process.preconfig.setup_bridges import open_rest_source_bridge
+from airembr.system.preconfig.setup_bridges import open_rest_source_bridge
 from airembr.model.system.headers import Headers
 from airembr.model.system.context import get_context
 from airembr.model.system.named_entity import NamedEntity

@@ -7,7 +7,7 @@ import sys
 from logging import Handler, LogRecord
 from time import time
 
-from airembr.sdk.common.date import now_in_utc
+from airembr_sdk.core.date import now_in_utc
 from airembr.model.system.context import get_context, ContextError
 from airembr.system.config.log_config import logging_config
 from airembr.system.process.logging.log_level import get_logging_level, Q_INFO_LEVEL, DEV_INFO_LEVEL, Q_STAT_LEVEL

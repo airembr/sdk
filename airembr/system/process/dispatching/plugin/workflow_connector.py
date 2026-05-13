@@ -8,7 +8,7 @@ from dagor.interface.workflow.entrypoint import run_workflow
 from dagor.utils.dag_error import DagGraphError
 
 from airembr.system.process.logging.log_handler import get_logger
-from airembr.system.process.preconfig.setup_destination_triggers import DT_EVENT_TRIGGER
+from airembr.system.preconfig.setup_destination_triggers import DT_EVENT_TRIGGER
 from airembr.system.process.dispatching.trigger_interface import TriggerInterface
 
 logger = get_logger(__name__)

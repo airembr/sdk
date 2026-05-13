@@ -13,7 +13,7 @@ from airembr.model.system.context import ServerContext, Context
 from airembr.system.process.dispatching.model.destination_payload import DestinationPayload
 from airembr.system.adapter.queue.queue_adapter import queue_adapter
 from airembr.system.process.dispatching.trigger_interface import TriggerInterface
-from airembr.system.process.preconfig.setup_destination_triggers import DT_EMBEDDER
+from airembr.system.preconfig.setup_destination_triggers import DT_EMBEDDER
 from airembr.system.process.dispatching.dispatchers import yield_event_destination_work_package
 
 logger = get_logger(__name__)

@@ -9,7 +9,7 @@ from pararun.model.batcher import BatcherConfig
 from pararun.model.transport_context import TransportContext
 from pararun.publisher.deferer import deferred_execution
 
-from airembr.sdk.common.date import now_in_utc
+from airembr_sdk.core.date import now_in_utc
 from airembr.core.data.chunker import chunk_generator
 from airembr.model.system.job_tags import ENTITY_PROPERTY_TAG
 from airembr.model.system.context import ServerContext, Context

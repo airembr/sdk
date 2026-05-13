@@ -1,6 +1,6 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
-from airembr.sdk.common.date import now_in_utc, is_timezone_aware, add_utc_time_zone_if_none, seconds_to_minutes_seconds
+from airembr_sdk.core.date import now_in_utc, is_timezone_aware, add_utc_time_zone_if_none, seconds_to_minutes_seconds
 import pytest
 
 def test_now_in_utc():

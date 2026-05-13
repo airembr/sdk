@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from airembr.model.metadata.sys_destination import DestinationConfig
 from airembr.model.system.named_entity import NamedEntityInContext
 from airembr.model.system.context import get_context
-from airembr.sdk.common.date import now_in_utc
+from airembr_sdk.core.date import now_in_utc
 
 T = TypeVar("T")
 

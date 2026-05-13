@@ -1,4 +1,4 @@
-from airembr.sdk.common.date import now_in_utc
+from airembr_sdk.core.date import now_in_utc
 from airembr.system.process.logging.log_handler import get_logger
 
 logger = get_logger(__name__)

@@ -1,8 +1,9 @@
 from typing import List
 
 from airembr.model.system.fact import EntityObject, DotDictFact
-from airembr.model.system.instance_link import InstanceLink
 from airembr.model.system.observation import Observation
+
+from airembr_sdk.api.model.collection.instance_link import InstanceLink
 
 
 def _to_entity_object(entity):

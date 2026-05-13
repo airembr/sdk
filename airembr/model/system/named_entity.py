@@ -1,6 +1,6 @@
 from typing import Any, Optional
 
-from airembr.model.system.entity import Entity
+from airembr_sdk.api.model.entity import Entity
 
 
 class NamedEntity(Entity):

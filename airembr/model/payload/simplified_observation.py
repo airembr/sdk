@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import Literal, Optional
 
-from airembr.model.system.instance import Instance
+from airembr_sdk.api.model.collection.instance import Instance
 
 
 class ObjectNode(BaseModel):

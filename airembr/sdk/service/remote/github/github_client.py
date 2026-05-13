@@ -3,7 +3,7 @@ import base64
 
 from typing import Optional
 
-from airembr.sdk.common.date import now_in_utc
+from airembr_sdk.core.date import now_in_utc
 from airembr.system.process.logging.log_handler import get_logger
 from airembr.sdk.service.remote.http.http_client import HttpClient
 

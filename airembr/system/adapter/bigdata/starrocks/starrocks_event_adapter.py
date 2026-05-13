@@ -1,6 +1,6 @@
 from typing import List, Callable, Optional
 
-from airembr.sdk.common.date import now_in_utc
+from airembr_sdk.core.date import now_in_utc
 from airembr.model.bigdata.flat_fact import FlatFact
 from airembr.core.time.time_converters import pretty_seconds
 from airembr.model.payload.query_result import QueryResult

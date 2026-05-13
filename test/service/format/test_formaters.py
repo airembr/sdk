@@ -1,10 +1,12 @@
 from unittest.mock import MagicMock
 from datetime import datetime
 from airembr.model.system.observation import Observation
-from airembr.model.system.instance_link import InstanceLink
+from airembr_sdk.api.model.collection.instance_link import InstanceLink
 from airembr.system.utils.text.formaters import (
-    format_observation, format_dotdict_fact, format_traits, format_semantic_description
+    format_observation, format_dotdict_fact, format_semantic_description
 )
+from airembr_sdk.utils.traits_formater import format_traits
+
 from durable_dot_dict.dotdict import DotDict
 
 def test_format_traits():

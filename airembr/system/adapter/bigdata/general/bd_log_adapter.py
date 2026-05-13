@@ -10,7 +10,7 @@ from airembr.system.adapter.bigdata.general.utils.mapping import log_mapping
 from airembr.system.adapter.bigdata.general.metadata import sys_log as sys_log_metadata
 
 from airembr.model.system.query.time_range_query import DatetimeRangePayload
-from airembr.sdk.common.date import now_in_utc
+from airembr_sdk.core.date import now_in_utc
 
 from srd.domain.column import Count
 from srd.domain.select import Select

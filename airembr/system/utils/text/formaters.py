@@ -1,5 +1,4 @@
 import sys
-from typing import Union
 
 from durable_dot_dict.dotdict import DotDict
 
@@ -209,23 +208,6 @@ def format_dotdict_fact(dot_dict_fact):
     # Join all lines into one string
     formatted = "\n".join(line for line in lines if line.strip())
     return formatted
-
-
-def _key_value_to_string(key, value):
-    if isinstance(value, (dict, list)):
-        return f"{key}={value}"
-    elif isinstance(value, (int, float, bool)):
-        return f"{key}={value}"
-    else:
-        return f'{key}="{value}"'
-
-
-def format_traits(traits: Union[DotDict, dict]) -> str:
-    if isinstance(traits, dict):
-        traits = DotDict(traits)
-    flat = traits.flat()
-    properties = [_key_value_to_string(key, value) for key, value in flat.items()]
-    return f"({', '.join(properties)})"
 
 
 def format_semantic_description(dot_dict_fact: DotDict):

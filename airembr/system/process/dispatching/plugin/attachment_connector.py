@@ -12,7 +12,7 @@ from airembr.system.process.logging.log_handler import get_logger
 from airembr.model.system.observation import Observation
 from airembr.model.system.job_tags import DF_EVENT_ATTACHMENT_DESTINATION_TAG
 from airembr.system.utils.text.formaters import format_observation
-from airembr.sdk.common.date import now_in_utc
+from airembr_sdk.core.date import now_in_utc
 from airembr.model.system.context import get_context
 from airembr.system.adapter.queue.queue_adapter import queue_adapter
 

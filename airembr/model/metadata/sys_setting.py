@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional, Any
 
 from airembr.model.system.named_entity import NamedEntityInContext
-from airembr.sdk.common.date import now_in_utc
+from airembr_sdk.core.date import now_in_utc
 
 
 class Setting(NamedEntityInContext):

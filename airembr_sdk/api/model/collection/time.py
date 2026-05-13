@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional, Any
 from pydantic import BaseModel
 
-from airembr.sdk.common.date import now_in_utc, add_utc_time_zone_if_none
+from airembr_sdk.core.date import now_in_utc, add_utc_time_zone_if_none
 
 
 class Time(BaseModel):

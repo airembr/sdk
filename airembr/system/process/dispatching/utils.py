@@ -6,7 +6,7 @@ from airembr.system.process.logging.log_handler import get_logger
 from airembr.system.process.dispatching.model.destination_payload import DestinationPayload
 from airembr.model.metadata.sys_destination import Destination, DestinationConfig
 from airembr.sdk.service.parser.tql.condition import Condition
-from airembr.system.process.preconfig.setup_resources import get_resource_types
+from airembr.system.preconfig.setup_resources import get_resource_types
 from airembr.system.adapter.metadata.mysql.interface import resource_dao, workflow_dao
 from airembr.model.metadata.sys_resource import Resource, ResourceCredentials
 

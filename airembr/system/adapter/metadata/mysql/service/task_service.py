@@ -12,7 +12,7 @@ from airembr.system.adapter.metadata.mysql.schema.table import TaskTable
 from airembr.sdk.storage.metadata.proxy.table_service_proxy import TableServiceProxy
 from airembr.sdk.storage.metadata.query.select_result import SelectResult
 from airembr.sdk.storage.metadata.query.table_filtering import where_tenant_and_mode_context
-from airembr.sdk.common.date import now_in_utc
+from airembr_sdk.core.date import now_in_utc
 
 logger = get_logger(__name__)
 

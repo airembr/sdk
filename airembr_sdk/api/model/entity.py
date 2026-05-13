@@ -1,13 +1,11 @@
-from datetime import datetime
-
-import json
-
 from typing import Optional, TypeVar, Type, List, Union, Tuple
+from datetime import datetime
+import json
 from uuid import uuid4
 from pydantic import BaseModel
-
-from airembr.model.system.time import Time, EventTime
 from durable_dot_dict.dotdict import DotDict
+
+from airembr_sdk.api.model.collection.time import Time, EventTime
 
 
 T = TypeVar("T")

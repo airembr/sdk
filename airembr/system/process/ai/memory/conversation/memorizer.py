@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from typing import Tuple, List, Dict, Optional
 
 from airembr.system.decorator.run_every import run_every
-from airembr.model.system.memory.conversation_memory import ConversationMemory
+from airembr_sdk.api.model.collection.conversation_memory import ConversationMemory
 from airembr.system.process.ai.memory.conversation.memory_facade import ConversationMemoryFacade
 from airembr.system.process.ai.memory.conversation.summarizer import summary_worker
 

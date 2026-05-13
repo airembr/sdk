@@ -1,27 +1,27 @@
 from collections import defaultdict
 from datetime import datetime
-from typing import Optional, Tuple, List, Union, Dict, Set
+from typing import Optional, Tuple, List, Union, Set
 from uuid import uuid4
 
-from airembr.model.system.entity import Entity
-from airembr.model.system.instance import Instance
-from airembr.model.system.instance_link import InstanceLink
-from airembr.model.system.memory.conversation_memory import MemorySessions
-from airembr.model.system.observation import Observation, ObservationEntity, ObservationRelation, Semantic, \
-    EntityIdentification
-from airembr.model.system.query.status import QueryStatus
-from airembr.model.system.session import Session, ChatSession
-from airembr.sdk.service.remote.airembr_api import AirembrApi
-from airembr.sdk.common.date import now_in_utc
+from airembr_sdk.api.model.collection.response_status import QueryStatus
+from airembr_sdk.api.model.collection.conversation_memory import MemorySessions
+from airembr_sdk.api.model.collection.session import Session, ChatSession
+from airembr_sdk.api.model.entity import Entity
+from airembr_sdk.api.model.collection.observation import IObservation, IObservationEntity, IObservationRelation, ISemantic, \
+    IEntityIdentification
+from airembr_sdk.api.model.collection.instance import Instance
+from airembr_sdk.api.model.collection.instance_link import InstanceLink
+from airembr_sdk.client.airembr_api import AirembrApi
+from airembr_sdk.core.date import now_in_utc
 
 
 def entity(type: str,
            traits: Optional[dict] = None,
            label: Optional[str] = None,
            id: Optional[str] = None,
-           identification: Optional[EntityIdentification] = None) -> 'AiRembrEntity':
+           identification: Optional[IEntityIdentification] = None) -> 'AiRembrEntity':
     return AiRembrEntity(
-        entity=ObservationEntity(
+        entity=IObservationEntity(
             instance=Instance.type(type, id),
             identification=identification,
             label=label,
@@ -65,7 +65,7 @@ class AiRembrEvent:
 
     def to_entity(self, type='event') -> 'AiRembrEntity':
         return AiRembrEntity(
-            entity=ObservationEntity(
+            entity=IObservationEntity(
                 instance=Instance(type),
                 label=self.label,
                 traits=self.traits
@@ -75,11 +75,11 @@ class AiRembrEvent:
 
 class AiRembrEntity:
 
-    def __init__(self, entity: ObservationEntity):
+    def __init__(self, entity: IObservationEntity):
         self.link: InstanceLink = InstanceLink.create()
-        self.entity: ObservationEntity = entity
+        self.entity: IObservationEntity = entity
 
-    def get_reference(self) -> Tuple[InstanceLink, ObservationEntity]:
+    def get_reference(self) -> Tuple[InstanceLink, IObservationEntity]:
         return self.link, self.entity
 
 
@@ -99,13 +99,13 @@ class AiRembrChatPeer:
         if date is not None and isinstance(date, str):
             date = datetime.fromisoformat(date)
 
-        chat = ObservationRelation(
+        chat = IObservationRelation(
             ts=now_in_utc() if date is None else date,
             type="chat",
             label=label,
             actor=self.entity.link,
             objects=[who.entity.link],
-            text=Semantic(
+            text=ISemantic(
                 description=message,
                 summary=summary
             )
@@ -113,7 +113,7 @@ class AiRembrChatPeer:
 
         self.chats.add(self.observation.observation_id, chat)
 
-    def get_reference(self) -> Tuple[InstanceLink, ObservationEntity]:
+    def get_reference(self) -> Tuple[InstanceLink, IObservationEntity]:
         return self.entity.get_reference()
 
 
@@ -159,7 +159,7 @@ class AirembrChat:
         print(1, entities)
         for peer in self.peers:
             for observation_id, chats in peer.chats.list():
-                yield Observation(
+                yield IObservation(
                     id=observation_id,
                     name="Chat",
                     source=Entity(id=self.client.source_id),
@@ -218,7 +218,7 @@ class AirembrObservation:
         self.traits = traits
         self.description = description
         self.entities: Optional[Set[AiRembrEntity]] = None
-        self.relations: List[ObservationRelation] = []
+        self.relations: List[IObservationRelation] = []
 
     def chat(self,
              chat_id: str,
@@ -237,14 +237,14 @@ class AirembrObservation:
         if not self.entities:
             raise ValueError(f"Please set observations entities before adding facts.")
 
-        rel = ObservationRelation(
+        rel = IObservationRelation(
             type=relation.type,
             label=relation.label,
             traits=relation.traits,
             actor=actor.link,
             actor_label=actor.entity.label,
             objects=[object.link for object in objects] if objects is not None else [],
-            text=Semantic(
+            text=ISemantic(
                 description=description,
                 summary=summary,
             ),
@@ -264,10 +264,10 @@ class AirembrObservation:
         else:
             entities = {}
 
-        return Observation(
+        return IObservation(
             id=self.observation_id,
             label=self.label,
-            text=Semantic(description=self.description, ner=False),
+            text=ISemantic(description=self.description, ner=False),
             traits=self.traits,
             observer=self.observer_link,
             source=Entity(id=self.source_id) if self.source_id else Entity(id=self.client.source_id),

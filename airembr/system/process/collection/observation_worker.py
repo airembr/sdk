@@ -7,7 +7,7 @@ from pararun.model.batcher import BatcherConfig
 from pararun.model.transport_context import TransportContext, RECORDS
 from pararun.publisher.deferer import deferred_execution
 
-from airembr.sdk.common.date import now_in_utc
+from airembr_sdk.core.date import now_in_utc
 from airembr.model.bigdata.flat_obs import FlatObs
 from airembr.model.system.context import get_context, ServerContext, Context
 from airembr.model.system.transport_payload import ObsTransportPayload

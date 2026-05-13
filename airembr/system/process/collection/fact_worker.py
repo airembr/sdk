@@ -10,7 +10,7 @@ from pararun.model.transport_context import TransportContext, RECORDS
 from pararun.publisher.deferer import deferred_execution
 from pararun_adapter import queue_type
 
-from airembr.core.entity.identification import generate_pk, generate_hid
+from airembr_sdk.core.entity.identification import generate_pk, generate_hid
 from airembr.core.hash.hash import md5
 from airembr.core.time.profiler import time_profiler
 from airembr.core.data.bigint import bigint_to_unsigned_hex
@@ -38,7 +38,7 @@ from airembr.system.process.logging import extra_info
 from airembr.system.adapter.bigdata.big_data_adapter import *
 from airembr.system.config.sys_config import sys_config
 from airembr.system.adapter.queue.queue_adapter import queue_adapter
-from airembr.sdk.common.date import now_in_utc
+from airembr_sdk.core.date import now_in_utc
 from airembr.system.process.collection.reshaping.traits_reshaper import reshape_event
 from airembr.system.process.collection.validation.event_validation import validate_event
 from airembr.system.process.collection.entity_properties_worker import save_properties_batch, entity_properties_worker

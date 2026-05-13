@@ -2,7 +2,7 @@ from typing import Optional, List
 
 from durable_dot_dict.dotdict import DotDict
 
-from airembr.system.utils.text.formaters import format_traits
+from airembr_sdk.utils.traits_formater import format_traits
 
 
 class QueryResponse:
@@ -20,7 +20,7 @@ class QueryResponse:
 
 class EntityDotDict(DotDict):
 
-    def __init__(self, data: dict, fit: Optional[float]=None):
+    def __init__(self, data: dict, fit: Optional[float] = None):
         super().__init__(data)
         self._fit = fit
 
@@ -35,7 +35,6 @@ class EntityDotDict(DotDict):
     @property
     def fit(self):
         return self._fit
-
 
 
 class QueryEntityResponse:

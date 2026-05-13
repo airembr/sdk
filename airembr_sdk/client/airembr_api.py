@@ -3,12 +3,12 @@ from typing import Optional, Protocol, Dict, Any, Tuple
 
 import requests
 
-from airembr.system.process.logging.log_handler import get_logger
-from airembr.model.system.memory.conversation_memory import ConversationMemory, MemorySessions
-from airembr.model.system.query.response import QueryResponse, QueryEntityResponse
-
-from airembr.model.system.query.status import QueryStatus
 from airembr.model.system.query.time_range_query import DatetimeRangePayload, DatePayload
+
+from airembr_sdk.api.model.collection.response import QueryResponse, QueryEntityResponse
+from airembr_sdk.api.model.collection.response_status import QueryStatus
+from airembr_sdk.api.model.collection.conversation_memory import ConversationMemory, MemorySessions
+from airembr_sdk.logging.log_handler import get_logger
 
 logger = get_logger(__name__)
 
