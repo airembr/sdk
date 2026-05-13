@@ -1,7 +1,7 @@
 import json
 import logging
 
-from airembr.system.logging.log_level import DEV_INFO_LEVEL, Q_INFO_LEVEL, Q_STAT_LEVEL
+from airembr.system.process.logging.log_level import DEV_INFO_LEVEL, Q_INFO_LEVEL, Q_STAT_LEVEL
 
 
 class CustomFormatter(logging.Formatter):

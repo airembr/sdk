@@ -7,7 +7,7 @@ from durable_dot_dict.dotdict import DotDict
 from airembr.system.process.collection.computation.entity_service import index_entities, link_state_entities, compute_data_hashes, get_entity_gids
 from airembr.model.bigdata.flat_sys_timer import FlatSysTimer
 from airembr.core.data.resolver import resolve_dot_dict_values
-from airembr.system.logging.log_handler import get_logger
+from airembr.system.process.logging.log_handler import get_logger
 from airembr.model.system.transport_payload import FactTransportPayload
 from airembr.core.hash.data_hasher import hash_dict_64
 from airembr.core.hash.hash import md5

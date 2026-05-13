@@ -3,7 +3,7 @@ from typing import Optional, AsyncGenerator
 from contextlib import asynccontextmanager
 
 from airembr.system.config.log_config import logging_config
-from airembr.system.logging.log_handler import SystemLogHandler
+from airembr.system.process.logging.log_handler import SystemLogHandler
 
 
 @asynccontextmanager

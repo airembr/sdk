@@ -5,7 +5,7 @@ from typing import Generator
 from srd.domain.table import Table
 from srd.singleton import Singleton
 
-from airembr.system.logging.log_handler import get_logger
+from airembr.system.process.logging.log_handler import get_logger
 from airembr.system.adapter.bigdata.starrocks.utils.sql_table_generator import generate_create_table_sql as sr_generate_create_table_sql
 from airembr.system.config.sys_config import sys_config
 

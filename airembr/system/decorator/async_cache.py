@@ -6,7 +6,7 @@ from typing import Callable
 from functools import wraps
 from collections import deque, defaultdict
 
-from airembr.system.logging.log_handler import get_logger
+from airembr.system.process.logging.log_handler import get_logger
 from airembr.system.config.sys_config import sys_config
 from airembr.model.system.context import get_context
 

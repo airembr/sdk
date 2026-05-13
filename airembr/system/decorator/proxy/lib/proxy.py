@@ -4,7 +4,7 @@ from random import randint
 from time import time
 from typing import Optional, List, Awaitable, Any, Callable
 
-from airembr.system.logging.log_handler import get_logger
+from airembr.system.process.logging.log_handler import get_logger
 from airembr.system.decorator.proxy.lib.status import Status
 from airembr.system.decorator.proxy.lib.throttle import Throttler
 from airembr.system.decorator.proxy.lib.locker import distributed_lock

@@ -1,6 +1,6 @@
 import os
 
-from airembr.system.logging.log_format import CustomFormatter, JSONFormatter, ConsoleFormatter
+from airembr.system.process.logging.log_format import CustomFormatter, JSONFormatter, ConsoleFormatter
 
 
 def log_format_adapter():

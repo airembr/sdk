@@ -2,11 +2,11 @@ from typing import List, Optional, Tuple
 
 from durable_dot_dict.dotdict import DotDict
 
-from airembr.system.logging import extra_info
+from airembr.system.process.logging import extra_info
 from airembr.sdk.service.dot_accessor import DotAccessor
 from airembr.model.metadata.sys_evt_reshaping import EventReshapingSchema
 from airembr.system.adapter.metadata.mysql.interface import event_reshaping_dao
-from airembr.system.logging.log_handler import get_logger
+from airembr.system.process.logging.log_handler import get_logger
 from airembr.system.process.collection.reshaping.payload_reshaper import PayloadReshaper
 
 logger = get_logger(__name__)

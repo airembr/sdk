@@ -2,7 +2,7 @@ import redis
 
 from time import sleep
 
-from airembr.system.logging.log_handler import get_logger
+from airembr.system.process.logging.log_handler import get_logger
 from airembr.system.adapter.cache.cache_adaper_selector import cache_adapter
 
 _cache = cache_adapter()

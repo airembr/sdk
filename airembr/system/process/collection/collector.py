@@ -14,8 +14,8 @@ from airembr.model.system.context import get_context
 from airembr.system.config.global_config import global_settings
 from airembr.system.monitoring.metrics.metrics import QUEUE_PHASE_LATENCY
 from airembr.system.config.sys_config import sys_config
-from airembr.system.logging.log_handler import get_logger
-from airembr.system.logging import extra_info
+from airembr.system.process.logging.log_handler import get_logger
+from airembr.system.process.logging import extra_info
 from airembr.system.adapter.queue.queue_adapter import queue_adapter
 from airembr.system.process.collection.observation_manager import compute_and_save_events
 from airembr.system.process.collection.collector_worker import collector_worker

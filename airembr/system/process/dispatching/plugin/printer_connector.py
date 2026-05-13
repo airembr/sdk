@@ -1,6 +1,6 @@
 from typing import List
 
-from airembr.system.logging.log_handler import get_logger
+from airembr.system.process.logging.log_handler import get_logger
 from airembr.system.process.dispatching.trigger_interface import TriggerInterface
 from airembr.model.system.observation import Observation
 from airembr.system.utils.text.formaters import format_observation

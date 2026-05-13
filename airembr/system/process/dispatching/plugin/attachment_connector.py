@@ -8,7 +8,7 @@ from pararun.publisher.deferer import deferred_execution
 from pararun_adapter import queue_type
 
 from airembr.core.data.chunker import chunk_generator
-from airembr.system.logging.log_handler import get_logger
+from airembr.system.process.logging.log_handler import get_logger
 from airembr.model.system.observation import Observation
 from airembr.model.system.job_tags import DF_EVENT_ATTACHMENT_DESTINATION_TAG
 from airembr.system.utils.text.formaters import format_observation

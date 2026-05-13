@@ -4,7 +4,7 @@ from typing import List
 
 from airembr.sdk.common.date import now_in_utc, add_utc_time_zone_if_none
 from airembr.core.number.parser import try_number
-from airembr.system.logging.log_handler import get_logger
+from airembr.system.process.logging.log_handler import get_logger
 from airembr.core.data.chunker import chunk_generator
 from airembr.system.adapter.bigdata.adapter_router import AdapterRouter
 

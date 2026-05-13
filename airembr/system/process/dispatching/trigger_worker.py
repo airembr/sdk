@@ -8,7 +8,7 @@ from airembr.model.system.observation import Observation
 from airembr.system.process.dispatching.trigger_interface import TriggerInterface
 from airembr.system.process.preconfig.setup_destination_triggers import DT_EVENT_TRIGGER
 
-from airembr.system.logging.log_handler import get_logger, log_handler
+from airembr.system.process.logging.log_handler import get_logger, log_handler
 from airembr.system.config.sys_config import sys_config
 from airembr.model.system.context import get_context
 from airembr.system.adapter.queue.queue_adapter import queue_adapter

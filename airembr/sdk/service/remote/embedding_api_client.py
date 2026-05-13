@@ -3,7 +3,7 @@ from typing import List, Dict, Optional, Union, Generator, Tuple
 
 from requests import Response
 
-from airembr.system.logging.log_handler import get_logger
+from airembr.system.process.logging.log_handler import get_logger
 from airembr.model.system.embedding.embedding import EmbeddingResponse
 
 logger = get_logger(__name__)

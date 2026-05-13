@@ -1,6 +1,6 @@
 from typing import Generator
 
-from airembr.system.logging.log_handler import get_logger
+from airembr.system.process.logging.log_handler import get_logger
 
 from srd.domain.record_mapping import EntityToTableMapping
 from srd.mapping.data_mapping import map_object_to_column

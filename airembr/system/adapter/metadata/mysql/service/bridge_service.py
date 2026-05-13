@@ -3,7 +3,7 @@ from typing import List
 from airembr.model.system.context import get_context
 from airembr.sdk.storage.metadata.proxy.table_service_proxy import TableServiceProxy
 from airembr.model.metadata.sys_bridge import Bridge
-from airembr.system.logging.log_handler import get_logger
+from airembr.system.process.logging.log_handler import get_logger
 from airembr.system.adapter.metadata.mysql.mapping.bridge_mapping import map_to_bridge_table
 from airembr.system.adapter.metadata.mysql.schema.table import BridgeTable
 from airembr.sdk.storage.metadata.query.select_result import SelectResult

@@ -11,7 +11,7 @@ from airembr.sdk.common.date import now_in_utc
 from airembr.model.bigdata.flat_ent_property import FlatEntityProperty
 from airembr.model.bigdata.flat_ent_2_gid import FlatEntity2Gid
 from airembr.model.bigdata.flat_observation_entity import ObservationEntity as FlatObsEntity
-from airembr.system.logging.log_handler import get_logger
+from airembr.system.process.logging.log_handler import get_logger
 
 logger = get_logger(__name__)
 

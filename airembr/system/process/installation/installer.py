@@ -1,7 +1,7 @@
 from dagor.interface.plugin.entrypoint import install_default_plugins
 
 from airembr.model.system.installer.credentials import Credentials
-from airembr.system.logging.log_handler import get_installation_logger
+from airembr.system.process.logging.log_handler import get_installation_logger
 from airembr.system.adapter.bigdata.big_data_adapter import *
 from airembr.system.process.installation.md_install_manager import MetaDataInstallManager
 

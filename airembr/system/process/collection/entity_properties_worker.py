@@ -14,7 +14,7 @@ from airembr.core.data.chunker import chunk_generator
 from airembr.model.system.job_tags import ENTITY_PROPERTY_TAG
 from airembr.model.system.context import ServerContext, Context
 from airembr.model.bigdata.flat_ent_state import FlatEntityState
-from airembr.system.logging.log_handler import get_logger
+from airembr.system.process.logging.log_handler import get_logger
 from airembr.system.adapter.bigdata.general.utils.mapping import entity_property, sys_ent_property_state
 from airembr.system.process.collection.deduplication.entity_prop_dedup import PropertyDeduper
 from airembr.system.adapter.bigdata.tool.column_mapper import map_to_table_columns

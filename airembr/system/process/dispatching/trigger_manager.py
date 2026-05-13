@@ -6,7 +6,7 @@ from airembr.model.system.observation import Observation
 from airembr.model.system.context import get_context
 from airembr.model.system.headers import Headers
 from airembr.system.adapter.queue.queue_adapter import queue_adapter
-from airembr.system.logging.log_handler import get_logger
+from airembr.system.process.logging.log_handler import get_logger
 
 logger = get_logger(__name__)
 

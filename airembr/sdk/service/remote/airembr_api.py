@@ -3,7 +3,7 @@ from typing import Optional, Protocol, Dict, Any, Tuple
 
 import requests
 
-from airembr.system.logging.log_handler import get_logger
+from airembr.system.process.logging.log_handler import get_logger
 from airembr.model.system.memory.conversation_memory import ConversationMemory, MemorySessions
 from airembr.model.system.query.response import QueryResponse, QueryEntityResponse
 

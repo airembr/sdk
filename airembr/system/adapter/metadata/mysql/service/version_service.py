@@ -2,7 +2,7 @@ from typing import Optional
 
 from airembr.sdk.storage.metadata.proxy.table_service_proxy import TableServiceProxy
 from airembr.model.system.version import Version
-from airembr.system.logging.log_handler import get_logger
+from airembr.system.process.logging.log_handler import get_logger
 from airembr.system.adapter.metadata.mysql.mapping.version_mapping import map_to_version_table, map_to_version
 from airembr.system.adapter.metadata.mysql.schema.table import VersionTable
 from airembr.system.adapter.metadata.mysql.service.user_service import _where_with_context

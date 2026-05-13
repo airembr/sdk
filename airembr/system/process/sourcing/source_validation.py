@@ -9,7 +9,7 @@ from airembr.model.system.context import get_context
 from airembr.model.system.named_entity import NamedEntity
 from airembr.core.time.timed_flag import suppress_for
 from airembr.core.exception.exception import BlockedException
-from airembr.system.logging.log_handler import get_logger
+from airembr.system.process.logging.log_handler import get_logger
 
 logger = get_logger(__name__)
 

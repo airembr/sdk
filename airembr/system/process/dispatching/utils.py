@@ -1,7 +1,7 @@
 from typing import List, AsyncGenerator
 
-from airembr.system.logging import extra_info
-from airembr.system.logging.log_handler import get_logger
+from airembr.system.process.logging import extra_info
+from airembr.system.process.logging.log_handler import get_logger
 
 from airembr.system.process.dispatching.model.destination_payload import DestinationPayload
 from airembr.model.metadata.sys_destination import Destination, DestinationConfig

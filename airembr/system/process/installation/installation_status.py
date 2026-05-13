@@ -8,8 +8,8 @@ from airembr.sdk.storage.metadata.proxy.table_service_proxy import TableServiceP
 from airembr.model.system.context import ServerContext, get_context
 from airembr.core.singleton import Singleton
 from airembr.system.config.sys_config import sys_config
-from airembr.system.logging import extra_info
-from airembr.system.logging.log_handler import get_installation_logger
+from airembr.system.process.logging import extra_info
+from airembr.system.process.logging.log_handler import get_installation_logger
 from airembr.system.adapter.bigdata.big_data_adapter import *
 from airembr.system.process.auth.tenant_manager import MultiTenantManager
 

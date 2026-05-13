@@ -5,8 +5,8 @@ from typing import Tuple, Dict
 from srd.utils.file import read_file
 
 from airembr.model.system.context import ServerContext, get_context
-from airembr.system.logging import extra_info
-from airembr.system.logging.log_handler import get_installation_logger
+from airembr.system.process.logging import extra_info
+from airembr.system.process.logging.log_handler import get_installation_logger
 from airembr.system.adapter.bigdata.starrocks.starrocks_base_adapter import StarrocksBaseAdapter
 from airembr.model.system.installer.credentials import Credentials
 from airembr.system.config.sys_config import sys_config

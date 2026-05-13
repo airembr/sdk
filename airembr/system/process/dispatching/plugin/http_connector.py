@@ -12,7 +12,7 @@ from typing import Optional, List
 from airembr.model.system.observation import Observation
 from airembr.sdk.service.parser.tql.utils.dictonary import flatten
 
-from airembr.system.logging.log_handler import get_logger
+from airembr.system.process.logging.log_handler import get_logger
 from airembr.system.process.dispatching.trigger_interface import TriggerInterface
 
 logger = get_logger(__name__)

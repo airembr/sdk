@@ -11,7 +11,7 @@ from airembr.sdk.common.date import now_in_utc
 from airembr.model.bigdata.flat_obs import FlatObs
 from airembr.model.system.context import get_context, ServerContext, Context
 from airembr.model.system.transport_payload import ObsTransportPayload
-from airembr.system.logging.log_handler import get_logger, log_handler
+from airembr.system.process.logging.log_handler import get_logger, log_handler
 from airembr.system.adapter.queue.queue_adapter import queue_adapter
 from airembr.model.system.job_tags import OBSERVATION_STORAGE_TAG
 from airembr.system.adapter.bigdata.general.utils.mapping import sys_obs_mapping

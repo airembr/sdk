@@ -18,7 +18,7 @@ from airembr.core.hash.data_hasher import hash_dict_64
 from airembr.system.utils.text.formaters import _stringify_dict
 from airembr.system.service.bigdata.entity_transformer import compute_entity_property_from_entities
 from airembr.system.service.bigdata.observation_converter import get_obs_2_entity_object, get_rel_2_entity_object
-from airembr.system.logging.log_handler import get_logger, log_handler
+from airembr.system.process.logging.log_handler import get_logger, log_handler
 from airembr.model.system.transport_payload import FactTransportPayload
 from airembr.model.bigdata.flat_ent_2_obs import FlatEntity2Observation
 from airembr.model.bigdata.flat_obs_2_entity import FlatObs2Entity
@@ -34,7 +34,7 @@ from airembr.system.adapter.bigdata.general.utils.mapping import event_mapping, 
     sys_ent_2_gid, sys_text_mapping
 from airembr.system.config.global_config import global_settings
 from airembr.system.adapter.bigdata.tool.column_mapper import map_to_table_columns
-from airembr.system.logging import extra_info
+from airembr.system.process.logging import extra_info
 from airembr.system.adapter.bigdata.big_data_adapter import *
 from airembr.system.config.sys_config import sys_config
 from airembr.system.adapter.queue.queue_adapter import queue_adapter

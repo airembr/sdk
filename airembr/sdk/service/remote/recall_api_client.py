@@ -1,6 +1,6 @@
 import requests
 
-from airembr.system.logging.log_handler import get_logger
+from airembr.system.process.logging.log_handler import get_logger
 
 logger = get_logger(__name__)
 

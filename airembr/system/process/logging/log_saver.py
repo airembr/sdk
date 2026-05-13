@@ -8,7 +8,7 @@ from pararun_adapter import queue_type
 from airembr.model.system.job_tags import LOG_STORAGE_TAG
 from airembr.model.system.context import Context, ServerContext, get_context
 from airembr.system.config.log_config import logging_config
-from airembr.system.logging.log_handler import get_installation_logger
+from airembr.system.process.logging.log_handler import get_installation_logger
 from airembr.system.adapter.queue.queue_adapter import queue_adapter
 
 from airembr.system.adapter.bigdata.big_data_adapter import *

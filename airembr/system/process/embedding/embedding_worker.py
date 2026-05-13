@@ -5,7 +5,7 @@ from pararun.model.transport_context import TransportContext
 from pararun.publisher.deferer import deferred_execution
 from pararun_adapter import queue_type
 
-from airembr.system.logging.log_handler import get_logger, log_handler
+from airembr.system.process.logging.log_handler import get_logger, log_handler
 from airembr.model.system.job_tags import RT_EMBEDDER_DESTINATION_TAG
 from airembr.model.system.context import get_context
 from airembr.model.system.observation import Observation

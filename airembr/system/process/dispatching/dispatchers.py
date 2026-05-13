@@ -6,9 +6,9 @@ from airembr.model.system.observation import Observation
 from airembr.model.metadata.sys_destination import Destination
 from airembr.system.process.dispatching.utils import get_destination_resource
 from airembr.system.adapter.metadata.mysql.interface import destination_dao
-from airembr.system.logging import extra_info
+from airembr.system.process.logging import extra_info
 from airembr.core.exception.exception_service import get_traceback
-from airembr.system.logging.log_handler import get_logger
+from airembr.system.process.logging.log_handler import get_logger
 
 logger = get_logger(__name__)
 

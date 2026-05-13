@@ -2,7 +2,7 @@ from typing import Optional, Tuple
 
 from sqlalchemy import Integer, func
 
-from airembr.system.logging.log_handler import get_logger
+from airembr.system.process.logging.log_handler import get_logger
 
 from airembr.model.metadata.sys_setting import Setting
 from airembr.system.adapter.metadata.mysql.mapping.setting_mapping import map_to_settings_table, map_to_setting

@@ -9,7 +9,7 @@ import functools
 from airembr.model.system.context import get_context
 from contextlib import asynccontextmanager
 
-from airembr.system.logging.log_handler import get_logger
+from airembr.system.process.logging.log_handler import get_logger
 from airembr.system.decorator.memory_cache import MemoryCache, CacheItem
 
 

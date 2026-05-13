@@ -7,7 +7,7 @@ from typing import Optional, List
 
 from pydantic import BaseModel
 
-from airembr.system.logging.log_handler import get_logger
+from airembr.system.process.logging.log_handler import get_logger
 from airembr.system.process.dispatching.trigger_interface import TriggerInterface
 
 from system.adapter.queue.pulsar.pulsar_client import PulsarClient

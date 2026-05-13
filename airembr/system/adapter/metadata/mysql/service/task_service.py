@@ -5,7 +5,7 @@ from uuid import uuid4
 
 from typing import Optional, Tuple
 
-from airembr.system.logging.log_handler import get_logger
+from airembr.system.process.logging.log_handler import get_logger
 from airembr.model.metadata.sys_task import Task
 from airembr.system.adapter.metadata.mysql.mapping.task_mapping import map_to_task_table, map_to_task
 from airembr.system.adapter.metadata.mysql.schema.table import TaskTable

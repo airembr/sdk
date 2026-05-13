@@ -1,7 +1,7 @@
 from srd.domain.sql import Sql, Param
 from airembr.system.adapter.bigdata.adapter_router import AdapterRouter
 from airembr.system.adapter.bigdata.env.bigdata_context import current_bd_database_name
-from airembr.system.logging.log_handler import get_logger
+from airembr.system.process.logging.log_handler import get_logger
 
 logger = get_logger(__name__)
 

@@ -9,7 +9,7 @@ from airembr.model.system.transport_payload import FactTransportPayload, ObsTran
 from airembr.model.system.headers import Headers
 from airembr.model.system.observation import Observation
 from airembr.model.system.context import ServerContext, Context
-from airembr.system.logging.log_handler import get_logger
+from airembr.system.process.logging.log_handler import get_logger
 from airembr.system.adapter.queue.queue_adapter import queue_adapter
 from airembr.system.process.dispatching.trigger_manager import run_triggers
 from airembr.system.process.embedding.embedding_manager import run_embedding

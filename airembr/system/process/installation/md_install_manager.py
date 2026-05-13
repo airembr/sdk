@@ -1,6 +1,6 @@
 from uuid import uuid4
 
-from airembr.system.logging.log_handler import get_logger
+from airembr.system.process.logging.log_handler import get_logger
 from airembr.system.adapter.metadata.mysql.service.version_service import VersionService
 from airembr.system.process.preconfig.setup_bridges import os_default_bridges
 from airembr.system.adapter.metadata.mysql.service.bridge_service import BridgeService
