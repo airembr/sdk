@@ -48,7 +48,7 @@ Output in a format with these sections:
  Explicit Facts (how to extract):
  - Extract both general (general fact inferred from text) and specific facts (related to one sentence). Mark them (general) and (specific). Find at least 2 general facts.
  - Facts should be represented one actor predicate and one object if possible. 
- - Fact description should start with the actor (the main entity) of this fact, prodict and objects.
+ - Fact description should start with the actor (the main entity) of this fact, predicate and objects.
  - Do not include emotional signals tied to entities or events  
  - All time references must be dates not abstract words. eg. for 2024-04-02: Jim signed up for a back-horse riding class yesterday, extract: Jim signed up for a back-horse riding class on 2024-04-01 
 
