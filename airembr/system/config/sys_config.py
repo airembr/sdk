@@ -26,7 +26,6 @@ class SysConfig(metaclass=Singleton):
         self.enable_triggers = get_env_as_bool('ENABLE_TRIGGERS', 'yes')
         self.enable_event_validation = get_env_as_bool('ENABLE_EVENT_VALIDATION', 'yes')
         self.enable_event_reshaping = get_env_as_bool('ENABLE_EVENT_RESHAPING', 'yes')
-        self.enable_event_to_profile_mapping = get_env_as_bool('ENABLE_EVENT_TO_PROFILE_MAPPING', 'yes')
         self.enable_event_source_check = get_env_as_bool('ENABLE_EVENT_SOURCE_CHECK', 'yes')
 
         self.disallow_bot_traffic = get_env_as_bool('DISALLOW_BOT_TRAFFIC', 'yes')

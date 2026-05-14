@@ -255,15 +255,6 @@ system_settings = [
 
     SystemSettings(
         **{
-            "label": "ENABLE_EVENT_TO_PROFILE_MAPPING",
-            "value": sys_config.enable_event_to_profile_mapping,
-            "desc": "Default: yes. Enables event to profile mapping.",
-            "expose": True
-        }
-    ),
-
-    SystemSettings(
-        **{
             "label": "DISALLOW_BOT_TRAFFIC",
             "value": sys_config.disallow_bot_traffic,
             "desc": "Default: Yes. If set to Yes then block bot traffic."
