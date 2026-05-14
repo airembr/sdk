@@ -86,11 +86,11 @@ class AiRembrEntity:
 
 class AiRembrChatPeer:
 
-    def __init__(self, client: 'AiRembrChatClient', observation: 'AirembrObservation', entity: AiRembrEntity):
+    def __init__(self, client: 'AiRembrChatClient', observation: 'AirembrObservation', chats: _Chats, entity: AiRembrEntity):
         self.observation = observation
         self.client = client
         self.entity: AiRembrEntity = entity
-        self.chats: _Chats = _Chats()
+        self.chats: _Chats = chats
 
     def message(self, message: str,
                 summary: Optional[str] = None,
@@ -131,11 +131,13 @@ class AirembrChat:
         self.chat_id = chat_id
         self.peers: Set[AiRembrChatPeer] = set()
         self.entities: Set[AiRembrEntity] = set()
+        self.chats: _Chats = _Chats()
 
     def peer(self, entity: AiRembrEntity) -> AiRembrChatPeer:
         peer = AiRembrChatPeer(
             self.client,
             self.observation,
+            self.chats,
             entity
         )
 
@@ -157,21 +159,20 @@ class AirembrChat:
 
     def _yield_chat_observation(self):
         entities = {link: entity for link, entity in self._yield_referenced_entites()}
-        print(1, entities)
-        for peer in self.peers:
-            for observation_id, chats in peer.chats.list():
-                yield IObservation(
-                    id=observation_id,
-                    name="Chat",
-                    source=IEntity(id=self.observation.source_id),
-                    session=ISession(
-                        id=self.chat_id,
-                        chat=IChatSession(ttl=self.chat_ttl)
-                    ),
-                    observer=self.observation.observer_link,
-                    entities=entities,
-                    relation=chats
-                )
+
+        for observation_id, chats in self.chats.list():
+            yield IObservation(
+                id=observation_id,
+                name="Chat",
+                source=IEntity(id=self.observation.source_id),
+                session=ISession(
+                    id=self.chat_id,
+                    chat=IChatSession(ttl=self.chat_ttl)
+                ),
+                observer=self.observation.observer_link,
+                entities=entities,
+                relation=chats
+            )
 
     def remember(self,
                  realtime: Optional[str] = None,
