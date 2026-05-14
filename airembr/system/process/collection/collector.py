@@ -1,6 +1,7 @@
 from time import time
 from typing import List, Optional, Dict, Tuple
 
+from airembr.model.api.response.conversation_memory import ConversationMemory
 from pararun.model.status import DispatchStatus
 from pararun_adapter import queue_type
 from pararun.model.transport_context import TransportContext
@@ -9,7 +10,7 @@ from airembr.system.process.ai.memory.conversation.memorizer import memorizer
 
 from airembr.core.data.chunker import chunk_generator
 from airembr.model.system.headers import Headers
-from airembr.model.system.observation import Observation
+from airembr.model.api.request.observation import Observation
 from airembr.model.system.context import get_context
 from airembr.system.config.global_config import global_settings
 from airembr.system.process.monitoring.metrics.metrics import QUEUE_PHASE_LATENCY
@@ -25,7 +26,7 @@ _measures = []
 
 
 async def _observe(observations: List[Observation] | Observation, headers: Headers) -> Tuple[
-    Optional[dict], DispatchStatus | None]:
+    Optional[Dict[str, ConversationMemory]], DispatchStatus | None]:
     start = time()
 
     if isinstance(observations, Observation):

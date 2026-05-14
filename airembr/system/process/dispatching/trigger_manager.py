@@ -2,7 +2,7 @@ from pararun_adapter import queue_type
 from pararun.model.transport_context import TransportContext
 
 from airembr.system.process.dispatching.trigger_worker import trigger_worker, trigger_dispatch_in_queue
-from airembr.model.system.observation import Observation
+from airembr.model.api.request.observation import Observation
 from airembr.model.system.context import get_context
 from airembr.model.system.headers import Headers
 from airembr.system.adapter.queue.queue_adapter import queue_adapter

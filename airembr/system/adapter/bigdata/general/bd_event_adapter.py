@@ -1,15 +1,15 @@
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
 from airembr.model.bigdata.flat_ent_history import FlatEntityHistory
 from airembr.model.bigdata.flat_fact import FlatFact
 from airembr.system.adapter.bigdata.adapter_router import AdapterRouter
-from airembr.model.system.query.time_range_query import DatetimeRangePayload
-
-from srd.domain.sql import Sql, Param
 from airembr.system.adapter.bigdata.env.bigdata_context import current_bd_database_name
-
 from airembr.system.adapter.bigdata.general.utils.mapping import event_mapping, entity_history_mapping
 from airembr.system.adapter.bigdata.general.helpers.loaders import load
+
+from airembr.model.api.request.time_range import DatetimeRangePayload
+
+from srd.domain.sql import Sql, Param
 
 
 class BdEventAdapter(AdapterRouter):
@@ -211,5 +211,6 @@ class BdEventAdapter(AdapterRouter):
                 Sql()
                 + f"SELECT *"
                 + f"FROM {database}.{sys_ent_history}"
-                + f"WHERE {sys_ent_history | FlatEntityHistory.ENTITY_HID} IN :entities" + Param({"entities": tuple(entities)})
+                + f"WHERE {sys_ent_history | FlatEntityHistory.ENTITY_HID} IN :entities" + Param(
+            {"entities": tuple(entities)})
         )

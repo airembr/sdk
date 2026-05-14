@@ -3,16 +3,16 @@ from datetime import datetime
 from typing import Optional, Tuple, List, Union, Set
 from uuid import uuid4
 
-from airembr_sdk.api.model.collection.response_status import QueryStatus
-from airembr_sdk.api.model.collection.conversation_memory import MemorySessions
-from airembr_sdk.api.model.collection.session import Session, ChatSession
-from airembr_sdk.api.model.entity import Entity
-from airembr_sdk.api.model.collection.observation import IObservation, IObservationEntity, IObservationRelation, ISemantic, \
+from airembr_sdk.model.core.value.response_status import QueryStatus
+from airembr_sdk.model.interface.i_conversation_memory import IMemorySessions
+from airembr_sdk.model.interface.i_entity import IEntity
+from airembr_sdk.model.interface.i_observation import IObservation, IObservationEntity, IObservationRelation, ISemantic, \
     IEntityIdentification
-from airembr_sdk.api.model.collection.instance import Instance
-from airembr_sdk.api.model.collection.instance_link import InstanceLink
+from airembr_sdk.model.core.instance import Instance
+from airembr_sdk.model.core.instance_link import InstanceLink
 from airembr_sdk.client.airembr_api import AirembrApi
 from airembr_sdk.core.date import now_in_utc
+from airembr_sdk.model.interface.i_session import ISession, IChatSession
 
 
 def entity(type: str,
@@ -68,7 +68,8 @@ class AiRembrEvent:
             entity=IObservationEntity(
                 instance=Instance(type),
                 label=self.label,
-                traits=self.traits
+                traits=self.traits,
+                identification=None
             )
         )
 
@@ -162,10 +163,10 @@ class AirembrChat:
                 yield IObservation(
                     id=observation_id,
                     name="Chat",
-                    source=Entity(id=self.client.source_id),
-                    session=Session(
+                    source=IEntity(id=self.observation.source_id),
+                    session=ISession(
                         id=self.chat_id,
-                        chat=ChatSession(ttl=self.chat_ttl)
+                        chat=IChatSession(ttl=self.chat_ttl)
                     ),
                     observer=self.observation.observer_link,
                     entities=entities,
@@ -177,12 +178,12 @@ class AirembrChat:
                  skip: Optional[str] = None,
                  response: bool = True,
                  bridge: Optional[str] = None,
-                 context: Optional[str] = None) -> Tuple[QueryStatus, MemorySessions]:
+                 context: Optional[str] = None) -> Tuple[QueryStatus, IMemorySessions]:
 
         chats = [len(peer.chats) > 0 for peer in self.peers]
 
         if not any(chats):
-            return QueryStatus(404), MemorySessions({})
+            return QueryStatus(404), IMemorySessions({})
 
         transport = AirembrApi(self.client.api)
         payload = [observation.model_dump(mode="json") for observation in self._yield_chat_observation()]
@@ -201,18 +202,18 @@ class AirembrObservation:
 
     def __init__(self,
                  client: 'AiRembrChatClient',
+                 source_id: str,
                  observer: AiRembrEntity,
                  label: Optional[str] = None,
                  description: Optional[str] = None,
                  id: Optional[str] = None,
                  session_id: Optional[str] = None,
-                 source_id: Optional[str] = None,
                  traits: Optional[dict] = None):
 
         self.client = client
         self.observation_id = id
         self.session_id = session_id or str(uuid4())
-        self.source_id = source_id
+        self.source_id: str = source_id
         self.observer_link = observer.link
         self.label = label
         self.traits = traits
@@ -270,7 +271,7 @@ class AirembrObservation:
             text=ISemantic(description=self.description, ner=False),
             traits=self.traits,
             observer=self.observer_link,
-            source=Entity(id=self.source_id) if self.source_id else Entity(id=self.client.source_id),
+            source=IEntity(id=self.source_id) if self.source_id else IEntity(id=self.observation_id.source_id),
             entities=entities,
             relation=self.relations
         )
@@ -279,7 +280,7 @@ class AirembrObservation:
                  realtime: Optional[str] = None,
                  skip: Optional[str] = None,
                  bridge: Optional[str] = None,
-                 context: Optional[str] = None) -> Tuple[QueryStatus, MemorySessions]:
+                 context: Optional[str] = None) -> Tuple[QueryStatus, IMemorySessions]:
 
         observation = self._get_observation()
         transport = AirembrApi(self.client.api)
@@ -324,10 +325,10 @@ class AiRembrChatClient:
             traits = {}
 
         return AirembrObservation(self,
+                                  source_id,
                                   observer,
                                   label,
                                   description,
                                   id,
                                   session_id,
-                                  source_id,
                                   traits)

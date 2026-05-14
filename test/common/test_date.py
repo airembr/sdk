@@ -1,11 +1,12 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
-from airembr_sdk.core.date import now_in_utc, is_timezone_aware, add_utc_time_zone_if_none, seconds_to_minutes_seconds
+from airembr_sdk.core.date import now_in_utc, _is_timezone_aware, add_utc_time_zone_if_none
+from airembr.core.time.time_converters import seconds_to_minutes_seconds
 import pytest
 
 def test_now_in_utc():
     now = now_in_utc()
-    assert is_timezone_aware(now)
+    assert _is_timezone_aware(now)
     assert now.tzinfo == ZoneInfo('UTC')
     
     # Test with delay
@@ -18,15 +19,15 @@ def test_now_in_utc():
 def test_is_timezone_aware():
     aware_dt = datetime.now(ZoneInfo('UTC'))
     naive_dt = datetime.now()
-    assert is_timezone_aware(aware_dt)
-    assert not is_timezone_aware(naive_dt)
+    assert _is_timezone_aware(aware_dt)
+    assert not _is_timezone_aware(naive_dt)
 
 def test_add_utc_time_zone_if_none():
     assert add_utc_time_zone_if_none(None) is None
     
     naive_dt = datetime(2023, 1, 1, 12, 0, 0)
     aware_dt = add_utc_time_zone_if_none(naive_dt)
-    assert is_timezone_aware(aware_dt)
+    assert _is_timezone_aware(aware_dt)
     assert aware_dt.tzinfo == ZoneInfo('UTC')
     
     already_aware = datetime(2023, 1, 1, 12, 0, 0, tzinfo=ZoneInfo('Europe/Berlin'))

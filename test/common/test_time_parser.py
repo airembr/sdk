@@ -1,17 +1,18 @@
 from datetime import datetime
-from airembr.core.time.time_parser import parse_date, parse_date_delta
+
+from airembr.core.time.parser import parse_date_string, parse_date_delta
 
 def test_parse_date():
-    dt = parse_date("2023-01-01 12:00:00")
+    dt = parse_date_string("2023-01-01 12:00:00")
     assert isinstance(dt, datetime)
     assert dt.year == 2023
     assert dt.month == 1
     assert dt.day == 1
     
-    assert parse_date("not a date") is None
+    assert parse_date_string("not a date") is None
     
     # Fuzzy parsing
-    dt_fuzzy = parse_date("Today is 2023-01-01", fuzzy=True)
+    dt_fuzzy = parse_date_string("Today is 2023-01-01", fuzzy=True)
     assert isinstance(dt_fuzzy, datetime)
     assert dt_fuzzy.year == 2023
 

@@ -19,8 +19,8 @@ from airembr.model.bigdata.flat_ent_history import FlatEntityHistory
 from airembr.model.bigdata.flat_fact import FlatFact
 from airembr.model.bigdata.flat_observation_entity import ObservationEntity
 from airembr.model.bigdata.flat_relation import FlatRelation
-from airembr_sdk.api.model.collection.instance_link import InstanceLink
-from airembr.model.system.observation import Observation, ObservationRelation
+from airembr_sdk.model.core.instance_link import InstanceLink
+from airembr.model.api.request.observation import Observation, ObservationRelation
 from airembr.model.system.headers import Headers
 
 logger = get_logger(__name__)

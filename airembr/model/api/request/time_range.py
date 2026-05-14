@@ -1,16 +1,12 @@
-from datetime import timezone
-
-from time import time
-
 import pytz
-from _datetime import datetime, timedelta
 from typing import Optional, Tuple
-
+from datetime import timezone
+from time import time
+from _datetime import datetime, timedelta
 from pydantic import BaseModel
 from enum import Enum
 
-from airembr.core.time.time_parser import parse_date, parse_date_delta
-
+from airembr.core.time.parser import parse_date_string, parse_date_delta
 from airembr_sdk.core.date import now_in_utc
 
 
@@ -24,7 +20,7 @@ class DatetimeType(str, Enum):
     year = 'year'
 
 
-class DateDeltaPayload(BaseModel):
+class _DateDeltaPayload(BaseModel):
     value: int
     entity: DatetimeType
 
@@ -61,7 +57,7 @@ class DatetimePayload(BaseModel):
     timeZone: int = 0
 
     @staticmethod
-    def now():
+    def now() -> 'DatetimePayload':
         now = now_in_utc()
         return DatetimePayload(year=now.year, month=now.month, date=now.day,
                                hour=now.hour, minute=now.minute, second=now.second,
@@ -108,7 +104,7 @@ class DatetimePayload(BaseModel):
 
 
 class DatePayload(BaseModel):
-    delta: Optional[DateDeltaPayload] = None
+    delta: Optional[_DateDeltaPayload] = None
     absolute: Optional[DatetimePayload] = None
 
     @staticmethod
@@ -116,7 +112,7 @@ class DatePayload(BaseModel):
         if string == 'now':
             return DatePayload()
         else:
-            date = parse_date(string)
+            date = parse_date_string(string)
             if date is not None:
                 return DatePayload(
                     absolute=DatetimePayload.build(date)
@@ -164,7 +160,7 @@ class DatePayload(BaseModel):
 
     @staticmethod
     def as_delta(value, unit: DatetimeType) -> 'DatePayload':
-        return DatePayload(delta=DateDeltaPayload(value=value, entity=unit))
+        return DatePayload(delta=_DateDeltaPayload(value=value, entity=unit))
 
 
 class DatetimeRangePayload(BaseModel):

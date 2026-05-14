@@ -7,7 +7,7 @@ from airembr.model.payload.query_result import QueryResult
 from airembr.system.adapter.bigdata.general.utils.mapping import log_mapping
 from airembr.system.adapter.bigdata.general.metadata import sys_log as sys_log_metadata
 from airembr.core.time.time_converters import pretty_seconds
-from airembr.model.system.query.time_range_query import DatetimeRangePayload
+from airembr.model.api.request.time_range import DatetimeRangePayload
 from airembr_sdk.core.date import now_in_utc
 
 

@@ -1,6 +1,6 @@
 from typing import List
 
-from airembr.model.system.observation import Observation
+from airembr.model.api.request.observation import Observation
 from airembr.model.metadata.sys_destination import Destination
 from airembr.model.metadata.sys_resource import Resource
 

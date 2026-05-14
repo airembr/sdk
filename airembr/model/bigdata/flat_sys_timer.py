@@ -1,4 +1,4 @@
-from airembr_sdk.api.model.entity import FlatEntity
+from airembr.model.bigdata.flat_ent import FlatEntity
 
 class FlatSysTimer(FlatEntity):
     ID = "id"

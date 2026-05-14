@@ -1,7 +1,7 @@
 from typing import Optional, Union
 
-from airembr_sdk.api.model.entity import Entity, PrimaryEntity, FlatEntity
-
+from airembr.model.system.entity import Entity, PrimaryEntity
+from airembr.model.bigdata.flat_ent import FlatEntity
 
 def get_entity_id(entity: Union[Optional[Entity], Optional[FlatEntity]], default=None) -> Optional[str]:
     if not isinstance(entity, (Entity, FlatEntity, dict)):

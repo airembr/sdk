@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from aiohttp import ClientConnectorError, BasicAuth, ContentTypeError
 
 from airembr_sdk.core.entity.identification import generate_pk
-from airembr.model.system.observation import Observation
+from airembr.model.api.request.observation import Observation
 
 from airembr.system.process.logging.log_handler import get_logger
 from airembr.system.process.dispatching.trigger_interface import TriggerInterface

@@ -1,63 +1,9 @@
-from typing import Optional, TypeVar, Type, List, Union, Tuple
-from datetime import datetime
 import json
-from uuid import uuid4
-from pydantic import BaseModel
+
+from datetime import datetime
+
+from typing import Optional, Union
 from durable_dot_dict.dotdict import DotDict
-
-from airembr_sdk.api.model.collection.time import Time, EventTime
-
-
-T = TypeVar("T")
-
-
-class Creatable(BaseModel):
-
-    @classmethod
-    def create(cls: Type[T], record) -> Optional[T]:
-        if not record:
-            return None
-
-        obj = cls(**dict(record))
-
-        if hasattr(obj, 'set_meta_data'):
-            obj.set_meta_data(record.get_meta_data())
-        return obj
-
-
-class NullableEntity(Creatable):
-    id: Optional[str] = None
-
-
-class NullablePrimaryEntity(NullableEntity):
-    primary_id: Optional[str] = None
-
-
-class Entity(Creatable):
-    id: str
-
-    @staticmethod
-    def new() -> 'Entity':
-        return Entity(id=str(uuid4()))
-
-    def __hash__(self):
-        return hash(self.id)
-
-    def __eq__(self, other):
-        return self.id == other.id if isinstance(other, Entity) else False
-
-
-class DefaultEntity(Entity):
-    metadata: Optional[Time] = None
-
-    def get_times(self) -> Tuple[Optional[datetime], Optional[datetime], Optional[datetime]]:
-        return self.metadata.insert, self.metadata.update, self.metadata.create
-
-
-class PrimaryEntity(Entity):
-    primary_id: Optional[str] = None
-    metadata: Optional[Time] = None
-    ids: Optional[List[str]] = None
 
 
 class DotDictEncoder(json.JSONEncoder):
@@ -81,7 +27,6 @@ class DotDictEncoder(json.JSONEncoder):
 
 
 class FlatEntity(DotDict):
-
     ID = "hash"  # Primary Key for Entity
     HASH = 'hash'
     TIME = "time"
@@ -98,8 +43,8 @@ class FlatEntity(DotDict):
     def __getstate__(self):
         # Here, you should retrieve the state, not set it.
         state = {
-            '_data':super().__getstate__(),
-            '_metadata':  self._metadata,
+            '_data': super().__getstate__(),
+            '_metadata': self._metadata,
         }
         return state
 
@@ -107,14 +52,6 @@ class FlatEntity(DotDict):
         # Here, you should call the base class' setstate, not getstate.
         super().__setstate__(state.get('_data', {}))
         self._metadata = state.get('_metadata', None)
-
-    def override(self, key, value):
-        # This one does not record changes or checks for PCP
-        super().__setitem__(key, value)
-
-    def has_changes(self) -> bool:
-        return bool(self._changes) and self._changes.has_changes()
-
 
     def to_json(self, default=None, cls=None):
         """Return wrapped dictionary as json string.
@@ -143,8 +80,3 @@ class FlatEntity(DotDict):
     @property
     def hash(self) -> Optional[str]:
         return self.get(FlatEntity.HASH, None)
-
-    @property
-    def metadata_time(self) -> Optional[EventTime]:
-        return EventTime(**self.get(FlatEntity.METADATA_TIME, {}))
-

@@ -1,4 +1,4 @@
-from airembr.model.system.observation import Observation
+from airembr.model.api.request.observation import Observation
 from airembr.model.system.headers import Headers
 from airembr.system.process.embedding.embedding_worker import embedding_worker
 

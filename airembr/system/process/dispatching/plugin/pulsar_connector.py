@@ -1,5 +1,3 @@
-from time import time
-
 import json
 import pickle
 
@@ -11,7 +9,7 @@ from airembr.system.process.logging.log_handler import get_logger
 from airembr.system.process.dispatching.trigger_interface import TriggerInterface
 
 from system.adapter.queue.pulsar.pulsar_client import PulsarClient
-from airembr.model.system.observation import Observation
+from airembr.model.api.request.observation import Observation
 
 logger = get_logger(__name__)
 

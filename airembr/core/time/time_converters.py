@@ -42,3 +42,10 @@ def pretty_seconds(total_seconds: int) -> str:
             return f"{day_str} {hours:02d}:{minutes:02d}:{seconds:02d}h"
 
 
+def seconds_to_minutes_seconds(seconds):
+    sign = "-" if seconds < 0 else ""
+    seconds = abs(seconds)
+    minutes = seconds // 60
+    remaining_seconds = int(seconds % 60)
+    milliseconds = int((seconds % 1) * 1000)
+    return f"{sign}{int(minutes)}:{remaining_seconds:02d}.{milliseconds:03d}"

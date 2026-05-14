@@ -1,8 +1,10 @@
-from airembr.model.system.query.time_range_query import DatetimeRangePayload
 from srd.domain.sql import Sql, Param
+
 from airembr.system.adapter.bigdata.general.utils.mapping import sys_obs_mapping
 from airembr.system.adapter.bigdata.env.bigdata_context import current_bd_database_name
 from airembr.model.bigdata.flat_obs import FlatObs
+
+from airembr.model.api.request.time_range import DatetimeRangePayload
 
 
 def load_observation_by_id_sql(observation_id: str):

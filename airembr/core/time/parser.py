@@ -5,10 +5,9 @@ from dateutil.parser import parse
 from pytimeparse import parse as parse_delta
 
 
-def parse_date(string, fuzzy=False) -> Optional[datetime]:
+def parse_date_string(string, fuzzy=False) -> Optional[datetime]:
     try:
         return parse(string, fuzzy=fuzzy)
-
     except ValueError:
         return None
 

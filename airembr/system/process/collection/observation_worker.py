@@ -32,6 +32,11 @@ async def _save_observations(transport_context, observation_batch: List[dict]):
             _metadata_time_create = _sys_obs_mapping | FlatObs.METADATA_TIME_CREATE
 
             for item in observation_batch:  # ObsTransportPayload has the same schema as sys_obs table
+
+                if not isinstance(item, dict):
+                    raise ValueError(
+                        f"Incorrect payload {item}. Expected dict in schema of ObsTransportPayload type, got `{type(item)}`.")
+
                 item[_ts] = now
                 item[_metadata_time_insert] = item[_metadata_time_insert] if item.get(_metadata_time_insert, None) is not None else now
                 item[_metadata_time_create] = item[_metadata_time_create] if item.get(_metadata_time_create, None) is not None else now

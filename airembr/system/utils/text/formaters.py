@@ -2,7 +2,7 @@ import sys
 
 from durable_dot_dict.dotdict import DotDict
 
-from airembr.model.system.observation import Observation
+from airembr.model.api.request.observation import Observation
 from airembr.core.text.cleanup import _clean_value
 
 

@@ -8,7 +8,7 @@ from pararun_adapter import queue_type
 from airembr.system.process.logging.log_handler import get_logger, log_handler
 from airembr.model.system.job_tags import RT_EMBEDDER_DESTINATION_TAG
 from airembr.model.system.context import get_context
-from airembr.model.system.observation import Observation
+from airembr.model.api.request.observation import Observation
 from airembr.model.system.context import ServerContext, Context
 from airembr.system.process.dispatching.model.destination_payload import DestinationPayload
 from airembr.system.adapter.queue.queue_adapter import queue_adapter

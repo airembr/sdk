@@ -4,7 +4,7 @@ from uuid import uuid4
 from durable_dot_dict.dotdict import DotDict
 
 from airembr_sdk.core.entity.identification import generate_hid
-from airembr.model.system.observation import Observation, ObservationEntity
+from airembr.model.api.request.observation import Observation, ObservationEntity
 from airembr.core.hash.data_hasher import hash_dict_64
 from airembr.system.utils.text.formaters import _stringify_dict
 from airembr_sdk.core.date import now_in_utc

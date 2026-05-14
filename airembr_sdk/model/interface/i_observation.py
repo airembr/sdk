@@ -4,17 +4,11 @@ from typing import Optional, List, Dict, Set, Union, Tuple
 
 from pydantic import BaseModel, RootModel, Field, PrivateAttr
 
-from airembr_sdk.api.model.entity import Entity
-from airembr.model.system.named_entity import NamedEntity
-
-from airembr_sdk.api.model.collection.session import Session
-from airembr_sdk.api.model.collection.instance import Instance
-from airembr_sdk.api.model.collection.identification_id import IdentificationId
-from airembr_sdk.api.model.collection.instance_link import InstanceLink
-
-
-class IObservationMeasurement(NamedEntity):
-    value: float
+from airembr_sdk.model.core.instance import Instance
+from airembr_sdk.model.interface.i_identification_id import IdentificationId
+from airembr_sdk.model.core.instance_link import InstanceLink
+from airembr_sdk.model.interface.i_entity import IEntity
+from airembr_sdk.model.interface.i_session import ISession
 
 
 class IObservationCollectConsent(BaseModel):
@@ -34,7 +28,7 @@ class IEntityIdentification(BaseModel):
 class IObservationEntity(BaseModel):
     instance: Instance = Field(..., description="Entity instance.")
     identification: Optional[IEntityIdentification] = Field(None,
-                                                           description="Way how the entity is identified. None is undefined.")
+                                                            description="Way how the entity is identified. None is undefined.")
 
     label: Optional[str] = None
     part_of: Optional[Instance] = None
@@ -59,7 +53,7 @@ class IStatusEnum(str, Enum):
     pending = "pending"
 
 
-class IObservationTimer(Entity):
+class IObservationTimer(IEntity):
     status: IStatusEnum
     timeout: Optional[int] = None
     event: Optional[str] = None
@@ -106,8 +100,8 @@ class IObservation(BaseModel):
     traits: Optional[dict] = Field(None, description="Observation traits")
     text: ISemantic = Field(ISemantic(), description="Observation semantics")
     observer: InstanceLink = Field(..., description="Observation observer entity.")
-    source: Entity = Field(..., description="Observation source entity.")
-    session: Optional[Session] = Field(Session(), description="Observation session entity.")
+    source: IEntity = Field(..., description="Observation source entity.")
+    session: Optional[ISession] = Field(ISession(), description="Observation session entity.")
     entities: Optional[IEntityRefs] = IEntityRefs({})
     relation: Optional[List[IObservationRelation]] = []
     context: Optional[Union[List[InstanceLink], InstanceLink]] = None

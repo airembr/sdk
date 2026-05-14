@@ -3,7 +3,7 @@ from typing import Optional, List
 from durable_dot_dict.dotdict import DotDict
 
 from pydantic import BaseModel
-from airembr_sdk.api.model.entity import Entity
+from airembr.model.system.entity import Entity
 
 
 class EntityObject(Entity):

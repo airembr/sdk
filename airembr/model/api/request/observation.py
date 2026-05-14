@@ -6,15 +6,14 @@ from uuid import uuid4
 from durable_dot_dict.dotdict import DotDict
 from pydantic import BaseModel, RootModel, model_validator, Field, PrivateAttr
 
-from airembr_sdk.api.model.entity import Entity
-from airembr_sdk.api.model.collection.instance import Instance
-from airembr_sdk.api.model.collection.instance_link import InstanceLink
-from airembr_sdk.api.model.collection.session import Session
+from airembr.model.system.entity import Entity
+from airembr.model.system.session import Session
 from airembr.core.hash.hash import md5
 from airembr.core.text.cleanup import _clean_value
 from airembr.model.system.named_entity import NamedEntity
-
-from airembr_sdk.api.model.collection.identification_id import IdentificationId
+from airembr.model.system.identification_id import IdentificationId
+from airembr_sdk.model.core.instance import Instance
+from airembr_sdk.model.core.instance_link import InstanceLink
 from airembr.sdk.service.sementic import render_description
 from airembr_sdk.core.date import now_in_utc
 

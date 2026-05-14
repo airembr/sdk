@@ -4,7 +4,8 @@ from typing import Optional, List
 from durable_dot_dict.collection import DotDictStream
 
 from airembr_sdk.core.date import now_in_utc
-from airembr.model.system.query.time_range_query import DatetimeRangePayload
+from airembr.model.api.request.time_range import DatetimeRangePayload
+
 from airembr.model.bigdata.flat_ent_2_obs import FlatEntity2Observation
 from airembr.model.bigdata.flat_fact import FlatFact
 from airembr.model.bigdata.flat_obs import FlatObs
@@ -13,18 +14,18 @@ from airembr.core.time.time_converters import pretty_seconds
 from airembr.model.bigdata.flat_event_job import FlatEventJob
 from airembr.model.bigdata.flat_obs_trigger import FlatObsTrigger
 from airembr.model.payload.query_result import QueryResult
-
-from srd.domain.result import Row
-from srd.domain.sql import Sql, Param
-
 from airembr.system.adapter.bigdata.adapter_router import AdapterRouter
 from airembr.system.adapter.bigdata.general.helpers.aggregations import bucket_data
 from airembr.system.adapter.bigdata.general.sql.histogram import observation_histogram_sql
 from airembr.system.adapter.bigdata.general.sql.observation_sqls import search_observation_by_query_sql, \
     count_observation_by_query_sql, load_observation_by_id_sql
-from airembr.system.adapter.bigdata.general.utils.mapping import event_mapping, sys_observation_trigger, entity_history_mapping, \
+from airembr.system.adapter.bigdata.general.utils.mapping import event_mapping, sys_observation_trigger, \
+    entity_history_mapping, \
     event_job_mapping, sys_obs_mapping, sys_ent_2_obs
 from airembr.system.adapter.bigdata.env.bigdata_context import current_bd_database_name
+
+from srd.domain.result import Row
+from srd.domain.sql import Sql, Param
 
 
 class BdObservationAdapter(AdapterRouter):

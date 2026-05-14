@@ -6,10 +6,10 @@ from airembr.system.adapter.bigdata.adapter_router import AdapterRouter
 from airembr.system.adapter.bigdata.env.bigdata_context import current_bd_database_name
 from airembr.system.adapter.bigdata.general.utils.mapping import entity_history_mapping, entity_property
 from airembr.model.payload.query_result import QueryResult
-
 from airembr.model.bigdata.flat_ent_history import FlatEntityHistory
 from airembr.model.bigdata.flat_ent_property import FlatEntityProperty
-from airembr.model.system.query.time_range_query import DatetimeRangePayload
+
+from airembr.model.api.request.time_range import DatetimeRangePayload
 
 
 class BdEntityHistoryAdapter(AdapterRouter):

@@ -1,11 +1,10 @@
 from typing import List, Optional, Tuple
 
-from airembr.model.system.query.time_range_query import DatePayload
-
-from airembr_sdk.api.model.collection.response import QueryEntityResponse, QueryResponse
-from airembr_sdk.api.model.collection.response_status import QueryStatus
-from airembr_sdk.api.model.collection.conversation_memory import MemorySessions
-from airembr_sdk.api.model.collection.observation import IObservation
+from airembr_sdk.model.interface.i_time_range import IDatePayload
+from airembr_sdk.model.interface.i_response import QueryEntityResponse, QueryResponse
+from airembr_sdk.model.core.value.response_status import QueryStatus
+from airembr_sdk.model.interface.i_conversation_memory import IMemorySessions
+from airembr_sdk.model.interface.i_observation import IObservation
 from airembr_sdk.client.airembr_api import AirembrApi
 
 
@@ -27,8 +26,8 @@ class AirembrQuery:
 
     def facts(self,
               query: Optional[str] = None,
-              min_date: Optional[DatePayload] = None,
-              max_date: Optional[DatePayload] = None,
+              min_date: Optional[IDatePayload] = None,
+              max_date: Optional[IDatePayload] = None,
               page: Optional[int] = 0,
               limit: Optional[int] = 30,
               timezone: Optional[str] = "UTC") -> QueryResponse:
@@ -56,7 +55,7 @@ class AirembrClient:
                 skip: Optional[str] = None,
                 bridge: Optional[str] = None,
                 response: bool = True,
-                context: Optional[str] = None) -> Tuple[QueryStatus, MemorySessions]:
+                context: Optional[str] = None) -> Tuple[QueryStatus, IMemorySessions]:
         payload = [observation.model_dump(mode="json") for observation in observations]
 
         return self.transport.remember(payload,

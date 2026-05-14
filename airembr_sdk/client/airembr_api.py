@@ -3,11 +3,10 @@ from typing import Optional, Protocol, Dict, Any, Tuple
 
 import requests
 
-from airembr.model.system.query.time_range_query import DatetimeRangePayload, DatePayload
-
-from airembr_sdk.api.model.collection.response import QueryResponse, QueryEntityResponse
-from airembr_sdk.api.model.collection.response_status import QueryStatus
-from airembr_sdk.api.model.collection.conversation_memory import ConversationMemory, MemorySessions
+from airembr_sdk.model.interface.i_time_range import IDatetimeRangePayload, IDatePayload
+from airembr_sdk.model.interface.i_response import QueryResponse, QueryEntityResponse
+from airembr_sdk.model.core.value.response_status import QueryStatus
+from airembr_sdk.model.interface.i_conversation_memory import IConversationMemory, IMemorySessions
 from airembr_sdk.logging.log_handler import get_logger
 
 logger = get_logger(__name__)
@@ -125,7 +124,7 @@ class AirembrApi:
                  response: bool = True,
                  bridge: Optional[str] = None,
                  context: Optional[str] = None,
-                 tenant: Optional[str] = None) -> Tuple[QueryStatus, MemorySessions]:
+                 tenant: Optional[str] = None) -> Tuple[QueryStatus, IMemorySessions]:
 
         logger.debug(f"Request sent to POST: {self.url}")
         _response = requests.post(self.url,
@@ -141,8 +140,8 @@ class AirembrApi:
 
         body = _response.json()
 
-        return QueryStatus(_response.status_code), MemorySessions(
-            {key: ConversationMemory(**value) for key, value in body.items()} if _response else {})
+        return QueryStatus(_response.status_code), IMemorySessions(
+            {key: IConversationMemory(**value) for key, value in body.items()} if _response else {})
 
     def query_computed_entity(self, query, entity_type: str = None, page: int = 0, headers=None) -> Tuple[
         QueryStatus, QueryEntityResponse]:
@@ -198,8 +197,8 @@ class AirembrApi:
 
     def query_facts(self,
                     query: str,
-                    min_date: Optional[DatePayload] = None,
-                    max_date: Optional[DatePayload] = None,
+                    min_date: Optional[IDatePayload] = None,
+                    max_date: Optional[IDatePayload] = None,
                     page: Optional[int] = 0,
                     limit: Optional[int] = 30,
                     timezone: Optional[str] = "UTC",
@@ -209,7 +208,7 @@ class AirembrApi:
 
         url = f"{self.url}/v2/events/list/page/{page}?shorten=false"
 
-        data = DatetimeRangePayload(
+        data = IDatetimeRangePayload(
             start=page,
             limit=limit,
             minDate=min_date,

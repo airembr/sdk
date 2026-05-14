@@ -9,7 +9,7 @@ from aiohttp import ClientConnectorError, BasicAuth, ContentTypeError
 
 from typing import Optional, List
 
-from airembr.model.system.observation import Observation
+from airembr.model.api.request.observation import Observation
 from airembr.sdk.service.parser.tql.utils.dictonary import flatten
 
 from airembr.system.process.logging.log_handler import get_logger

@@ -5,7 +5,7 @@ from airembr.system.process.ai.summarizer.prompt import get_summary
 from airembr.system.process.ai.summarizer.model.summary_output import SummaryOutput, SummaryPayload
 from airembr.system.process.ai.memory.conversation.memory_facade import ConversationMemoryFacade
 from airembr.model.system.context import Context, ServerContext, get_context
-from airembr_sdk.api.model.collection.conversation_memory import ConversationMemory
+from airembr.model.api.response.conversation_memory import ConversationMemory
 
 
 # This is expensive

@@ -5,12 +5,11 @@ from durable_dot_dict.dotdict import DotDict
 
 from srd.domain.sql import Sql, Param
 
-from airembr_sdk.core.json.loader import try_json
-
+from airembr.core.json.loader import try_json
 from airembr.system.adapter.bigdata.adapter_router import AdapterRouter
 from airembr.system.adapter.bigdata.env.bigdata_context import current_bd_database_name
 from airembr.system.adapter.bigdata.general.utils.mapping import get_entity_mapping, entity_history_mapping, sys_ent_2_obs
-from airembr_sdk.api.model.entity import FlatEntity
+from airembr.model.bigdata.flat_ent import FlatEntity
 from airembr.model.bigdata.flat_ent_history import FlatEntityHistory
 
 
@@ -34,23 +33,6 @@ class BdEntityAdapter(AdapterRouter):
         records = await self.adapter.exec(sql)
 
         return records.list()
-
-    async def load_entity_by_hashes(self, entity_type: str, hashes: List[str]) -> DotDictStream:
-        ent = await get_entity_mapping(entity_type)
-
-        if not ent:
-            return DotDictStream([])
-
-        database = current_bd_database_name()
-        sql = (
-                Sql()
-                + f"SELECT * FROM {database}.{ent} "
-                + f"WHERE {ent | FlatEntity.HASH} IN :hashes " + Param({"hashes": hashes})
-        )
-
-        records = await self.adapter.exec(sql)
-
-        return records >> ent
 
     async def load_entity_by_hash(self, entity_type: str, hash: str) -> Optional[DotDict]:
         ent = await get_entity_mapping(entity_type)

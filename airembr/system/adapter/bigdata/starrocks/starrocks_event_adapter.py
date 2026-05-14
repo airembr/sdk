@@ -1,10 +1,11 @@
 from typing import List, Callable, Optional
 
 from airembr_sdk.core.date import now_in_utc
+from airembr.model.api.request.time_range import DatetimeRangePayload
+
 from airembr.model.bigdata.flat_fact import FlatFact
 from airembr.core.time.time_converters import pretty_seconds
 from airembr.model.payload.query_result import QueryResult
-from airembr.model.system.query.time_range_query import DatetimeRangePayload
 from airembr.system.adapter.bigdata.env.bigdata_context import current_bd_database_name
 from airembr.system.adapter.bigdata.general.bd_event_adapter import BdEventAdapter
 from airembr.system.adapter.bigdata.general.helpers.filters import within

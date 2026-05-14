@@ -2,7 +2,7 @@ from typing import List
 
 from durable_dot_dict.dotdict import DotDict
 
-from airembr.model.system.observation import Observation
+from airembr.model.api.request.observation import Observation
 from airembr.model.metadata.sys_destination import Destination
 from airembr.system.process.dispatching.utils import get_destination_resource
 from airembr.system.adapter.metadata.mysql.interface import destination_dao

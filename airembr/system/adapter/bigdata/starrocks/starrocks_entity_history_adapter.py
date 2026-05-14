@@ -6,12 +6,12 @@ from airembr.system.adapter.bigdata.env.bigdata_context import current_bd_databa
 from airembr.system.adapter.bigdata.general.utils.mapping import entity_history_mapping
 from airembr.system.adapter.bigdata.general.helpers.aggregations import bucket_data
 from airembr.system.adapter.bigdata.tool.column_mapper import map_to_table_columns
-
 from airembr.model.payload.query_result import QueryResult
-from airembr.model.system.query.time_range_query import DatetimeRangePayload
-from airembr_sdk.core.date import now_in_utc
 from airembr.model.bigdata.flat_ent_history import FlatEntityHistory
 from airembr.core.time.time_converters import pretty_seconds
+
+from airembr.model.api.request.time_range import DatetimeRangePayload
+from airembr_sdk.core.date import now_in_utc
 
 _ent_history_mapping = entity_history_mapping()
 

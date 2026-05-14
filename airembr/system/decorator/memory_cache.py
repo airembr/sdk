@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 from airembr.model.system.context import get_context
 from airembr.core.exception.exception import ExpiredException
-from airembr_sdk.core.date import seconds_to_minutes_seconds
+from airembr.core.time.time_converters import seconds_to_minutes_seconds
 
 
 class CacheItem(BaseModel):

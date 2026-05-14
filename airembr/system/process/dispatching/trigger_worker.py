@@ -3,7 +3,7 @@ from pararun.publisher.deferer import deferred_execution
 from pararun_adapter import queue_type
 
 from airembr.model.system.job_tags import RT_EVENT_DESTINATION_TAG
-from airembr.model.system.observation import Observation
+from airembr.model.api.request.observation import Observation
 
 from airembr.system.process.dispatching.trigger_interface import TriggerInterface
 from airembr.system.preconfig.setup_destination_triggers import DT_EVENT_TRIGGER

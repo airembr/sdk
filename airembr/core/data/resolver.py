@@ -3,9 +3,9 @@ from collections.abc import Mapping, Sequence
 
 from durable_dot_dict.collection import DotDict
 
-from airembr_sdk.api.model.collection.instance import Instance, OBJECT_TAG_PATTERN
+from airembr_sdk.model.core.instance import Instance, OBJECT_TAG_PATTERN
 
-from airembr.model.system.observation import ObservationEntity
+from airembr.model.api.request.observation import ObservationEntity
 
 def extract_entity_link(text):
     match = OBJECT_TAG_PATTERN.search(text)

@@ -1,7 +1,7 @@
 from pprint import pprint
 from typing import List
 
-from airembr.model.system.observation import Observation
+from airembr.model.api.request.observation import Observation
 from dagor.domain.flow_observation import FlowObservation, Relation, Entity
 from dagor.domain.flowdag import FlowDag
 from dagor.interface.workflow.entrypoint import run_workflow

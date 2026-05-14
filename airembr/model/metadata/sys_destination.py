@@ -1,6 +1,6 @@
 from typing import Optional, List, Callable, Dict
 from pydantic import field_validator, BaseModel
-from airembr_sdk.api.model.entity import Entity
+from airembr.model.system.entity import Entity
 from airembr.model.system.named_entity import NamedEntity, NamedEntityInContext
 from airembr.core.package.invoker import load_callable, import_package
 from airembr.core.security.b64 import b64_decoder, b64_encoder
