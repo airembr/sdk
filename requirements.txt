@@ -26,13 +26,11 @@ msgpack==1.0.5
 user-agents==2.2.0
 SQLAlchemy==2.0.36
 
+# Used by sqlite + sqlachemy
 aiosqlite==0.21.0
 
 # Summarizer AI
 pydantic-ai==0.4.4
-
-# Plugins
-jwt==1.3.1
 
 # Worker requirements
 mysql-connector-python==8.4.0
