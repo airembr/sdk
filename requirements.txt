@@ -6,7 +6,7 @@ aiohttp[speedups]
 redis==5.2.1
 aioredis==2.0.1
 tzlocal
-python-multipart
+python-multipart # Moze nie byc potrzebne
 lark==1.1.2
 git+https://github.com/Tracardi/dotty_dict@master
 dateparser
@@ -15,13 +15,12 @@ pytimeparse
 jsonschema==4.3.3
 python-dateutil
 email-validator
-urllib3>=1.26,<2
+urllib3>=1.26,<2  # Moze nie byc potrzebne
 geoip2~=4.2.0
 aiomysql
 PyYAML>=6.0
 jinja2
 python-dotenv
-
 msgpack==1.0.5
 user-agents==2.2.0
 SQLAlchemy==2.0.36
@@ -33,7 +32,6 @@ aiosqlite==0.21.0
 pydantic-ai==0.4.4
 
 # Worker requirements
-mysql-connector-python==8.4.0
 requests>=2.0.0,<3
 
 # System
