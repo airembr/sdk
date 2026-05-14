@@ -39,8 +39,8 @@ user-agents==2.2.0
 faker==18.4.0
 faker-commerce==1.0.3
 SQLAlchemy==2.0.36
-dotdict_parser>=0.7.2
-durable-dot-dict>=0.0.24
+
+
 xxhash
 aiosqlite==0.21.0
 
@@ -57,3 +57,13 @@ requests>=2.0.0,<3
 # Destinations
 kombu
 
+# System
+durable-dot-dict>=0.0.24
+kafka-python==2.3.0  # old 2.0.2, 2.1.5
+confluent-kafka==2.13.0
+duckdb==1.4.1
+pyarrow==21.0.0
+pandas==2.2.3
+dotdict_parser>=0.7.2
+qdrant-client
+prometheus-client==0.24.0
