@@ -332,6 +332,87 @@ __all__ = [
 
 ---
 
+## Step 7 — CRUD endpoint (`bizmory/api/endpoint/gui/routes/<area>/<snake_name>_endpoint.py`)
+
+Create a new file. All four CRUD routes plus the router definition:
+
+```python
+from airembr.system.adapter.metadata.mysql.interface import my_entity_dao
+from typing import Optional
+from fastapi import APIRouter, Depends, Response
+from airembr.system.process.logging.log_handler import get_logger
+from api.endpoint.gui.auth.permissions import Permissions
+from airembr.model.metadata.sys_my_entity import MyEntity
+from airembr.system.config.sys_config import sys_config
+
+logger = get_logger(__name__)
+
+router = APIRouter(
+    dependencies=[Depends(Permissions(roles=["admin", "developer"]))]
+)
+
+
+@router.get("/v2/my-entities", tags=["my-entity"],
+            include_in_schema=sys_config.expose_gui_api)
+async def list_my_entities(query: str = None, limit: int = 100):
+    records, count = await my_entity_dao.load_all_my_entities(query, limit=limit)
+    return {"total": count, "grouped": {"MyEntities": records}}
+
+
+@router.get("/v2/my-entity/{id}", tags=["my-entity"],
+            response_model=Optional[MyEntity],
+            include_in_schema=sys_config.expose_gui_api)
+async def load_my_entity_by_id(id: str, response: Response):
+    record = await my_entity_dao.load_my_entity_by_id(id)
+    if not record:
+        response.status_code = 404
+        return None
+    return record
+
+
+@router.post("/v2/my-entity", tags=["my-entity"],
+             include_in_schema=sys_config.expose_gui_api)
+async def save_my_entity(entity: MyEntity):
+    return await my_entity_dao.insert_my_entity(entity)
+
+
+@router.delete("/v2/my-entity/{id}", tags=["my-entity"],
+               include_in_schema=sys_config.expose_gui_api)
+async def delete_my_entity(id: str):
+    return await my_entity_dao.delete_my_entity_by_id(id)
+```
+
+Key rules:
+- All routes use the `v2/` prefix.
+- Auth via `Permissions` is declared **once at the router level** — never repeated per route.
+- 404 is signalled by setting `response.status_code = 404` and returning `None` — do not raise `HTTPException`.
+- `include_in_schema=sys_config.expose_gui_api` goes on every route.
+- There is **no PUT** — POST is an upsert (`replace` in the DAO handles both create and update).
+- If the entity has a Redis cache TTL, add `"cache": memory_cache_config.<entity>_ttl` to the list response (import `memory_cache_config` from `airembr.system.config.memory_cache_config`).
+- `<area>` matches where related endpoints live — e.g. `inbound/` for sources, `outbound/` for destinations. When unsure, put it in `routes/` directly.
+
+Response shape reference (helpers in `bizmory/api/service/grouping.py`):
+- List → `{"total": N, "grouped": {"Label": [...]}}` — use for browsable entity lists
+- Flat list → `{"total": N, "result": [...]}` — use for lightweight name/id lookups
+- Single → return the model directly; set `response.status_code = 404` when missing
+
+---
+
+## Step 8 — Register router in `main.py`
+
+File: `bizmory/api/endpoint/gui/main.py`
+
+1. Add the import in the relevant group at the top of the file:
+   ```python
+   from api.endpoint.gui.routes.<area> import my_entity_endpoint
+   ```
+2. Add one line to register the router (near related entities):
+   ```python
+   application.include_router(my_entity_endpoint.router)
+   ```
+
+---
+
 ## Checklist
 
 Before declaring done, verify:
@@ -347,6 +428,10 @@ Before declaring done, verify:
 - [ ] DAO registered in `interface/__init__.py` (import + `__all__`)
 - [ ] If deployment-scoped: `production` column in table, `running: bool = False` attribute
 - [ ] If tags/groups: stored as comma-joined string, split on read
+- [ ] Endpoint file created with all 4 CRUD routes
+- [ ] `router = APIRouter(dependencies=[Depends(Permissions(...))])` at module level (not per-route)
+- [ ] `include_in_schema=sys_config.expose_gui_api` on every route
+- [ ] Router imported and registered in `main.py`
 
 ---
 
