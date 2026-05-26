@@ -512,6 +512,7 @@ class OntologyTable(Base):
     production = Column(Boolean)
     name       = Column(String(128), index=True)
     url        = Column(String(255), nullable=True)
+    view       = Column(String(128), nullable=True)
 
     running: bool = False
 

@@ -11,6 +11,7 @@ def map_to_ontology_table(ontology: Ontology) -> OntologyTable:
         production=context.production,
         name=ontology.name,
         url=ontology.url,
+        view=ontology.view,
     )
 
 
@@ -21,4 +22,5 @@ def map_to_ontology(table: OntologyTable) -> Ontology:
         running=table.running,
         name=table.name,
         url=table.url,
+        view=table.view,
     )

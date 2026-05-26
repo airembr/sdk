@@ -8,4 +8,5 @@ if TYPE_CHECKING:
 
 class Ontology(NamedEntityInContext):
     url: Optional[str] = None
+    view: Optional[str] = None
     canonical_entities: List = []
