@@ -441,3 +441,86 @@ class EmbeddingTable(Base):
     )
 
     running: bool = False
+
+
+# Canonical ontology
+
+class CanonicalEntityTable(Base):
+    __tablename__ = 'sys_canonical_entity'
+
+    id             = Column(String(40), nullable=False, index=True)
+    tenant         = Column(String(40), nullable=False)
+    production     = Column(Boolean)
+    name           = Column(String(64), nullable=False, index=True)
+    ontology_id    = Column(String(40), nullable=False, index=True)
+    classification = Column(String(128), nullable=True)
+    identification = Column(JSON, nullable=True)
+
+    running: bool = False
+
+    __table_args__ = (
+        PrimaryKeyConstraint('id', 'tenant', 'production'),
+        ForeignKeyConstraint(
+            ['ontology_id', 'tenant', 'production'],
+            ['sys_ontology.id', 'sys_ontology.tenant', 'sys_ontology.production'],
+            ondelete='CASCADE',
+        ),
+        UniqueConstraint('name', 'tenant', 'production', name='uiq_canonical_entity_name'),
+        Index('idx_canonical_entity_classification', 'classification', 'tenant', 'production'),
+        Index('idx_canonical_entity_ontology', 'ontology_id', 'tenant', 'production'),
+    )
+
+    properties = relationship(
+        "CanonicalEntityPropertyTable",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        foreign_keys="[CanonicalEntityPropertyTable.canonical_entity_id, CanonicalEntityPropertyTable.tenant, CanonicalEntityPropertyTable.production]",
+    )
+
+
+class CanonicalEntityPropertyTable(Base):
+    __tablename__ = 'sys_canonical_entity_property'
+
+    id                  = Column(String(40), nullable=False, index=True)
+    tenant              = Column(String(40), nullable=False)
+    production          = Column(Boolean, nullable=False)
+    name                = Column(String(64), nullable=False)
+    type                = Column(String(16), nullable=False)
+    default             = Column(String(255), nullable=True)
+    required            = Column(Boolean, default=False)
+    canonical_entity_id = Column(String(40), nullable=False)
+
+    running: bool = False
+
+    __table_args__ = (
+        PrimaryKeyConstraint('id', 'tenant', 'production'),
+        ForeignKeyConstraint(
+            ['canonical_entity_id', 'tenant', 'production'],
+            ['sys_canonical_entity.id', 'sys_canonical_entity.tenant', 'sys_canonical_entity.production'],
+            ondelete='CASCADE',
+        ),
+        UniqueConstraint('canonical_entity_id', 'name', 'tenant', 'production', name='uiq_canonical_property_name'),
+        Index('idx_canonical_property_entity', 'canonical_entity_id', 'tenant', 'production'),
+    )
+
+
+class OntologyTable(Base):
+    __tablename__ = 'sys_ontology'
+
+    id         = Column(String(40), index=True)
+    tenant     = Column(String(40))
+    production = Column(Boolean)
+    name       = Column(String(128), index=True)
+    url        = Column(String(255), nullable=True)
+
+    running: bool = False
+
+    __table_args__ = (
+        PrimaryKeyConstraint('id', 'tenant', 'production'),
+    )
+
+    canonical_entities = relationship(
+        "CanonicalEntityTable",
+        passive_deletes=True,
+        foreign_keys="[CanonicalEntityTable.ontology_id, CanonicalEntityTable.tenant, CanonicalEntityTable.production]",
+    )
