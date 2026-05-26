@@ -48,6 +48,12 @@ async def valid_observations(headers: Headers,
             logger.warning(
                 f"Event source `{observation.source.id}` is not allowed. Check bridge type. Allowed types [{allowed_bridge}].")
             continue
+        # Valid observation will have source_id in traits
+        observation.traits['source_id'] = observation.source.id
+        # Valid observation will have session_id in traits
+        if observation.has_session():
+            observation.traits['session_id'] = observation.session.id
+
         yield observation
 
 

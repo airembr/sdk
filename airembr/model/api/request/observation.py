@@ -417,6 +417,9 @@ class Observation(BaseModel):
             return None
         return self.consents.granted
 
+    def has_session(self) -> bool:
+        return isinstance(self.session, Session) and self.session.id is not None
+
     def get_session_id(self, default=None) -> Optional[str]:
         if isinstance(self.session, Session):
             if self.session.id is None:
