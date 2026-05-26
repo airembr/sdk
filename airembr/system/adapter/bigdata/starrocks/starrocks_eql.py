@@ -4,7 +4,7 @@ from srd.domain.sql import Sql, Param
 
 from airembr.model.system.meta_language.meta_lang_model import MetaLangEntityBase
 from airembr.model.bigdata.flat_ent_property_state import FlatEntityPropertyState
-from airembr.system.adapter.bigdata.general.utils.mapping import sys_ent_2_obs, sys_ent_property_state
+from airembr.system.adapter.bigdata.general.utils.mapping import sys_ent_2_obs, sys_ent_property_state, sys_ent_state
 from airembr.system.adapter.bigdata.env.bigdata_context import current_bd_database_name
 
 
@@ -303,7 +303,6 @@ def build_select_observation_will_all_entities(entities: List[MetaLangEntityBase
     else:
         raise ValueError("entities_with_traits and entities_without_traits cannot be both empty")
 
-
     sql = (
             Sql("WITH ")
             + sql1
@@ -324,6 +323,132 @@ def build_select_observation_will_all_entities(entities: List[MetaLangEntityBase
     )
 
     print(400, sql.literal())
+    return sql
+
+
+def build_select_expanded_entities_from_observations(entities: List[MetaLangEntityBase],
+                                                     entity_types: List[str],
+                                                     unmatched_entities: int = 0,
+                                                     unmatched_traits: int = 0,
+                                                     ):
+    entities_with_traits = [item for item in entities if item.properties]
+    entities_without_traits = [item for item in entities if not item.properties]
+
+    entity_filter = [entity.type for entity in entities]
+    no_of_entities = max(0, len(entity_filter) - unmatched_entities)
+
+    database = current_bd_database_name()
+    sys_ent_2_obs_map = sys_ent_2_obs()
+    sys_ent_state_map = sys_ent_state()
+
+    sql1 = build_conditions_sql(entities_with_traits, "traits_conditions", 1) + "," if entities_with_traits else None
+    sql2 = build_conditions_sql(entities_without_traits, "entity_conditions",
+                                2) + "," if entities_without_traits else None
+    sql6 = build_last_property_values("last_property_values") + ","
+    sql3 = build_entities_with_traits_cte("last_property_values",
+                                          entities_with_traits) + "," if entities_with_traits else None
+    sql4 = build_entities_without_traits_cte("last_property_values",
+                                             entities_without_traits) + "," if entities_without_traits else None
+
+    if entities_with_traits and entities_without_traits:
+        sql5 = build_joined_entities_cte()
+    elif entities_with_traits:
+        sql5 = build_traits_entities_cte()
+    elif entities_without_traits:
+        sql5 = build_no_traits_entities_cte()
+    else:
+        raise ValueError("entities_with_traits and entities_without_traits cannot be both empty")
+    print(1, type(entity_types), entity_types)
+    sql = (
+            Sql("WITH ")
+            + sql1
+            + sql2
+            + sql6
+            + sql3
+            + sql4
+            + sql5 + ","
+            + "qualifying_observations AS ("
+            + "SELECT observation_id"
+            + "FROM entities"
+            + "GROUP BY observation_id"
+            + f"HAVING COUNT(DISTINCT group_id) >= {no_of_entities}"
+            + "),"
+            + "all_obs_entities AS ("
+            + "SELECT eo.observation_id, eo.entity_pk, eo.entity_type"
+            + f"FROM {database}.{sys_ent_2_obs_map} eo"
+            + "JOIN qualifying_observations q ON eo.observation_id = q.observation_id"
+            + ")"
+            + "SELECT"
+            + "a.observation_id,"
+            + "a.entity_pk,"
+            + "a.entity_type,"
+            + "s.traits"
+            + "FROM all_obs_entities a"
+            + f"LEFT JOIN {database}.{sys_ent_state_map} s ON s.entity_pk = a.entity_pk"
+            + "WHERE a.entity_type IN :entity_types"
+            + "ORDER BY a.observation_id, a.entity_type, a.entity_pk"
+            + Param({"entity_types": tuple(entity_types)})
+    )
+    print(1, sql.literal())
+    return sql
+
+
+def build_select_entity_types_from_observations(entities: List[MetaLangEntityBase],
+                                                unmatched_entities: int = 0,
+                                                unmatched_traits: int = 0):
+    entities_with_traits = [item for item in entities if item.properties]
+    entities_without_traits = [item for item in entities if not item.properties]
+
+    entity_filter = [entity.type for entity in entities]
+    no_of_entities = max(0, len(entity_filter) - unmatched_entities)
+
+    database = current_bd_database_name()
+    sys_ent_2_obs_map = sys_ent_2_obs()
+
+    sql1 = build_conditions_sql(entities_with_traits, "traits_conditions", 1) + "," if entities_with_traits else None
+    sql2 = build_conditions_sql(entities_without_traits, "entity_conditions",
+                                2) + "," if entities_without_traits else None
+    sql6 = build_last_property_values("last_property_values") + ","
+    sql3 = build_entities_with_traits_cte("last_property_values",
+                                          entities_with_traits) + "," if entities_with_traits else None
+    sql4 = build_entities_without_traits_cte("last_property_values",
+                                             entities_without_traits) + "," if entities_without_traits else None
+
+    if entities_with_traits and entities_without_traits:
+        sql5 = build_joined_entities_cte()
+    elif entities_with_traits:
+        sql5 = build_traits_entities_cte()
+    elif entities_without_traits:
+        sql5 = build_no_traits_entities_cte()
+    else:
+        raise ValueError("entities_with_traits and entities_without_traits cannot be both empty")
+
+    sql = (
+            Sql("WITH ")
+            + sql1
+            + sql2
+            + sql6
+            + sql3
+            + sql4
+            + sql5 + ","
+            + "qualifying_observations AS ("
+            + "SELECT observation_id"
+            + "FROM entities"
+            + "GROUP BY observation_id"
+            + f"HAVING COUNT(DISTINCT group_id) >= {no_of_entities}"
+            + "),"
+            + "all_obs_entities AS ("
+            + "SELECT eo.observation_id, eo.entity_pk, eo.entity_type"
+            + f"FROM {database}.{sys_ent_2_obs_map} eo"
+            + "JOIN qualifying_observations q ON eo.observation_id = q.observation_id"
+            + ")"
+            + "SELECT entity_type, COUNT(*) AS count"
+            + "FROM all_obs_entities"
+            # + "WHERE entity_type NOT IN :excluded_types" + Param({"excluded_types": tuple(entity_filter)})
+            + "GROUP BY entity_type"
+            + "ORDER BY count DESC LIMIT 100"
+    )
+    print(222, sql.literal())
     return sql
 
 

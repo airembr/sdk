@@ -70,7 +70,7 @@ def load_event_source_types() -> Tuple[Dict[str, str], int]:
     return types, len(types)
 
 
-async def load_event_source_entities(add_current: bool = False, type: Optional[str] = None) -> Tuple[
+async def load_event_source_entities(type: Optional[str] = None) -> Tuple[
     List[NamedEntity], int]:
     predefined_names_entities = pc_event_sources.list_as(NamedEntity)
 
@@ -87,10 +87,6 @@ async def load_event_source_entities(add_current: bool = False, type: Optional[s
 
     if predefined_names_entities:
         result.extend(predefined_names_entities)
-
-    if add_current is True:
-        total += 1
-        result.append(NamedEntity(id="@current-source", name="@current-source"))
 
     return result, total
 
