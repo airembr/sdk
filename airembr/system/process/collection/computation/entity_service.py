@@ -115,11 +115,11 @@ def index_entities(observation: Observation) -> Dict[str, DotDict]:
     # Get Entities
     observer = observation.get_observer()
     _entities_by_ref = {}
-    for link, observed_entity in observation.entities.root.items():  # type: ObservationEntity
+    for link, entity in observation.entities.root.items():  # type: ObservationEntity
 
-        instance = observed_entity.instance
-        traits = observed_entity.traits
-        state = observed_entity.state
+        instance = entity.instance
+        traits = entity.traits
+        state = entity.state
 
         try:
             entity_id = instance.resolve_id(properties=traits, generate_id=True)
@@ -128,19 +128,21 @@ def index_entities(observation: Observation) -> Dict[str, DotDict]:
                 f"Could not compute entity id for reference: '{link}'. Random id generated. Detail: {str(e)}")
             entity_id = str(uuid4())
         now = str(now_in_utc())
+
+        # Compute entity
         flat_obs_ent = FlatObsEntity() << {
             FlatObsEntity.OBS_ID: observation.id,
             # Primary key for entity, primary key for entity is globally identifiable ID as it consist of entity type and ID
             FlatObsEntity.ENTITY_PK: instance.generate_pk(entity_id),
             # IID is identification ID if entity can be identified by defined traits
-            FlatObsEntity.ENTITY_IID: observed_entity.iid.iid,
+            FlatObsEntity.ENTITY_IID: entity.iid.iid,
             # IID type
-            FlatObsEntity.ENTITY_IID_TYPE: observed_entity.iid.type,
+            FlatObsEntity.ENTITY_IID_TYPE: entity.iid.type,
             # Entity ID
             FlatObsEntity.ENTITY_ID: entity_id,
             FlatObsEntity.ENTITY_TYPE: instance.kind,
             FlatObsEntity.ENTITY_ROLE: instance.role,
-            FlatObsEntity.ENTITY_LABEL: observed_entity.label,
+            FlatObsEntity.ENTITY_LABEL: entity.label,
             FlatObsEntity.TS: now,
             FlatObsEntity.TIME_CREATE: now,
             FlatObsEntity.CONSENTS_GRANTED: observation.get_consents(),
@@ -150,16 +152,23 @@ def index_entities(observation: Observation) -> Dict[str, DotDict]:
             FlatObsEntity.SESSION_ID: observation.session.id,
         }
 
-        if observed_entity.is_a:
-            flat_obs_ent[FlatObsEntity.IS_A_ID] = observed_entity.is_a.id
-            flat_obs_ent[FlatObsEntity.IS_A_KIND] = observed_entity.is_a.kind
+        if entity.text:
+            if entity.text.description:
+                flat_obs_ent[FlatObsEntity.TEXT_DESCRIPTION] = entity.text.description
+            if entity.text.summary:
+                flat_obs_ent[FlatObsEntity.TEXT_SUMMARY] = entity.text.summary
+            flat_obs_ent[FlatObsEntity.TEXT_NER] = entity.text.ner
+
+        if entity.is_a:
+            flat_obs_ent[FlatObsEntity.IS_A_ID] = entity.is_a.id
+            flat_obs_ent[FlatObsEntity.IS_A_KIND] = entity.is_a.kind
         else:
             flat_obs_ent[FlatObsEntity.IS_A_ID] = None
             flat_obs_ent[FlatObsEntity.IS_A_KIND] = None
 
-        if observed_entity.part_of:
-            flat_obs_ent[FlatObsEntity.PART_OF_ID] = observed_entity.part_of.id
-            flat_obs_ent[FlatObsEntity.PART_OF_KIND] = observed_entity.part_of.kind
+        if entity.part_of:
+            flat_obs_ent[FlatObsEntity.PART_OF_ID] = entity.part_of.id
+            flat_obs_ent[FlatObsEntity.PART_OF_KIND] = entity.part_of.kind
         else:
             flat_obs_ent[FlatObsEntity.PART_OF_ID] = None
             flat_obs_ent[FlatObsEntity.PART_OF_KIND] = None

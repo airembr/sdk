@@ -33,6 +33,7 @@ class Resource(metaclass=Singleton):
             'sys_obs_2_entity': Table(name='sys_obs_2_entity'),
             'sys_obs_2_obs': Table(name='sys_obs_2_obs'),
             "sys_ent_2_gid": Table(name='sys_ent_2_gid'),
+            "sys_ent_2_text": Table(name='sys_ent_2_text'),
         }
 
         self.sql = [

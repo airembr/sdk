@@ -1,0 +1,47 @@
+{
+  "table": "sys_ent_2_text",
+  "distributed": "HASH(entity_pk, text_id)",
+  "pk": "entity_pk, text_id",
+  "order": "ts",
+  "properties": [
+    "\"enable_persistent_index\" = \"true\""
+  ],
+  "engine": "olap",
+  "columns": [
+    {
+      "column": "entity_pk",
+      "sr_column_type": "varchar(48)",
+      "ddb_column_type": "VARCHAR",
+      "property": "entity.pk",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "text_id",
+      "sr_column_type": "varchar(32)",
+      "ddb_column_type": "VARCHAR",
+      "property": "text.id",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "source_id",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "source.id",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "origin",
+      "sr_column_type": "varchar(24)",
+      "ddb_column_type": "VARCHAR",
+      "property": "origin",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "ts",
+      "sr_column_type": "datetime",
+      "ddb_column_type": "TIMESTAMP",
+      "property": "ts",
+      "default_value": "CURRENT_TIMESTAMP"
+    }
+  ]
+}

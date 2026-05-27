@@ -7,6 +7,7 @@ from durable_dot_dict.dotdict import DotDict
 from pydantic import BaseModel, RootModel, model_validator, Field, PrivateAttr
 
 from airembr.model.system.entity import Entity
+from airembr.model.system.fact import Semantic
 from airembr.model.system.session import Session
 from airembr.core.hash.hash import md5
 from airembr.core.text.cleanup import _clean_value
@@ -58,6 +59,7 @@ class ObservationEntity(BaseModel):
     has_a: Optional[List[Instance]] = None
 
     traits: Optional[dict] = {}
+    text: Semantic = Field(Semantic(), description="Entity semantics")
     state: Optional[Dict[str, InstanceLink]] = {}
 
     consents: Optional[ObservationCollectConsent] = None

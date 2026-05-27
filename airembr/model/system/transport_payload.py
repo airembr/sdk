@@ -11,11 +11,8 @@ class FactTransportPayload:
     observation: dict
     fact: dict
     relation: dict
-    context: List[DotDict|dict]
+    entities: List[DotDict|dict]
     gids: List[DotDict|dict]
-    description: Optional[str] = None
-    ner: Optional[bool] = False
-    summary: Optional[str] = None
     timer: Optional[dict] = None
     trace_id: Optional[str] = None
     session: Optional[dict] = None

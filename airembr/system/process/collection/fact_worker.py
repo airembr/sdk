@@ -4,6 +4,7 @@ from typing import List, Optional, Dict, Tuple, Set
 
 from durable_dot_dict.dotdict import DotDict
 
+from airembr.model.bigdata.flat_ent_2_text import FlatEnt2Text
 from pararun.consumer.batcher import BulkedResult
 from pararun.model.batcher import BatcherConfig
 from pararun.model.transport_context import TransportContext, RECORDS
@@ -31,7 +32,7 @@ from airembr.model.bigdata.flat_ent_history import FlatEntityHistory
 from airembr.model.system.context import Context, ServerContext, get_context
 from airembr.system.adapter.bigdata.general.utils.mapping import event_mapping, entity_history_mapping, \
     sys_timer_mapping, entity_property, observation_2_entity_mapping, sys_ent_2_obs, \
-    sys_ent_2_gid, sys_text_mapping
+    sys_ent_2_gid, sys_text_mapping, sys_ent_2_text_mapping
 from airembr.system.config.global_config import global_settings
 from airembr.system.adapter.bigdata.tool.column_mapper import map_to_table_columns
 from airembr.system.process.logging import extra_info
@@ -53,6 +54,7 @@ _sys_obs_2_entity_mapping = observation_2_entity_mapping()
 _sys_ent_2_obs_map = sys_ent_2_obs()
 _sys_ent_2_gid_map = sys_ent_2_gid()
 _sys_text_mapping = sys_text_mapping()
+_sys_ent_2_text_mapping = sys_ent_2_text_mapping()
 
 CACHE_PREFIX = "entity"
 
@@ -188,22 +190,39 @@ async def _save_facts(transport_context, storage_facts):
             f"Time={end_time - start_time} (Saving={end_time - start_time}), Context={transport_context.tenant}/{transport_context.production}")
 
 
-async def _save_texts(context, texts: Set[Tuple[str, str, bool]], relation: Optional[FlatRelation], source_id: str):
+async def _save_texts(context,
+                      texts: Set[Tuple[str, str, bool]],
+                      source_id: str):
     if texts:
         start = time()
         now = now_in_utc()
+
+        # Entity -> Text
+        sys_ent_2_text = [{
+            FlatEnt2Text.SOURCE_ID: source_id,
+            FlatEnt2Text.ENTITY_PK: entity_pk,
+            FlatEnt2Text.ORIGIN: origin,
+            FlatEnt2Text.TEXT_ID: md5(text),
+            FlatEnt2Text.TS: now
+        } for text, origin, ner, observation_id, entity_pk in texts]
+        ent_2_text_rows = map_to_table_columns(sys_ent_2_text, mapping=_sys_ent_2_text_mapping)
+        # Save
+        status, total_rows, saved_rows, message = await bd_event_adapter.adapter.stream(ent_2_text_rows,
+                                                                                       _sys_ent_2_text_mapping)
+        end_time = time()
+        logger.stat(
+            f"Entity -> Text: Saved {saved_rows}, "
+            f"Time={end_time - start}, "
+            f"Context={context.tenant}/{context.production}")
+
+        start = time()
         sys_text = [{
             FlatText.ID: md5(text),
-            FlatText.SOURCE_ID: source_id,
-            FlatText.OBSERVATION_ID: observation_id,
-            FlatText.REL_LABEL: relation[FlatRelation.REL_LABEL] if relation else None,
-            FlatText.REL_TYPE: relation[FlatRelation.REL_TYPE] if relation else None,
-            FlatText.DESCRIPTION: text,
+            FlatText.TEXT: text,
             FlatText.TAGS: [],
-            FlatText.ORIGIN: origin,
             FlatText.REQUIRE_NER: ner,
             FlatText.TS: now
-        } for text, origin, ner, observation_id in texts]
+        } for text, origin, ner, observation_id, entity_pk in texts]
         text_rows = map_to_table_columns(sys_text, mapping=_sys_text_mapping)
         # Save
         status, total_rows, saved_rows, message = await bd_event_adapter.adapter.stream(text_rows,
@@ -211,7 +230,7 @@ async def _save_texts(context, texts: Set[Tuple[str, str, bool]], relation: Opti
 
         end_time = time()
         logger.stat(
-            f"Semantics: Saved {saved_rows}, "
+            f"Texts: Saved {saved_rows}, "
             f"Time={end_time - start}, "
             f"Context={context.tenant}/{context.production}")
 
@@ -348,9 +367,9 @@ async def _store_obs_2_entity(transport_context, obs_2_entity):
             f"Saving={timer.duration}, Context={transport_context.tenant}/{transport_context.production}")
 
 
-def _get_context_entities(storage_payload):
-    if storage_payload.context:
-        return [ObservationEntity(item) for item in storage_payload.context]
+def _get_entities(storage_payload):
+    if storage_payload.entities:
+        return [ObservationEntity(item) for item in storage_payload.entities]
     return []
 
 
@@ -447,36 +466,57 @@ async def save_events_in_queue(transport_context: TransportContext,
                         storage_timers.append(flat_timer)
 
                 with time_profiler("Text indexing"):
+                    fact_dotdict = DotDict(fact_transport_payload.fact) if fact_transport_payload.relation else DotDict()
+                    rel_pk = fact_dotdict.get(FlatFact.REL_PK, None)
 
                     # Add fact text + origon to sys_text
-                    if fact_transport_payload.description:
+                    fact_txt_ner = fact_dotdict.get(FlatFact.SEMANTIC_NER, False)
+                    fact_txt_summary = fact_dotdict.get(FlatFact.SEMANTIC_SUMMARY, None)
+                    fact_txt_description = fact_dotdict.get(FlatFact.SEMANTIC_DESCRIPTION, None)
+
+                    if fact_txt_description:
                         sys_texts.add(
                             (
-                                fact_transport_payload.description,
+                                fact_txt_description,
                                 'fact',
-                                fact_transport_payload.ner,
-                                observation_id
+                                fact_txt_ner,
+                                observation_id,
+                                rel_pk # Entity_PK
                             )
                         )
 
-                    if fact_transport_payload.summary:
+                    if fact_txt_summary:
                         sys_texts.add(
                             (
-                                fact_transport_payload.summary,
+                                fact_txt_summary,
                                 'fact',
-                                fact_transport_payload.ner,
-                                observation_id
+                                fact_txt_ner,
+                                observation_id,
+                                rel_pk  # Entity_PK
                             )
                         )
 
                     # Add observation text + origin to sys_text
-                    obs_text = fact_transport_payload.observation.get('text', None)
-                    if obs_text: sys_texts.add(
+                    obs_dotdict = DotDict(fact_transport_payload.observation) if fact_transport_payload.observation else DotDict()
+                    obs_txt_ner = obs_dotdict.get('text.ner', False)
+                    obs_txt_summary = obs_dotdict.get('text.summary', None)
+                    obs_txt_description = obs_dotdict.get('text.description', None)
+                    if obs_txt_summary: sys_texts.add(
                         (
-                            obs_text,
+                            obs_txt_summary,
                             'observation',
-                            fact_transport_payload.observation.get('ner', False),
-                            observation_id
+                            obs_txt_ner,
+                            observation_id,
+                            observation_id  # Entity_PK
+                        )
+                    )
+                    if obs_txt_description: sys_texts.add(
+                        (
+                            obs_txt_description,
+                            'observation',
+                            obs_txt_ner,
+                            observation_id,
+                            observation_id  # Entity_PK
                         )
                     )
 
@@ -521,32 +561,60 @@ async def save_events_in_queue(transport_context: TransportContext,
 
                 with time_profiler("Entity indexing"):
                     # Reconstruct Context Entities from storage payload
-                    flat_context_entities = _get_context_entities(fact_transport_payload)
-                    for context_entity in flat_context_entities:
+                    flat_entities = _get_entities(fact_transport_payload)
+                    for _entity in flat_entities:
 
-                        if context_entity.get(FlatEntityHistory.ENTITY_ID, None) is None:
+                        if _entity.get(FlatEntityHistory.ENTITY_ID, None) is None:
                             # DO NOT save abstract entities
                             continue
 
-                        ent_id = context_entity[FlatEntityHistory.ENTITY_PK]
-                        ent_data_hash = context_entity.get(FlatEntityHistory.DATA_HASH, None)
+                        ent_pk = _entity[FlatEntityHistory.ENTITY_PK]
+                        ent_data_hash = _entity.get(FlatEntityHistory.DATA_HASH, None)
 
                         # Must index by id and data_hash as there can be multiple entities with same id but different data_hash
-                        index_key = (ent_id, ent_data_hash)
-                        indexed_entities_by_id[index_key] = context_entity
+                        index_key = (ent_pk, ent_data_hash)
+                        indexed_entities_by_id[index_key] = _entity
 
                         # Get context entities in observation
                         obs_2_entity.append(get_obs_2_entity_object(
                             observation_id,
-                            context_entity,
+                            _entity,
                             session_id=session_id
                         ))
+
+                        # Add entity text
+                        txt_ner = _entity.get(FlatEntityHistory.TEXT_NER, False)
+                        txt_description = _entity.get(FlatEntityHistory.TEXT_DESCRIPTION, None)
+                        txt_summary = _entity.get(FlatEntityHistory.TEXT_SUMMARY, None)
+
+                        if txt_description:
+                            sys_texts.add(
+                                (
+                                    txt_description,
+                                    'entity',
+                                    txt_ner,
+                                    observation_id,
+                                    ent_pk  # Entity_PK
+                                )
+                            )
+                        if txt_summary:
+                            sys_texts.add(
+                                (
+                                    txt_summary,
+                                    'entity',
+                                    txt_ner,
+                                    observation_id,
+                                    ent_pk  # Entity_PK
+                                )
+                            )
 
             # Save facts
             await _save_facts(transport_context, storage_facts)
 
+            print(12,len(sys_texts))
+
             # Save texts
-            await _save_texts(transport_context, sys_texts, flat_relation, fact_transport_payload.source_id)
+            await _save_texts(transport_context, sys_texts, fact_transport_payload.source_id)
 
             # Get entities to store
             storage_context_entities = list(indexed_entities_by_id.values())

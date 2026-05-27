@@ -4,7 +4,8 @@ from uuid import uuid4
 
 from durable_dot_dict.dotdict import DotDict
 
-from airembr.system.process.collection.computation.entity_service import index_entities, link_state_entities, compute_data_hashes, get_entity_gids
+from airembr.system.process.collection.computation.entity_service import index_entities, link_state_entities, \
+    compute_data_hashes, get_entity_gids
 from airembr.model.bigdata.flat_sys_timer import FlatSysTimer
 from airembr.core.data.resolver import resolve_dot_dict_values
 from airembr.system.process.logging.log_handler import get_logger
@@ -264,6 +265,7 @@ def _create_fact(observation: Observation,
 
         flat_fact[FlatFact.SEMANTIC_DESCRIPTION] = _description
         flat_fact[FlatFact.SEMANTIC_SUMMARY] = _summary
+        flat_fact[FlatFact.SEMANTIC_NER] = relation.text.ner
 
         if relation.text.summary:
             flat_fact[FlatFact.TEXT_SSID] = md5(relation.text.summary)
@@ -318,7 +320,7 @@ async def compute_events(observation: Observation, headers: Headers) -> AsyncGen
     # Now we are ready to compute data hashed, all traits are there
     _entities_by_ref = compute_data_hashes(_entities_by_ref)
 
-    # Observer in entities
+    # Check observer in observation (should be in entities)
     observer_link = observation.observer
     observer: Optional[DotDict] = _entities_by_ref.get(observer_link.link, None)
 
@@ -330,7 +332,7 @@ async def compute_events(observation: Observation, headers: Headers) -> AsyncGen
         now = now_in_utc()
 
         if not observation.relation:
-
+            # No facts
             for ent in _entities_by_ref.values():
                 ent[FlatEntityHistory.CONTEXT] = 'observation'
 
@@ -339,19 +341,19 @@ async def compute_events(observation: Observation, headers: Headers) -> AsyncGen
                 observation={
                     "id": observation.id,
                     "observer": observer.get_or_none(FlatEntityHistory.ENTITY_PK),
-                    "text": observation.text.to_string(),
-                    "ner": observation.text.ner,
+                    "text": {
+                        "summary": observation.text.summary,
+                        "description": observation.text.description,
+                        "ner": observation.text.ner
+                    },
                     "label": observation.label,
                     "traits": observation.traits
                 },
-                ner=False,  # This is not fact so sent is always False
                 fact={},
                 relation={},
-                context=list(_entities_by_ref.values()),
+                entities=list(_entities_by_ref.values()),
                 timer=None,
                 gids=_entity_gids,
-                description=None,
-                summary=None,
                 trace_id=headers.get_trace_id(),
                 session=observation.session.model_dump(exclude_none=True)
             )
@@ -361,7 +363,7 @@ async def compute_events(observation: Observation, headers: Headers) -> AsyncGen
 
                 flat_relation = _get_rel(observation, relation, now)
 
-                # Get all entities
+                # Get all entities (appends event)
                 storage_context_entities = append_relation_to_context_entities(_entities_by_ref, relation)
 
                 # Get actor
@@ -394,19 +396,18 @@ async def compute_events(observation: Observation, headers: Headers) -> AsyncGen
                             observation={
                                 "id": observation.id,
                                 "observer": observer.get_or_none(FlatEntityHistory.ENTITY_PK),
-                                "text": None,
-                                # This is fact, not observation (discard observation text to save bandwidth, NO NER too)
-                                "label": observation.label,
+                                "text": {
+                                    "summary": observation.text.summary,
+                                    "description": observation.text.description,
+                                    "ner": observation.text.ner
+                                },                                "label": observation.label,
                                 "traits": observation.traits
                             },
                             fact=flat_fact.to_dict(),
                             relation=flat_relation.to_dict(),
-                            context=storage_context_entities,
+                            entities=storage_context_entities,
                             timer=timer,
                             gids=_entity_gids,
-                            description=flat_fact.get_or_none(FlatFact.SEMANTIC_DESCRIPTION),
-                            summary=flat_fact.get_or_none(FlatFact.SEMANTIC_SUMMARY),
-                            ner=relation.text.ner,
                             trace_id=headers.get_trace_id(),
                             session=observation.session.model_dump(exclude_none=True)
                         )
@@ -429,18 +430,18 @@ async def compute_events(observation: Observation, headers: Headers) -> AsyncGen
                         observation={
                             "id": observation.id,
                             "observer": observer.get_or_none(FlatEntityHistory.ENTITY_PK),
-                            "text": None,  # This is fact not observation (discard observation text to save bandwidth)
-                            "label": observation.label,
+                            "text": {
+                                "summary": observation.text.summary,
+                                "description": observation.text.description,
+                                "ner": observation.text.ner
+                            },                            "label": observation.label,
                             "traits": observation.traits
                         },
                         fact=flat_fact.to_dict(),
                         relation=flat_relation.to_dict(),
-                        context=storage_context_entities,
+                        entities=storage_context_entities,
                         timer=timer,
                         gids=_entity_gids,
-                        description=flat_fact.get_or_none(FlatFact.SEMANTIC_DESCRIPTION),
-                        summary=flat_fact.get_or_none(FlatFact.SEMANTIC_SUMMARY),
-                        ner=relation.text.ner,
                         trace_id=headers.get_trace_id(),
                         session=observation.session.model_dump(exclude_none=True)
                     )

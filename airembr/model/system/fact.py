@@ -25,7 +25,7 @@ class Metadata(BaseModel):
 class Semantic(BaseModel):
     summary: Optional[str] = None
     description: Optional[str] = None
-    context: Optional[str] = None
+    ner: Optional[bool] = False
 
     def to_string(self, inline: bool = False):
         if inline:

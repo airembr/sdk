@@ -86,6 +86,7 @@ class FlatFact(DotDict):
 
     SEMANTIC_DESCRIPTION = 'semantic.description'
     SEMANTIC_SUMMARY = 'semantic.summary'
+    SEMANTIC_NER = 'semantic.ner'
 
     TEXT_SSID = 'text.ssid'
     TEXT_SDID = 'text.sdid'

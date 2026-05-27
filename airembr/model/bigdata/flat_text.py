@@ -4,12 +4,7 @@ from durable_dot_dict.dotdict import DotDict
 class FlatText(DotDict):
     ID = "id"
     PARENT_ID = "parent_id"
-    OBSERVATION_ID = "observation.id"
-    SOURCE_ID = "source.id"
-    REL_LABEL = "rel.label"
-    REL_TYPE = "rel.type"
-    DESCRIPTION = "description"
-    ORIGIN = "origin"
+    TEXT = "text_string"
     TAGS = "tags"
     MODEL = "model"
     VECTOR = "vector"

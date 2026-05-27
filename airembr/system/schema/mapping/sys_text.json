@@ -23,45 +23,10 @@
       "default": "NULL"
     },
     {
-      "column": "observation_id",
-      "sr_column_type": "varchar(64)",
-      "ddb_column_type": "VARCHAR",
-      "property": "observation.id",
-      "default": "NOT NULL"
-    },
-    {
-      "column": "source_id",
-      "sr_column_type": "varchar(64)",
-      "ddb_column_type": "VARCHAR",
-      "property": "source.id",
-      "default": "NOT NULL"
-    },
-    {
-      "column": "rel_label",
-      "sr_column_type": "varchar(64)",
-      "ddb_column_type": "VARCHAR",
-      "property": "rel.label",
-      "default": "NULL"
-    },
-    {
-      "column": "rel_type",
-      "sr_column_type": "varchar(64)",
-      "ddb_column_type": "VARCHAR",
-      "property": "rel.type",
-      "default": "NULL"
-    },
-    {
-      "column": "description",
+      "column": "text_string",
       "sr_column_type": "TEXT",
       "ddb_column_type": "TEXT",
-      "property": "description",
-      "default": "NOT NULL"
-    },
-    {
-      "column": "origin",
-      "sr_column_type": "varchar(24)",
-      "ddb_column_type": "VARCHAR",
-      "property": "origin",
+      "property": "text_string",
       "default": "NOT NULL"
     },
     {

@@ -18,6 +18,10 @@ class ObservationEntity(DotDict):
     ENTITY_STATE = 'entity.state'
     ENTITY_TRAITS_TEXT = 'entity.traits_text'
 
+    TEXT_DESCRIPTION = 'text.description'
+    TEXT_SUMMARY = 'text.summary'
+    TEXT_NER = 'text.ner'
+
     DATA_HASH = 'data_hash'
     SCHEMA_HASH = 'schema_hash'
     FIELD_HASH = 'field_hash'

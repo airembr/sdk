@@ -13,6 +13,10 @@ class FlatEntityHistory(DotDict):
     ENTITY_TYPE = 'entity.type'
     ENTITY_LABEL = 'entity.label'
 
+    TEXT_DESCRIPTION = 'text.description'
+    TEXT_SUMMARY = 'text.summary'
+    TEXT_NER = 'text.ner'
+
     SESSION_ID = 'session.id'
 
     DATA_HASH = 'data_hash'
