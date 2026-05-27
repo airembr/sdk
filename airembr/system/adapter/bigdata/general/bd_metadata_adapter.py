@@ -55,3 +55,20 @@ class BdMetadataAdapter(AdapterRouter):
             "total": len(result),
             "result": result
         }
+
+    async def list_table_stats(self):
+        sql = (
+                Sql()
+                + "SELECT TABLE_NAME, TABLE_ROWS"
+                + "FROM INFORMATION_SCHEMA.TABLES"
+                + "WHERE TABLE_SCHEMA = :database"
+                + "ORDER BY TABLE_NAME"
+                + Param({"database": current_bd_database_name()})
+        )
+
+        result = await self.adapter.exec(sql)
+        stats = [
+            {"table": row["TABLE_NAME"], "rows": row["TABLE_ROWS"]}
+            for row in result.list()
+        ]
+        return {"total": len(stats), "result": stats}
