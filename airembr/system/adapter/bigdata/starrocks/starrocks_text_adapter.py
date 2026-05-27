@@ -4,7 +4,8 @@ from airembr.system.adapter.bigdata.adapter_router import AdapterRouter
 from airembr.system.adapter.bigdata.general.utils.mapping import sys_text_mapping
 from airembr.system.adapter.bigdata.starrocks.utils.sql_text import load_not_embedded_texts_sql, load_all_texts_sql, \
     load_not_summarized_texts_sql, load_texts_by_source_sql, count_texts_by_source_sql, count_not_summarized_texts_sql, \
-    count_not_embedded_texts_sql, count_no_ner_texts_sql, load_no_ner_texts_sql, update_required_ner_texts_sql
+    count_not_embedded_texts_sql, count_no_ner_texts_sql, load_no_ner_texts_sql, update_required_ner_texts_sql, \
+    load_texts_by_entity_pk_sql
 
 
 class StarrocksTextAdapter(AdapterRouter):
@@ -59,3 +60,15 @@ class StarrocksTextAdapter(AdapterRouter):
     async def load_all_texts(self):
         sql = load_all_texts_sql()
         return await self.adapter.exec(sql)
+
+    async def load_texts_by_entity_pk(self, entity_pk: str):
+        sql = load_texts_by_entity_pk_sql(entity_pk)
+        result = await self.adapter.exec(sql)
+        result = result >> {
+            "entity_pk": "entity_pk",
+            "text": "text_string",
+            "origin": "origin",
+            "source_id": "source_id",
+            "ts": "ts"
+        }
+        return result.list()
