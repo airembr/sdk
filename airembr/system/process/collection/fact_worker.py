@@ -611,8 +611,6 @@ async def save_events_in_queue(transport_context: TransportContext,
             # Save facts
             await _save_facts(transport_context, storage_facts)
 
-            print(12,len(sys_texts))
-
             # Save texts
             await _save_texts(transport_context, sys_texts, fact_transport_payload.source_id)
 
