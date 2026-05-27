@@ -27,6 +27,13 @@ class MetaLangQuery(BaseModel):
     query: Union[MetaLangEntity, MetaLangLogic]
     returns: Optional[List[str]] = None
 
+    def add(self, logic: Union[MetaLangEntity, 'MetaLangLogic']):
+        if  isinstance(self.query, MetaLangLogic):
+            self.query.group.entities.append(logic)
+        else:
+            group = MetaLangGroup(entities=[self.query, logic])
+            self.query = MetaLangLogic(operator='AND', group=group)
+
     @staticmethod
     def _iter_and_queries(node: Union[MetaLangEntity, MetaLangLogic], operator: str) -> Iterator[MetaLangLogic]:
         if isinstance(node, MetaLangLogic):
@@ -54,6 +61,13 @@ class MetaLangQuery(BaseModel):
                         query_ents.append(entity)
                 if query_ents:
                     yield query_ents
+
+    def has_and_entity(self, entity_type:str):
+        for and_query in self.yield_leafs(operator='AND'):
+            for q in and_query:
+                if q.type.lower() == entity_type:
+                    return True
+        return False
 
 
 MetaLangGroup.model_rebuild()

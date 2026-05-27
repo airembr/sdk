@@ -344,13 +344,13 @@ class BdObservationAdapter(AdapterRouter):
 
         return QueryResult(total=len(buckets), result=x, buckets=['collected'])
 
-    async def load_observation_by_entity_pk(self, entity_pk: str) -> Optional[DotDictStream]:
+    async def load_observations_by_entity_pk(self, entity_pk: str) -> Optional[DotDictStream]:
         _sys_ent_2_obs = sys_ent_2_obs()
         _sys_obs = sys_obs_mapping()
         database = current_bd_database_name()
         sql = (
                 Sql()
-                + f"SELECT e2o.*, o.description, o.label, o.metadata_time_create"
+                + f"SELECT e2o.*, o.description, o.summary, o.label, o.metadata_time_create, o.metadata_time_insert"
                 + f"FROM {database}.{_sys_ent_2_obs} AS e2o"
                 + f"JOIN {database}.{_sys_obs} AS o ON o.{_sys_obs | FlatObs.ID}= e2o.{_sys_ent_2_obs | FlatEntity2Observation.OBSERVATION_ID}"
                 + f"WHERE e2o.{_sys_ent_2_obs | FlatEntity2Observation.ENTITY_PK} = :entity_pk"

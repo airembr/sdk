@@ -73,6 +73,13 @@
       "default": "NULL"
     },
     {
+      "column": "summary",
+      "sr_column_type": "text",
+      "ddb_column_type": "TEXT",
+      "property": "summary",
+      "default": "NULL"
+    },
+    {
       "column": "entities",
       "sr_column_type": "integer",
       "ddb_column_type": "INTEGER",
