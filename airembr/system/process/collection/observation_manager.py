@@ -1,3 +1,4 @@
+from durable_dot_dict.dotdict import DotDict
 from typing import List, Tuple, Optional, AsyncGenerator
 
 from pydantic import ValidationError
@@ -48,11 +49,18 @@ async def valid_observations(headers: Headers,
             logger.warning(
                 f"Event source `{observation.source.id}` is not allowed. Check bridge type. Allowed types [{allowed_bridge}].")
             continue
+
         # Valid observation will have source_id in traits
-        observation.traits['source_id'] = observation.source.id
+        if observation.traits is None:
+            observation.traits = {}
+
+        observation_traits = DotDict(observation.traits)
+        observation_traits['source.id'] = observation.source.id
+        # TODO add source name
         # Valid observation will have session_id in traits
         if observation.has_session():
-            observation.traits['session_id'] = observation.session.id
+            observation_traits['session.id'] = observation.session.id
+        observation.traits = observation_traits.to_dict()
 
         yield observation
 
