@@ -1,10 +1,14 @@
-from typing import List
+from datetime import datetime
+
+from typing import List, Optional
 
 from srd.domain.sql import Sql, Param
 
 from airembr.model.system.meta_language.meta_lang_model import MetaLangEntityBase
 from airembr.model.bigdata.flat_ent_property_state import FlatEntityPropertyState
-from airembr.system.adapter.bigdata.general.utils.mapping import sys_ent_2_obs, sys_ent_property_state, sys_ent_state
+from airembr.model.bigdata.flat_obs import FlatObs
+from airembr.system.adapter.bigdata.general.utils.mapping import sys_ent_2_obs, sys_ent_property_state, sys_ent_state, \
+    entity_property, sys_obs_mapping
 from airembr.system.adapter.bigdata.env.bigdata_context import current_bd_database_name
 
 
@@ -28,6 +32,36 @@ def build_last_property_values(view: str):
             + f"{sys_ent_property_state_map | FlatEntityPropertyState.ENTITY_PK}, "
             + f"  entity_type, property_name, MAX_BY(property_value, ts) AS property_value"
             + f"FROM {database}.{sys_ent_property_state_map}"
+            + "GROUP BY entity_pk, entity_type, property_name)"
+
+    )
+
+
+def build_last_property_values_by_date(view: str,
+                                       start_date: Optional[datetime] = None,
+                                       end_date: Optional[datetime] = None):
+
+    database = current_bd_database_name()
+    sys_ent_property_map = entity_property()
+
+    def between(start_date, end_date):
+        if start_date and end_date:
+            return f"WHERE ts BETWEEN '{start_date.isoformat()}' AND '{end_date.isoformat()}'"
+        elif start_date:
+            return f"WHERE ts >= '{start_date.isoformat()}'"
+        elif end_date:
+            return f"WHERE ts <= '{end_date.isoformat()}'"
+        else:
+            return ""
+
+    return (
+            Sql()
+            + f"{view} AS ("
+            + f"SELECT "
+            + f"{sys_ent_property_map | FlatEntityPropertyState.ENTITY_PK}, "
+            + f"  entity_type, property_name, MAX_BY(property_value, ts) AS property_value"
+            + f"FROM {database}.{sys_ent_property_map}"
+            + between(start_date, end_date)
             + "GROUP BY entity_pk, entity_type, property_name)"
 
     )
@@ -276,7 +310,9 @@ def build_entity_scores_cte(entities: List[MetaLangEntityBase]):
 
 def build_select_observation_will_all_entities(entities: List[MetaLangEntityBase],
                                                unmatched_entities: int = 0,
-                                               unmatched_traits: int = 0):
+                                               unmatched_traits: int = 0,
+                                               start_date: Optional[datetime] = None,
+                                               end_date: Optional[datetime] = None):
     entities_with_traits = [item for item in entities if item.properties]
     entities_without_traits = [item for item in entities if not item.properties]
 
@@ -289,7 +325,11 @@ def build_select_observation_will_all_entities(entities: List[MetaLangEntityBase
     sql1 = build_conditions_sql(entities_with_traits, "traits_conditions", 1) + "," if entities_with_traits else None
     sql2 = build_conditions_sql(entities_without_traits, "entity_conditions",
                                 2) + "," if entities_without_traits else None
-    sql6 = build_last_property_values("last_property_values") + ","
+
+    if start_date or end_date:
+        sql6 = build_last_property_values_by_date("last_property_values", start_date, end_date) + ","
+    else:
+        sql6 = build_last_property_values("last_property_values") + ","
     sql3 = build_entities_with_traits_cte("last_property_values",
                                           entities_with_traits) + "," if entities_with_traits else None
     sql4 = build_entities_without_traits_cte("last_property_values",
@@ -326,10 +366,78 @@ def build_select_observation_will_all_entities(entities: List[MetaLangEntityBase
     return sql
 
 
+def build_select_observations_with_eql(entities: List[MetaLangEntityBase],
+                                        unmatched_entities: int = 0,
+                                        unmatched_traits: int = 0,
+                                        start_date: Optional[datetime] = None,
+                                        end_date: Optional[datetime] = None):
+    entities_with_traits = [item for item in entities if item.properties]
+    entities_without_traits = [item for item in entities if not item.properties]
+
+    entity_filter = [entity.type for entity in entities]
+
+    no_of_props = sum(len(entity.properties) for entity in entities)
+    no_of_entities = max(0, len(entity_filter) - unmatched_entities)
+    no_of_traits = max(0, no_of_props - unmatched_traits)
+
+    sql1 = build_conditions_sql(entities_with_traits, "traits_conditions", 1) + "," if entities_with_traits else None
+    sql2 = build_conditions_sql(entities_without_traits, "entity_conditions",
+                                2) + "," if entities_without_traits else None
+    if start_date or end_date:
+        sql6 = build_last_property_values_by_date("last_property_values", start_date, end_date) + ","
+    else:
+        sql6 = build_last_property_values("last_property_values") + ","
+    sql3 = build_entities_with_traits_cte("last_property_values",
+                                          entities_with_traits) + "," if entities_with_traits else None
+    sql4 = build_entities_without_traits_cte("last_property_values",
+                                             entities_without_traits) + "," if entities_without_traits else None
+    if entities_with_traits and entities_without_traits:
+        sql5 = build_joined_entities_cte()
+    elif entities_with_traits:
+        sql5 = build_traits_entities_cte()
+    elif entities_without_traits:
+        sql5 = build_no_traits_entities_cte()
+    else:
+        raise ValueError("entities_with_traits and entities_without_traits cannot be both empty")
+
+    database = current_bd_database_name()
+    sys_obs = sys_obs_mapping()
+
+    sql = (
+            Sql("WITH ")
+            + sql1
+            + sql2
+            + sql6
+            + sql3
+            + sql4
+            + sql5
+            + "SELECT"
+            + f"  o.{sys_obs | FlatObs.ID},"
+            + f"  o.{sys_obs | FlatObs.METADATA_TIME_INSERT},"
+            + f"  o.{sys_obs | FlatObs.METADATA_TIME_CREATE},"
+            + f"  COALESCE(o.{sys_obs | FlatObs.SUMMARY}, o.{sys_obs | FlatObs.DESCRIPTION}) AS summary,"
+            + f"  o.{sys_obs | FlatObs.ENTITIES}"
+            + "FROM ("
+            + "  SELECT observation_id,"
+            + "         COUNT(DISTINCT group_id) AS no_of_entities,"
+            + "         COUNT(observation_id)    AS no_of_matched_props"
+            + "  FROM entities"
+            + "  GROUP BY observation_id"
+            + f" HAVING no_of_entities >= {no_of_entities} AND no_of_matched_props >= {no_of_traits}"
+            + ") AS matched"
+            + f"JOIN {database}.{sys_obs} AS o ON o.{sys_obs | FlatObs.ID} = matched.observation_id"
+            + "ORDER BY matched.no_of_matched_props DESC"
+    )
+    print(500, sql.literal())
+    return sql
+
+
 def build_select_expanded_entities_from_observations(entities: List[MetaLangEntityBase],
                                                      entity_types: List[str],
                                                      unmatched_entities: int = 0,
                                                      unmatched_traits: int = 0,
+                                                     start_date: Optional[datetime] = None,
+                                                     end_date: Optional[datetime] = None,
                                                      ):
     entities_with_traits = [item for item in entities if item.properties]
     entities_without_traits = [item for item in entities if not item.properties]
@@ -344,7 +452,10 @@ def build_select_expanded_entities_from_observations(entities: List[MetaLangEnti
     sql1 = build_conditions_sql(entities_with_traits, "traits_conditions", 1) + "," if entities_with_traits else None
     sql2 = build_conditions_sql(entities_without_traits, "entity_conditions",
                                 2) + "," if entities_without_traits else None
-    sql6 = build_last_property_values("last_property_values") + ","
+    if start_date or end_date:
+        sql6 = build_last_property_values_by_date("last_property_values", start_date, end_date) + ","
+    else:
+        sql6 = build_last_property_values("last_property_values") + ","
     sql3 = build_entities_with_traits_cte("last_property_values",
                                           entities_with_traits) + "," if entities_with_traits else None
     sql4 = build_entities_without_traits_cte("last_property_values",
@@ -358,7 +469,7 @@ def build_select_expanded_entities_from_observations(entities: List[MetaLangEnti
         sql5 = build_no_traits_entities_cte()
     else:
         raise ValueError("entities_with_traits and entities_without_traits cannot be both empty")
-    print(1, type(entity_types), entity_types)
+
     sql = (
             Sql("WITH ")
             + sql1
@@ -382,6 +493,7 @@ def build_select_expanded_entities_from_observations(entities: List[MetaLangEnti
             + "a.observation_id,"
             + "a.entity_pk,"
             + "a.entity_type,"
+            + "s.ts,"
             + "s.traits"
             + "FROM all_obs_entities a"
             + f"LEFT JOIN {database}.{sys_ent_state_map} s ON s.entity_pk = a.entity_pk"
@@ -395,7 +507,9 @@ def build_select_expanded_entities_from_observations(entities: List[MetaLangEnti
 
 def build_select_entity_types_from_observations(entities: List[MetaLangEntityBase],
                                                 unmatched_entities: int = 0,
-                                                unmatched_traits: int = 0):
+                                                unmatched_traits: int = 0,
+                                                start_date: Optional[datetime] = None,
+                                                end_date: Optional[datetime] = None):
     entities_with_traits = [item for item in entities if item.properties]
     entities_without_traits = [item for item in entities if not item.properties]
 
@@ -408,7 +522,10 @@ def build_select_entity_types_from_observations(entities: List[MetaLangEntityBas
     sql1 = build_conditions_sql(entities_with_traits, "traits_conditions", 1) + "," if entities_with_traits else None
     sql2 = build_conditions_sql(entities_without_traits, "entity_conditions",
                                 2) + "," if entities_without_traits else None
-    sql6 = build_last_property_values("last_property_values") + ","
+    if start_date or end_date:
+        sql6 = build_last_property_values_by_date("last_property_values", start_date, end_date) + ","
+    else:
+        sql6 = build_last_property_values("last_property_values") + ","
     sql3 = build_entities_with_traits_cte("last_property_values",
                                           entities_with_traits) + "," if entities_with_traits else None
     sql4 = build_entities_without_traits_cte("last_property_values",
