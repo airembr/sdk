@@ -1,7 +1,7 @@
 from typing import Any, Optional
 from lark import Transformer, Token
 
-from airembr.model.system.meta_language.meta_lang_model import MetaLangEntity, MetaLangGroup, MetaLangLogic, MetaLangQuery
+from airembr.model.system.meta_language.meta_lang_model import MetaLangEntity, MetaLangGroup, MetaLangLogic, MetaLangProperty, MetaLangQuery
 
 
 
@@ -42,14 +42,14 @@ class EQLTransformer(Transformer):
 
     def pair(self, args):
         # args: [PROPERTY_NAME, ASSIGN, value]
-        return (str(args[0]), args[2])
+        return MetaLangProperty(name=str(args[0]), assign=str(args[1]), value=args[2])
 
     def sep(self, _args):
         return None
 
     def entity(self, args):
         name = str(args[0])
-        pairs = [a for a in args[1:] if isinstance(a, tuple)]
+        pairs = [a for a in args[1:] if isinstance(a, MetaLangProperty)]
         return MetaLangEntity(type=name, properties=pairs)
 
     def atom(self, args):

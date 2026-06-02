@@ -83,7 +83,8 @@ def build_conditions_sql(entities: List[MetaLangEntityBase], name="conditions", 
 
             continue
 
-        for prop_name, prop_value in (entity.properties or []):
+        for prop in (entity.properties or []):
+            prop_name, prop_value = prop.name, prop.value
 
             property_idx += 1
 

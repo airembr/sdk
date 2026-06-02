@@ -1,24 +1,30 @@
 from typing import List, Tuple, Any, Optional, Union, Iterator
 from pydantic import BaseModel
 
+
+class MetaLangProperty(BaseModel):
+    name: str
+    assign: str  # "=", "~", or ":"
+    value: Any
+
+    def __str__(self) -> str:
+        if isinstance(self.value, bool):
+            return f'{self.name}{self.assign}{"true" if self.value else "false"}'
+        if isinstance(self.value, (int, float)):
+            return f'{self.name}{self.assign}{self.value}'
+        return f'{self.name}{self.assign}"{self.value}"'
+
+
 class MetaLangEntityBase(BaseModel):
     type: str
-    properties: Optional[List[Tuple[str, Any]]] = []
+    properties: Optional[List[MetaLangProperty]] = []
 
     def __init__(self, /, **data: Any):
         super().__init__(**data)
         self.type = self.type.lower()
 
     def __str__(self) -> str:
-        parts = []
-        for key, val in (self.properties or []):
-            if isinstance(val, bool):
-                parts.append(f'{key}={"true" if val else "false"}')
-            elif isinstance(val, (int, float)):
-                parts.append(f'{key}={val}')
-            else:
-                parts.append(f'{key}="{val}"')
-        inner = ", ".join(parts)
+        inner = ", ".join(str(prop) for prop in (self.properties or []))
         prefix = "NOT " if getattr(self, "negation", False) else ""
         return f'{prefix}{self.type}({inner})'
 

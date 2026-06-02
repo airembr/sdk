@@ -5,6 +5,7 @@ from airembr.model.system.meta_language.meta_lang_model import (
     MetaLangEntity,
     MetaLangGroup,
     MetaLangLogic,
+    MetaLangProperty,
     MetaLangQuery,
 )
 from airembr.sdk.service.parser.eql.eql_transformer import EQLTransformer
@@ -58,45 +59,45 @@ class TestValueTypes:
 
     def test_string_double_quoted(self, parse):
         result = parse('Person(name: "Alice")')
-        assert result.query.properties == [("name", "Alice")]
+        assert result.query.properties == [MetaLangProperty(name="name", assign=":", value="Alice")]
 
     def test_string_unquoted(self, parse):
         result = parse('Person(status: active)')
-        assert result.query.properties == [("status", "active")]
+        assert result.query.properties == [MetaLangProperty(name="status", assign=":", value="active")]
 
     def test_integer(self, parse):
         result = parse('Person(age: 30)')
-        assert result.query.properties == [("age", 30)]
-        assert isinstance(result.query.properties[0][1], int)
+        assert result.query.properties == [MetaLangProperty(name="age", assign=":", value=30)]
+        assert isinstance(result.query.properties[0].value, int)
 
     def test_negative_integer(self, parse):
         result = parse('Person(score: -5)')
-        assert result.query.properties == [("score", -5)]
-        assert isinstance(result.query.properties[0][1], int)
+        assert result.query.properties == [MetaLangProperty(name="score", assign=":", value=-5)]
+        assert isinstance(result.query.properties[0].value, int)
 
     def test_float(self, parse):
         result = parse('Person(score: 3.14)')
-        assert result.query.properties == [("score", 3.14)]
-        assert isinstance(result.query.properties[0][1], float)
+        assert result.query.properties == [MetaLangProperty(name="score", assign=":", value=3.14)]
+        assert isinstance(result.query.properties[0].value, float)
 
     def test_negative_float(self, parse):
         result = parse('Person(score: -1.5)')
-        assert result.query.properties == [("score", -1.5)]
-        assert isinstance(result.query.properties[0][1], float)
+        assert result.query.properties == [MetaLangProperty(name="score", assign=":", value=-1.5)]
+        assert isinstance(result.query.properties[0].value, float)
 
     def test_bool_true(self, parse):
         result = parse('Person(active: true)')
-        assert result.query.properties == [("active", True)]
-        assert isinstance(result.query.properties[0][1], bool)
+        assert result.query.properties == [MetaLangProperty(name="active", assign=":", value=True)]
+        assert isinstance(result.query.properties[0].value, bool)
 
     def test_bool_false(self, parse):
         result = parse('Person(active: false)')
-        assert result.query.properties == [("active", False)]
-        assert isinstance(result.query.properties[0][1], bool)
+        assert result.query.properties == [MetaLangProperty(name="active", assign=":", value=False)]
+        assert isinstance(result.query.properties[0].value, bool)
 
     def test_escaped_string(self, parse):
         result = parse('Person(note: "hello\\nworld")')
-        assert result.query.properties == [("note", "hello\nworld")]
+        assert result.query.properties == [MetaLangProperty(name="note", assign=":", value="hello\nworld")]
 
 
 # ---------------------------------------------------------------------------
@@ -107,26 +108,26 @@ class TestPropertyNames:
 
     def test_simple_property(self, parse):
         result = parse('Person(name: "Alice")')
-        assert result.query.properties[0][0] == "name"
+        assert result.query.properties[0].name == "name"
 
     def test_dot_notation_two_levels(self, parse):
         result = parse('Person(address.city: "Berlin")')
-        assert result.query.properties[0][0] == "address.city"
+        assert result.query.properties[0].name == "address.city"
 
     def test_dot_notation_three_levels(self, parse):
         result = parse('Person(a.b.c: 1)')
-        assert result.query.properties[0][0] == "a.b.c"
+        assert result.query.properties[0].name == "a.b.c"
 
     def test_equals_sign_assignment(self, parse):
         result = parse('Person(name = "Carol")')
-        assert result.query.properties == [("name", "Carol")]
+        assert result.query.properties == [MetaLangProperty(name="name", assign="=", value="Carol")]
 
     def test_multiple_properties(self, parse):
         result = parse('Person(name: "Alice", age: 30, active: true)')
         assert result.query.properties == [
-            ("name", "Alice"),
-            ("age", 30),
-            ("active", True),
+            MetaLangProperty(name="name", assign=":", value="Alice"),
+            MetaLangProperty(name="age", assign=":", value=30),
+            MetaLangProperty(name="active", assign=":", value=True),
         ]
 
 
@@ -257,11 +258,50 @@ class TestFullQueries:
         result = parse(q)
         assert result.query.operator == "OR"
         entities = result.query.group.entities
-        assert entities[0].properties == [("x.a", True)]
-        assert entities[1].properties == [("y.c.d", 2)]
-        assert entities[2].properties == [("z", 3.5)]
+        assert entities[0].properties == [MetaLangProperty(name="x.a", assign=":", value=True)]
+        assert entities[1].properties == [MetaLangProperty(name="y.c.d", assign=":", value=2)]
+        assert entities[2].properties == [MetaLangProperty(name="z", assign=":", value=3.5)]
 
     def test_mixed_assign_operators(self, parse):
         q = 'Person(name: "Alice", age = 30)'
         result = parse(q)
-        assert result.query.properties == [("name", "Alice"), ("age", 30)]
+        assert result.query.properties == [
+            MetaLangProperty(name="name", assign=":", value="Alice"),
+            MetaLangProperty(name="age", assign="=", value=30),
+        ]
+
+
+# ---------------------------------------------------------------------------
+# Assign operator tests
+# ---------------------------------------------------------------------------
+
+class TestAssignOperators:
+
+    def test_colon_assign(self, parse):
+        result = parse('Person(name: "Alice")')
+        assert result.query.properties[0].assign == ":"
+
+    def test_equals_assign(self, parse):
+        result = parse('Person(name = "Alice")')
+        assert result.query.properties[0].assign == "="
+
+    def test_tilde_assign(self, parse):
+        result = parse('location($name~"Kazimierz Dolny")')
+        assert result.query.properties[0].assign == "~"
+
+    def test_all_three_operators_distinct(self, parse):
+        result = parse('Entity(a: 1, b = 2, c ~ 3)')
+        props = result.query.properties
+        assert props[0].assign == ":"
+        assert props[1].assign == "="
+        assert props[2].assign == "~"
+
+    def test_tilde_operator_name_and_value(self, parse):
+        result = parse('location($name~"Kazimierz Dolny", $type="city")')
+        props = result.query.properties
+        assert props[0].name == "$name"
+        assert props[0].assign == "~"
+        assert props[0].value == "Kazimierz Dolny"
+        assert props[1].name == "$type"
+        assert props[1].assign == "="
+        assert props[1].value == "city"

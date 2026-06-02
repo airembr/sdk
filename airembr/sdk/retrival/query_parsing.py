@@ -2,7 +2,7 @@ from typing import List
 
 from airembr.sdk.ai.prompt.entity_extration_prompt import system_prompt, user_prompt, ExtractedEntities, ExtractedEntity
 from airembr.sdk.ai.config import LLM_PROVIDER, LLM_PROVIDER_API_KEY, LLM_ENTITY_EXTRACTION_MODEL
-from airembr.model.system.meta_language.meta_lang_model import MetaLangEntity
+from airembr.model.system.meta_language.meta_lang_model import MetaLangEntity, MetaLangProperty
 from airembr.sdk.service.remote.llm.llm_adapter import LLMAdapter
 
 adapter = LLMAdapter(
@@ -17,7 +17,7 @@ def _convert_entities(entities: List[ExtractedEntity]) -> List[MetaLangEntity]:
     for e in entities:
         print(e)
         properties = [
-            (k, v)
+            MetaLangProperty(name=k, assign="=", value=v)
             for k, v in (e.traits or {}).items()
             if k not in ["$description"]  # Skip descriptions
         ]

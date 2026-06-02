@@ -3,11 +3,13 @@ from srd.domain.sql import Sql, Param
 from airembr.system.adapter.bigdata.env.bigdata_context import current_bd_database_name
 from airembr.system.adapter.bigdata.general.utils.mapping import entity_property
 from airembr.model.bigdata.flat_ent_property import FlatEntityProperty
+from airembr.model.system.meta_language.meta_lang_model import MetaLangProperty
 
 
-def _compose_properties(entity_properties: List[Tuple[str, str]]):
+def _compose_properties(entity_properties: List[MetaLangProperty]):
     sys_ent_property = entity_property()
-    for key, value in entity_properties:
+    for prop in entity_properties:
+        key, value = prop.name, prop.value
         if key.lower() == "$id":
             # (prop.property_name = "id" AND prop.entity_id = "28589d3458887ca438f772c573b96af6")
             yield  f'prop.entity_id = "{value}"'
@@ -61,7 +63,7 @@ def _query_1(entity_type, entity_properties, observer_pk):
     return sql
 
 
-def sql_entity_by_properties(entity_properties: List[Tuple[str, str]],
+def sql_entity_by_properties(entity_properties: List[MetaLangProperty],
                              entity_type: Optional[str] = None,
                              observer_pk: Optional[str] = None):
     database = current_bd_database_name()
@@ -90,7 +92,7 @@ def sql_entity_by_properties(entity_properties: List[Tuple[str, str]],
     return sql
 
 
-def sql_entities_by_properties(entity_queries: List[Tuple[str, List[Tuple[str, str]]]],
+def sql_entities_by_properties(entity_queries: List[Tuple[str, List[MetaLangProperty]]],
                                observer_pk: Optional[str] = None):
     sys_ent_property = entity_property()
     database = current_bd_database_name()
