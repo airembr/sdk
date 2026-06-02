@@ -80,6 +80,13 @@
       "default": "NOT NULL"
     },
     {
+      "column": "property_value_id",
+      "sr_column_type": "varchar(32)",
+      "ddb_column_type": "VARCHAR",
+      "property": "property.value_id",
+      "default": "NULL"
+    },
+    {
       "column": "property_text",
       "sr_column_type": "string",
       "ddb_column_type": "VARCHAR",

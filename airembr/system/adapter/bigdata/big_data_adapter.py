@@ -1,4 +1,6 @@
 from airembr.system.adapter.bigdata.starrocks.starrocks_text_adapter import StarrocksTextAdapter
+from airembr.system.adapter.bigdata.starrocks.starrocks_text_vector_adapter import StarrocksTextVectorAdapter
+
 from airembr.system.config.sys_config import sys_config
 from airembr.system.decorator.run_once import run_once
 
@@ -48,6 +50,9 @@ def _bd_entity_adapter():
 def _bd_text_adapter():
     return StarrocksTextAdapter()
 
+@run_once
+def _bd_text_vector_adapter():
+    return StarrocksTextVectorAdapter()
 
 
 @run_once
@@ -134,3 +139,4 @@ bd_hyper_edge_adapter = _bd_hyper_edge_adapter()
 bd_entity_stitch_adapter = _bd_entity_stitch_adapter()
 bd_state_adapter = _bd_state_adapter()
 bd_text_adapter = _bd_text_adapter()
+bd_text_vector_adapter = _bd_text_vector_adapter()

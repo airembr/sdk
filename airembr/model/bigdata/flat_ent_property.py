@@ -9,6 +9,7 @@ class FlatEntityProperty(DotDict):
     PROPERTY_ID = "property.id"
     NAME = "property.name"
     VALUE = "property.value"
+    VALUE_ID = "property.value_id"
     TEXT = "property.text"
     NUMBER = "property.number"
     VECTOR = "property.vector"
