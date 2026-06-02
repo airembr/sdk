@@ -148,7 +148,7 @@ class BdEntityAdapter(AdapterRouter):
             yield item
 
 
-    async def load_observation_entities(self, observation_id: str) -> AsyncGenerator[DotDict, None]:
+    async def load_observation_entities_from_ent_history(self, observation_id: str) -> AsyncGenerator[DotDict, None]:
         sys_ent_2_obs_map = sys_ent_2_obs()
         sys_sys_ent_history_map = entity_history_mapping()
 

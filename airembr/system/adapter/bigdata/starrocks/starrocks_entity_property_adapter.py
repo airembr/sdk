@@ -5,8 +5,8 @@ from durable_dot_dict.dotdict import DotDict
 
 from srd.domain.sql import Sql, Param
 from airembr.system.adapter.bigdata.general.bd_entity_history_adapter import BdEntityHistoryAdapter
-from airembr.system.adapter.bigdata.starrocks.starrocks_eql import build_select_likely_entities_by_eql, \
-    build_select_observation_will_all_entities, build_select_expanded_entities_from_observations, \
+from airembr.system.adapter.bigdata.starrocks.starrocks_eql import build_select_observation_will_all_entities, \
+    build_select_expanded_entities_from_observations, \
     build_select_entity_types_from_observations, build_select_observations_with_eql
 from airembr.system.adapter.bigdata.starrocks.utils.sql_entity_search import sql_entity_by_properties
 from airembr.system.adapter.bigdata.env.bigdata_context import current_bd_database_name
@@ -137,10 +137,6 @@ class StarrocksEntityPropertyAdapter(BdEntityHistoryAdapter):
             sql += Param({"id": id})
             await self.adapter.exec(sql)
 
-    async def load_likely_with_eql(self, eql_object):
-        sql = build_select_likely_entities_by_eql(eql_object)
-        return await self.adapter.exec(sql)
-
     async def yield_exact_entities_with_eql(self, eql_object, unmatched_entities: int = 0, unmatched_traits: int = 0,
                                             start_date: Optional[datetime] = None,
                                             end_date: Optional[datetime] = None) -> AsyncGenerator[
@@ -173,11 +169,11 @@ class StarrocksEntityPropertyAdapter(BdEntityHistoryAdapter):
     async def load_observations_with_eql(self, eql_object, unmatched_entities: int = 0, unmatched_traits: int = 0,
                                          start_date: Optional[datetime] = None, end_date: Optional[datetime] = None):
         sql = build_select_observations_with_eql(eql_object, unmatched_entities, unmatched_traits,
-                                                  start_date=start_date, end_date=end_date)
+                                                 start_date=start_date, end_date=end_date)
         return await self.adapter.exec(sql)
 
     async def load_entity_types_with_eql(self, eql_object, unmatched_entities: int = 0, unmatched_traits: int = 0,
                                          start_date: Optional[datetime] = None, end_date: Optional[datetime] = None):
         sql = build_select_entity_types_from_observations(eql_object, unmatched_entities, unmatched_traits,
-                                                           start_date=start_date, end_date=end_date)
+                                                          start_date=start_date, end_date=end_date)
         return await self.adapter.exec(sql)

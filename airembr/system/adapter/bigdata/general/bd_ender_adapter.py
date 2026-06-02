@@ -3,6 +3,9 @@ from typing import Optional, List
 
 from durable_dot_dict.collection import DotDictStream
 
+from airembr.model.bigdata.flat_ent_2_text import FlatEnt2Text
+from airembr.model.bigdata.flat_ent_state import FlatEntityState
+from airembr.model.bigdata.flat_text import FlatText
 from airembr_sdk.core.date import now_in_utc
 from airembr.model.api.request.time_range import DatetimeRangePayload
 
@@ -21,7 +24,7 @@ from airembr.system.adapter.bigdata.general.sql.observation_sqls import search_o
     count_observation_by_query_sql, load_observation_by_id_sql
 from airembr.system.adapter.bigdata.general.utils.mapping import event_mapping, sys_observation_trigger, \
     entity_history_mapping, \
-    event_job_mapping, sys_obs_mapping, sys_ent_2_obs
+    event_job_mapping, sys_obs_mapping, sys_ent_2_obs, sys_ent_state, sys_ent_2_text_mapping, sys_text_mapping
 from airembr.system.adapter.bigdata.env.bigdata_context import current_bd_database_name
 
 from srd.domain.result import Row
@@ -263,6 +266,55 @@ class BdObservationAdapter(AdapterRouter):
         if not result:
             return None
         return result >> sys_obs_map
+
+    async def load_entity_descriptions(self, entity_pks: List[str], limit: int = 1000) -> Optional[DotDictStream]:
+        _sys_ent_2_text = sys_ent_2_text_mapping()
+        _sys_text = sys_text_mapping()
+        database = current_bd_database_name()
+        sql = (
+                Sql()
+                + f"SELECT DISTINCT e2t.{_sys_ent_2_text |FlatEnt2Text.TS} AS ts, e2t.{_sys_ent_2_text |FlatEnt2Text.ENTITY_PK} AS entity_pk, e2t.{_sys_ent_2_text |FlatEnt2Text.ORIGIN}, t.{_sys_text | FlatText.TEXT} AS text_string"
+                + f"FROM {database}.{_sys_ent_2_text} AS e2t"
+                + f"JOIN {database}.{_sys_text} AS t "
+                  f"  ON e2t.{_sys_ent_2_text | FlatEnt2Text.TEXT_ID}= t.{_sys_text | FlatText.ID}"
+                + f"WHERE e2t.{_sys_ent_2_text |FlatEnt2Text.ENTITY_PK} IN :entity_pks"
+                + "LIMIT :limit"
+                + Param({"entity_pks": tuple(entity_pks), "limit": limit})
+        )
+
+        result = await self.adapter.exec(sql)
+        if not result:
+            return None
+
+        return result
+
+    async def load_observations_entity_states_by_observation_id(self, obs_ids: List[str]) -> Optional[DotDictStream]:
+        _sys_ent_2_obs = sys_ent_2_obs()
+        _sys_ent_2_text = sys_ent_2_text_mapping()
+        _sys_ent_state = sys_ent_state()
+        _sys_obs = sys_obs_mapping()
+        database = current_bd_database_name()
+        sql = (
+                Sql()
+                + f"SELECT e2o.*, es.traits, es.stitch_ts, "
+                  f"o.description, o.summary, o.label, "
+                  f"o.metadata_time_create, o.metadata_time_insert"
+                + f"FROM {database}.{_sys_ent_2_obs} AS e2o"
+                + f"JOIN {database}.{_sys_obs} AS o "
+                  f"  ON o.{_sys_obs | FlatObs.ID}= e2o.{_sys_ent_2_obs | FlatEntity2Observation.OBSERVATION_ID}"
+                + f"LEFT JOIN {database}.{_sys_ent_state} AS es"
+                  f"  ON es.{_sys_ent_state | FlatEntityState.PK}= e2o.{_sys_ent_2_obs | FlatEntity2Observation.ENTITY_PK}"
+                + f"WHERE e2o.{_sys_ent_2_obs | FlatEntity2Observation.OBSERVATION_ID} IN :obs_ids"
+                + f"ORDER BY o.metadata_time_create DESC"
+                + "LIMIT 500"
+                + Param({"obs_ids": tuple(obs_ids)})
+        )
+
+        result = await self.adapter.exec(sql)
+        if not result:
+            return None
+
+        return result
 
     async def load_facts_by_observation_ids_and_entity_pks(self,
                                                            obs_ids: List[str],

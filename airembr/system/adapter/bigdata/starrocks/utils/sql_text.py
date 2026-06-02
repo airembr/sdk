@@ -119,18 +119,3 @@ def update_required_ner_texts_sql(text_id: str):
             + f"  WHERE {sys_text | FlatText.ID} = :text_id"
             + Param({"text_id": text_id})
     )
-
-
-def load_texts_by_entity_pk_sql(entity_pk: str):
-    database = current_bd_database_name()
-    sys_text = sys_text_mapping()
-    sys_ent_2_text = sys_ent_2_text_mapping()
-    return (
-            Sql()
-            + f"  SELECT t.*, e2t.{sys_ent_2_text | FlatEnt2Text.SOURCE_ID}, e2t.{sys_ent_2_text | FlatEnt2Text.ORIGIN}, e2t.{sys_ent_2_text | FlatEnt2Text.ENTITY_PK}"
-            + f"  FROM {database}.{sys_ent_2_text} e2t"
-            + f"  JOIN {database}.{sys_text} t ON e2t.{sys_ent_2_text | FlatEnt2Text.TEXT_ID} = t.{sys_text | FlatText.ID}"
-            + f"  WHERE e2t.{sys_ent_2_text | FlatEnt2Text.ENTITY_PK} = :entity_pk"
-            + f"  ORDER BY t.ts DESC"
-            + Param({"entity_pk": entity_pk})
-    )

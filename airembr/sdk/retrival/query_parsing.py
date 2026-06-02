@@ -31,7 +31,7 @@ def _convert_entities(entities: List[ExtractedEntity]) -> List[MetaLangEntity]:
 
     return result
 
-async def parse_semantic_query(text):
+async def parse_semantic_query(text) -> List[MetaLangEntity]:
     _system_prompt = system_prompt(False, False)
     _user_prompt = user_prompt(text)
 

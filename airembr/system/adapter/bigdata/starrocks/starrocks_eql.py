@@ -12,16 +12,6 @@ from airembr.system.adapter.bigdata.general.utils.mapping import sys_ent_2_obs, 
 from airembr.system.adapter.bigdata.env.bigdata_context import current_bd_database_name
 
 
-def build_required_cte():
-    return (
-            Sql()
-            + "required AS ("
-            + "  SELECT group_id, COUNT(*) AS required_props"
-            + "  FROM conditions"
-            + "  GROUP BY group_id) "
-    )
-
-
 def build_last_property_values(view: str):
     database = current_bd_database_name()
     sys_ent_property_state_map = sys_ent_property_state()
@@ -40,7 +30,6 @@ def build_last_property_values(view: str):
 def build_last_property_values_by_date(view: str,
                                        start_date: Optional[datetime] = None,
                                        end_date: Optional[datetime] = None):
-
     database = current_bd_database_name()
     sys_ent_property_map = entity_property()
 
@@ -131,21 +120,6 @@ def build_conditions_sql(entities: List[MetaLangEntityBase], name="conditions", 
     return Sql(sql) + Param(params)
 
 
-def build_observation_scores_cte():
-    sql = (
-            Sql()
-            + "observation_scores AS ( "
-            + "SELECT "
-            + "  observation_id, "
-            + "  COUNT(DISTINCT group_id) AS entity_count "
-            + "FROM entity_scores "
-            + "GROUP BY observation_id "
-            + ")\n"
-    )
-
-    return sql
-
-
 #
 # def build_entities_cte(entities: List[MetaLangEntityBase], unmatched_entities: int = 0, unmatched_traits: int = 0):
 #     database = current_bd_database_name()
@@ -195,7 +169,7 @@ def build_entities_with_traits_cte(view: str, entities: List[MetaLangEntityBase]
             Sql()
             + "entities_with_traits AS ( "
             + "SELECT "
-            + "  o.*, c.group_id "
+            + "  p.property_name, p.property_value, o.*, c.group_id "
             + f"FROM {view} p "
             + f"JOIN {database}.{sys_ent_2_obs_map} o "
             + "  ON p.entity_pk = o.entity_pk "
@@ -245,67 +219,17 @@ def build_no_traits_entities_cte():
     return Sql("entities AS (SELECT * FROM entities_without_traits)")
 
 
-def build_entity_scores_cte(entities: List[MetaLangEntityBase]):
-    database = current_bd_database_name()
-    sys_ent_property_state_map = sys_ent_property_state()
-    sys_ent_2_obs_map = sys_ent_2_obs()
-    where_clauses = []
-    params = {}
-
-    param_idx = 1
-
-    for entity in entities:
-
-        if not entity.properties:
-            where_clauses.append(f"p.entity_type=:{param_idx}_type")
-            params[f"{param_idx}_type"] = entity.type
-            continue
-
-        for prop_name, prop_value in (entity.properties or []):
-            type_param = f"entity{param_idx}_type"
-            prop_param = f"entity{param_idx}_prop"
-            value_param = f"entity{param_idx}_value"
-
-            where_clauses.append(
-                f"(p.entity_type=:{type_param} "
-                f"AND p.property_name=:{prop_param} "
-                f"AND p.property_value=:{value_param})"
-            )
-
-            params[type_param] = entity.type
-            params[prop_param] = prop_name
-            params[value_param] = prop_value
-
-            param_idx += 1
-
-    where_sql = " OR ".join(where_clauses)
-
-    sql = (
-            Sql()
-            + "entity_scores AS ( "
-            + "SELECT "
-            + "  o.observation_id, "
-            + "  p.entity_pk, "
-            + "  c.group_id, "
-            + "  p.entity_type, r.required_props AS required_props, "
-            + "   MAP_AGG(p.property_name, p.property_value) AS traits,"
-            + "  COUNT(DISTINCT p.property_name) AS matched_props, "
-            + "  COUNT(DISTINCT p.property_name) / r.required_props AS property_match_ratio "
-            + f"FROM {database}.{sys_ent_property_state_map} p "
-            + f"JOIN {database}.{sys_ent_2_obs_map} o "
-            + "  ON p.entity_pk = o.entity_pk "
-            + "JOIN conditions c "
-            + "  ON p.entity_type = c.entity_type "
-            + "  AND p.property_name = c.property_name "
-            + "  AND p.property_value = c.property_value "
-            + "JOIN required r "
-            + "  ON c.group_id = r.group_id "
-            + f"WHERE {where_sql} "
-            + "GROUP BY o.observation_id, p.entity_pk, p.entity_type, c.group_id, r.required_props "
-            + ")\n"
+def build_sub_select_entities_cte(must_match_entities, must_matched_traits):
+    return (
+            Sql("matching_entities AS (")
+            + "SELECT observation_id,"
+            + "       COUNT(DISTINCT group_id) AS no_of_entities,"
+            + "       COUNT(observation_id)    AS no_of_matched_props"
+            + f"  FROM entities"
+            + "  GROUP BY observation_id, entity_pk"
+            + f" HAVING no_of_entities >= {must_match_entities} AND no_of_matched_props >= {must_matched_traits}"
+            + ")"
     )
-
-    return sql + Param(params)
 
 
 def build_select_observation_will_all_entities(entities: List[MetaLangEntityBase],
@@ -318,13 +242,14 @@ def build_select_observation_will_all_entities(entities: List[MetaLangEntityBase
 
     entity_filter = [entity.type for entity in entities]
 
-    no_of_props = sum(len(entity.properties) for entity in entities)
-    no_of_entities = max(0, len(entity_filter) - unmatched_entities)
-    no_of_traits = max(0, no_of_props - unmatched_traits)
+    # Tolerance
+    no_of_query_props = sum(len(entity.properties) for entity in entities)
+    no_of_query_entities = len(entity_filter)
+    no_of_entities = max(0, no_of_query_entities - unmatched_entities)
+    no_of_traits = max(0, no_of_query_props - unmatched_traits)
 
     sql1 = build_conditions_sql(entities_with_traits, "traits_conditions", 1) + "," if entities_with_traits else None
-    sql2 = build_conditions_sql(entities_without_traits, "entity_conditions",
-                                2) + "," if entities_without_traits else None
+    sql2 = build_conditions_sql(entities_without_traits, "entity_conditions",2) + "," if entities_without_traits else None
 
     if start_date or end_date:
         sql6 = build_last_property_values_by_date("last_property_values", start_date, end_date) + ","
@@ -357,7 +282,7 @@ def build_select_observation_will_all_entities(entities: List[MetaLangEntityBase
             + "  COUNT(observation_id) AS no_of_matched_props,"
             + "  GROUP_CONCAT(DISTINCT entity_pk) AS entity_pks"
             + f"FROM entities "
-            + "GROUP BY observation_id"
+            + "GROUP BY observation_id, entity_pk"
             + f"HAVING no_of_entities >= {no_of_entities} AND no_of_matched_props >= {no_of_traits}"
             + f"ORDER BY no_of_matched_props DESC"
     )
@@ -367,18 +292,20 @@ def build_select_observation_will_all_entities(entities: List[MetaLangEntityBase
 
 
 def build_select_observations_with_eql(entities: List[MetaLangEntityBase],
-                                        unmatched_entities: int = 0,
-                                        unmatched_traits: int = 0,
-                                        start_date: Optional[datetime] = None,
-                                        end_date: Optional[datetime] = None):
+                                       unmatched_entities: int = 0,
+                                       unmatched_traits: int = 0,
+                                       start_date: Optional[datetime] = None,
+                                       end_date: Optional[datetime] = None):
     entities_with_traits = [item for item in entities if item.properties]
     entities_without_traits = [item for item in entities if not item.properties]
 
     entity_filter = [entity.type for entity in entities]
 
-    no_of_props = sum(len(entity.properties) for entity in entities)
-    no_of_entities = max(0, len(entity_filter) - unmatched_entities)
-    no_of_traits = max(0, no_of_props - unmatched_traits)
+    # Tolerance
+    no_of_query_props = sum(len(entity.properties) for entity in entities)
+    no_of_query_entities = len(entity_filter)
+    no_of_traits = max(0, no_of_query_props - unmatched_traits)
+    no_of_entities = max(0, no_of_query_entities - unmatched_entities)
 
     sql1 = build_conditions_sql(entities_with_traits, "traits_conditions", 1) + "," if entities_with_traits else None
     sql2 = build_conditions_sql(entities_without_traits, "entity_conditions",
@@ -400,6 +327,9 @@ def build_select_observations_with_eql(entities: List[MetaLangEntityBase],
     else:
         raise ValueError("entities_with_traits and entities_without_traits cannot be both empty")
 
+    sql7 = build_sub_select_entities_cte(must_match_entities=no_of_entities,
+                                         must_matched_traits=no_of_traits)
+
     database = current_bd_database_name()
     sys_obs = sys_obs_mapping()
 
@@ -410,21 +340,17 @@ def build_select_observations_with_eql(entities: List[MetaLangEntityBase],
             + sql6
             + sql3
             + sql4
-            + sql5
+            + sql5 + ","
+            + sql7
             + "SELECT"
             + f"  o.{sys_obs | FlatObs.ID},"
             + f"  o.{sys_obs | FlatObs.METADATA_TIME_INSERT},"
             + f"  o.{sys_obs | FlatObs.METADATA_TIME_CREATE},"
-            + f"  COALESCE(o.{sys_obs | FlatObs.SUMMARY}, o.{sys_obs | FlatObs.DESCRIPTION}) AS summary,"
-            + f"  o.{sys_obs | FlatObs.ENTITIES}"
-            + "FROM ("
-            + "  SELECT observation_id,"
-            + "         COUNT(DISTINCT group_id) AS no_of_entities,"
-            + "         COUNT(observation_id)    AS no_of_matched_props"
-            + "  FROM entities"
-            + "  GROUP BY observation_id"
-            + f" HAVING no_of_entities >= {no_of_entities} AND no_of_matched_props >= {no_of_traits}"
-            + ") AS matched"
+            + f"  o.{sys_obs | FlatObs.SUMMARY} AS summary, "
+            + f"  o.{sys_obs | FlatObs.DESCRIPTION} AS description,"
+            + f"  o.{sys_obs | FlatObs.ENTITIES},"
+            + f"  matched.no_of_entities, matched.no_of_matched_props"
+            + "FROM matching_entities AS matched"
             + f"JOIN {database}.{sys_obs} AS o ON o.{sys_obs | FlatObs.ID} = matched.observation_id"
             + "ORDER BY matched.no_of_matched_props DESC"
     )
@@ -442,6 +368,7 @@ def build_select_expanded_entities_from_observations(entities: List[MetaLangEnti
     entities_with_traits = [item for item in entities if item.properties]
     entities_without_traits = [item for item in entities if not item.properties]
 
+    # Tolerance
     entity_filter = [entity.type for entity in entities]
     no_of_entities = max(0, len(entity_filter) - unmatched_entities)
 
@@ -481,7 +408,7 @@ def build_select_expanded_entities_from_observations(entities: List[MetaLangEnti
             + "qualifying_observations AS ("
             + "SELECT observation_id"
             + "FROM entities"
-            + "GROUP BY observation_id"
+            + "GROUP BY observation_id, entity_pk"
             + f"HAVING COUNT(DISTINCT group_id) >= {no_of_entities}"
             + "),"
             + "all_obs_entities AS ("
@@ -565,38 +492,5 @@ def build_select_entity_types_from_observations(entities: List[MetaLangEntityBas
             + "GROUP BY entity_type"
             + "ORDER BY count DESC LIMIT 100"
     )
-    print(222, sql.literal())
-    return sql
-
-
-def build_select_likely_entities_by_eql(entities: List[MetaLangEntityBase]):
-    no_of_entities = len(entities)
-    sql1 = Sql("WITH ") + build_conditions_sql(entities) + ","
-    sql2 = build_required_cte() + ","
-    sql3 = build_entity_scores_cte(entities) + ","
-    sql4 = build_observation_scores_cte()
-    sql5 = (
-            Sql("SELECT ")
-            + "e.entity_pk,"
-            + "ANY_VALUE(e.entity_type) AS entity_type,"
-            + "GROUP_CONCAT(DISTINCT o.observation_id) AS obs_ids,"
-            + "MAX(o.entity_count) AS max_entity_count_in_obs,"
-            + f"MAX(o.entity_count / {no_of_entities}) AS observation_match_ratio,"
-            + "ANY_VALUE(e.traits) AS traits,"
-            + "MAX(e.property_match_ratio) AS property_match_ratio,"
-            + "ANY_VALUE(e.required_props) AS required_props"
-            + "FROM observation_scores o"
-            + "JOIN entity_scores e"
-            + "ON o.observation_id = e.observation_id"
-            + "GROUP BY e.entity_pk"
-            + "ORDER BY observation_match_ratio DESC, property_match_ratio DESC"
-    )
-    sql = (
-            sql1
-            + sql2
-            + sql3
-            + sql4
-            + sql5
-    )
-    print(1, sql.literal())
+    print(600, sql.literal())
     return sql

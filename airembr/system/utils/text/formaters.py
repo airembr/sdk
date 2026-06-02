@@ -1,3 +1,5 @@
+from typing import List
+
 import sys
 
 from durable_dot_dict.dotdict import DotDict
@@ -226,3 +228,46 @@ def format_semantic_description(dot_dict_fact: DotDict):
         output.append(f"Summary: {summary}")
 
     return "\n".join(output)
+
+def format_eql_facts(facts: List[dict]) -> str:
+    if not facts:
+        return ''
+
+    groups: dict = {}
+    for fact in facts:
+        obs_id = fact.get('observation.id', '')
+        if obs_id not in groups:
+            groups[obs_id] = []
+        groups[obs_id].append(fact)
+
+    blocks = []
+    for obs_id, obs_facts in groups.items():
+        first = obs_facts[0]
+        obs_label = _clean_value(first.get('observation.label', '') or obs_id)
+        timestamp = first.get('metadata.time.create', '')
+        lines = [f"Observation: {obs_label}  [{timestamp}]"]
+
+        for fact in obs_facts:
+            actor_type = fact.get('actor.type', '') or ''
+            actor_id   = fact.get('actor.id', '') or ''
+            rel_type   = fact.get('rel.type', '') or ''
+            rel_label  = fact.get('rel.label', '') or ''
+            obj_type   = fact.get('object.type', '') or ''
+            obj_id     = fact.get('object.id', '') or ''
+            lines.append(f"  {actor_type}({actor_id}) [{rel_type}: {rel_label}] {obj_type}({obj_id})")
+
+            summary = fact.get('semantic.summary', '') or ''
+            if summary:
+                lines.append(f"  Summary: {_clean_value(summary)}")
+
+            description = fact.get('semantic.description', '') or ''
+            if description:
+                lines.append(f"  Description: {_clean_value(description)}")
+
+            tags = fact.get('tags', None)
+            if tags:
+                lines.append(f"  Tags: {', '.join(str(t) for t in tags)}")
+
+        blocks.append('\n'.join(lines))
+
+    return '\n\n'.join(blocks)

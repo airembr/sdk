@@ -475,6 +475,7 @@ async def save_events_in_queue(transport_context: TransportContext,
                     fact_txt_description = fact_dotdict.get(FlatFact.SEMANTIC_DESCRIPTION, None)
 
                     if fact_txt_description:
+                        # Fact description
                         sys_texts.add(
                             (
                                 fact_txt_description,
@@ -486,6 +487,7 @@ async def save_events_in_queue(transport_context: TransportContext,
                         )
 
                     if fact_txt_summary:
+                        # Fact summary
                         sys_texts.add(
                             (
                                 fact_txt_summary,

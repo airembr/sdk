@@ -2,7 +2,7 @@ pip>=24.3.1
 setuptools>=75.6.0
 numpy==1.24.4  # Required only because of elasticsearch[async]==7.10.1
 pydantic==2.11.7  # 2.10.3
-aiohttp[speedups]
+aiohttp
 redis==5.2.1
 aioredis==2.0.1
 tzlocal

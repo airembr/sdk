@@ -81,9 +81,9 @@ def system_prompt(summary: bool, identification: bool):
     prompt += "Output should of your job be in JSON format holding all possible extracted entities."
     if summary:
         prompt += "You also specialize in summarization of the texts."
-        prompt += "Example {{\"entities\":[{{\"type\": Person, \"traits\":{{\"$name\":\"<entity-name>\"}}, \"summary\": \"Summary of the text. Max 5 sentences.\"}}, more...]}}"
+        prompt += "Example {{\"entities\":[{{\"type\": Person, \"traits\":{{\"$name\":\"<entity-name>\", \"$surname\":\"<entity-surname>\"}}, \"summary\": \"Summary of the text. Max 5 sentences.\"}}, more...]}}"
     else:
-        prompt += "Example {{\"entities\":[{{\"type\": Person, \"traits\":{{\"$name\":\"<entity-name>\"}}}}, more...]}}"
+        prompt += "Example {{\"entities\":[{{\"type\": Person, \"traits\":{{\"$name\":\"<entity-name>\", \"$surname\":\"<entity-surname>\"}}}}, more...]}}"
 
     prompt += f"""
     Your task is to extract, from the text below, key information that can serve as hooks for information retrival. In order to do that use predefined 
@@ -99,8 +99,8 @@ def system_prompt(summary: bool, identification: bool):
     - Extraction must be done in English
     - Use only the entity types and traits defined above.
     - Allowed entity types: {list(yield_entity_types())}
-    - Always extract at least one Topic entity with $name. If there are many topic extract many.
-    - Always extract all possible aspects that are covered in text. 
+    - If from question we cane infer Topic the add Topic entity with $name. If there are many topic extract many.
+    - Extract aspects if question has strong indication towards some aspect. Simple questions may not have aspects. 
       Available aspect $type: {render_aspects_sorted(aspects)}
     - Extract entities at every applicable level of abstraction (e.g., a Company is also an Organization and an Agent — extract whichever levels add meaningful information).
     - If multiple instances of the same type appear (e.g., several people or locations), extract each as a separate entity.
@@ -109,6 +109,7 @@ def system_prompt(summary: bool, identification: bool):
     - Use only traits listed for the entity's type.
     - Do not remove $ from traits keys.
     - Trait $type value is a subtype of entity type.
+    - For person entity always separte $name and $surname.
     - Attribute values must match the declared data type. 
     - Not all traits are required, if you do not know the value of trait do not include it.
     - One identified entity must have all its traits in this identified entity.

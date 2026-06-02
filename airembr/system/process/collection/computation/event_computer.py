@@ -34,6 +34,32 @@ def _get_status_int(status):
         return 0
     return 2
 
+def _set_rel_id_pk(flat_relation: FlatRelation, actor: Optional[DotDict], object_ids: List[str]) -> DotDict:
+
+    entity_type = flat_relation.get_or_none(FlatRelation.ENTITY_TYPE)
+    relation_label = flat_relation.get_or_none(FlatRelation.REL_LABEL)
+    relation_type = flat_relation.get_or_none(FlatRelation.REL_TYPE)
+    data_hash = flat_relation.get_or_none(FlatRelation.DATA_HASH)
+    actor_pk = actor.get_or_none(FlatEntityHistory.ENTITY_PK) if actor else None
+    object_id= ",".join(object_ids)
+
+    # Here is the key question how to identify event entity. Do we create always new event entity to
+    # the event entity is the same if it has the save type, event_type, and data.
+    # Now we use ID as: event entity is the same if it has the save type, event_type, and relation_traits_data_hash
+    if True:
+        # Id build from: entity_type, actor_pk, relation_label, object_id, data_hash
+        type_id = f"{entity_type}-{actor_pk}-{relation_label if relation_label else relation_type}-{object_id}"
+        _gen_rel_pk = generate_pk(type_id, data_hash)
+        flat_relation[FlatRelation.ENTITY_PK] = _gen_rel_pk
+        flat_relation[FlatRelation.ENTITY_ID] = _gen_rel_pk
+    else:
+        flat_relation[FlatRelation.ENTITY_ID] = relation.id
+        flat_relation[FlatRelation.ENTITY_PK] = generate_pk(entity_type, relation.id)
+
+    flat_relation[FlatRelation.ENTITY_HID] = generate_hid(flat_relation[FlatRelation.ENTITY_PK],
+                                                          flat_relation[FlatRelation.DATA_HASH])
+
+    return flat_relation
 
 def _get_rel(observation: Observation, relation: ObservationRelation, now) -> FlatRelation:
     flat_relation = FlatRelation()
@@ -68,20 +94,7 @@ def _get_rel(observation: Observation, relation: ObservationRelation, now) -> Fl
     flat_relation[FlatRelation.TS] = now
 
     flat_relation[FlatRelation.ENTITY_TYPE] = entity_type
-    # Here is the key question how to identify event entity. Do we create alway new event entity ot
-    # the event entity is the same if it has the save type, event_type, and data.
-    # Now we use ID as: event entity is the same if it has the save type, event_type, and data
-    if True:
-        type_id = f"{entity_type}-{relation.label if relation.label else relation.type}"
-        _gen_rel_pk = generate_pk(type_id, data_hash)
-        flat_relation[FlatRelation.ENTITY_PK] = _gen_rel_pk
-        flat_relation[FlatRelation.ENTITY_ID] = _gen_rel_pk
-    else:
-        flat_relation[FlatRelation.ENTITY_ID] = relation.id
-        flat_relation[FlatRelation.ENTITY_PK] = generate_pk(entity_type, relation.id)
 
-    flat_relation[FlatRelation.ENTITY_HID] = generate_hid(flat_relation[FlatRelation.ENTITY_PK],
-                                                          flat_relation[FlatRelation.DATA_HASH])
     flat_relation[FlatRelation.OBS_ID] = observation.id
     flat_relation[FlatRelation.CONTEXT] = entity_type
     flat_relation[FlatRelation.CONSENTS_GRANTED] = observation.get_consents()
@@ -115,12 +128,10 @@ def append_relation_to_context_entities(entities_by_ref: Dict[str, DotDict], rel
     return storage_context_entities
 
 
-def _get_actor_in_entities(entities_by_ref: Dict[str, Any], observed_rel) -> Tuple[
-    Optional[InstanceLink], Optional[DotDict]]:
-    actor_link = observed_rel.get_actor()
+def _get_actor_in_entities(entities_by_ref: Dict[str, Any], actor_link: Optional[InstanceLink]) -> Optional[DotDict]:
     if actor_link:
-        return actor_link, entities_by_ref.get(actor_link.link, None)
-    return actor_link, None
+        return entities_by_ref.get(actor_link.link, None)
+    return  None
 
 
 def _ms_in_hour():
@@ -155,9 +166,9 @@ def _create_fact(observation: Observation,
                  relation: ObservationRelation,
                  observer: DotDict,
                  observer_link: InstanceLink,
-                 actor: DotDict,
+                 actor: Optional[DotDict],
                  actor_link: Optional[InstanceLink],
-                 object: Optional[ObservationEntity],
+                 object: Optional[DotDict],
                  object_link: Optional[InstanceLink],
                  flat_relation: FlatRelation,
                  storage_context_entities: List) -> FlatFact:
@@ -305,6 +316,15 @@ def _create_timer(observation, actor, object, observed_rel, flat_fact, now) -> O
 
     return timer
 
+def _yield_object_ids(_entities_by_ref: Dict[str, DotDict], relation: ObservationRelation):
+    object_links = list(relation.get_objects())
+    if object_links:
+        for object_link in object_links:
+            object = _entities_by_ref.get(object_link.link, None)
+            if object:
+                object_pk = object.get_or_none(FlatEntityHistory.ENTITY_PK)
+                if object_pk:
+                    yield object_pk
 
 async def compute_events(observation: Observation, headers: Headers) -> AsyncGenerator[
     FactTransportPayload, None]:
@@ -361,17 +381,22 @@ async def compute_events(observation: Observation, headers: Headers) -> AsyncGen
             # Get relation
             for relation in observation.relation:
 
-                flat_relation = _get_rel(observation, relation, now)
+                # Get actor
+                actor_link = relation.get_actor()
+                actor = _get_actor_in_entities(_entities_by_ref, actor_link)
+
+                # Get objects
+                object_ids = list(_yield_object_ids(_entities_by_ref, relation))
+
+                # Get relation
+                flat_relation: FlatRelation = _get_rel(observation, relation, now)
+                # Set rel ID and PK
+                flat_relation: FlatRelation = _set_rel_id_pk(flat_relation, actor, object_ids)
 
                 # Get all entities (appends event)
                 storage_context_entities = append_relation_to_context_entities(_entities_by_ref, relation)
 
-                # Get actor
-
-                actor_link, actor = _get_actor_in_entities(_entities_by_ref, relation)
-
                 # Get objects
-
                 object_links = list(relation.get_objects())
                 if object_links:
                     for object_link in object_links:
@@ -400,13 +425,14 @@ async def compute_events(observation: Observation, headers: Headers) -> AsyncGen
                                     "summary": observation.text.summary,
                                     "description": observation.text.description,
                                     "ner": observation.text.ner
-                                },                                "label": observation.label,
+                                },
+                                "label": observation.label,
                                 "traits": observation.traits
                             },
                             fact=flat_fact.to_dict(),
                             relation=flat_relation.to_dict(),
                             entities=storage_context_entities,
-                            timer=timer,
+                            timer=timer.to_dict() if timer else None,
                             gids=_entity_gids,
                             trace_id=headers.get_trace_id(),
                             session=observation.session.model_dump(exclude_none=True)
@@ -440,7 +466,7 @@ async def compute_events(observation: Observation, headers: Headers) -> AsyncGen
                         fact=flat_fact.to_dict(),
                         relation=flat_relation.to_dict(),
                         entities=storage_context_entities,
-                        timer=timer,
+                        timer=timer.to_dict() if timer else None,
                         gids=_entity_gids,
                         trace_id=headers.get_trace_id(),
                         session=observation.session.model_dump(exclude_none=True)
