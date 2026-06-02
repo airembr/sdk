@@ -355,7 +355,7 @@ def build_sub_select_entities_cte(must_match_entities, must_matched_traits):
             + "       COUNT(DISTINCT group_id) AS no_of_entities,"
             + "       COUNT(observation_id)    AS no_of_matched_props"
             + f"  FROM entities"
-            + "  GROUP BY observation_id, entity_pk"
+            + "  GROUP BY observation_id"
             + f" HAVING no_of_entities >= {must_match_entities} AND no_of_matched_props >= {must_matched_traits}"
             + ")"
     )
@@ -418,7 +418,7 @@ def build_select_observation_will_all_entities(entities: List[MetaLangEntityBase
             + "  COUNT(observation_id) AS no_of_matched_props,"
             + "  GROUP_CONCAT(DISTINCT entity_pk) AS entity_pks"
             + f"FROM entities "
-            + "GROUP BY observation_id, entity_pk"
+            + "GROUP BY observation_id"
             + f"HAVING no_of_entities >= {no_of_entities} AND no_of_matched_props >= {no_of_traits}"
             + f"ORDER BY no_of_matched_props DESC"
     )
@@ -558,7 +558,7 @@ def build_select_expanded_entities_from_observations(entities: List[MetaLangEnti
             + "qualifying_observations AS ("
             + "SELECT observation_id"
             + "FROM entities"
-            + "GROUP BY observation_id, entity_pk"
+            + "GROUP BY observation_id"
             + f"HAVING COUNT(DISTINCT group_id) >= {no_of_entities}"
             + "),"
             + "all_obs_entities AS ("
