@@ -6,8 +6,6 @@ class FlatText(DotDict):
     PARENT_ID = "parent_id"
     TEXT = "text_string"
     TAGS = "tags"
-    MODEL = "model"
-    VECTOR = "vector"
     REQUIRE_NER = "require_ner"
     TS = "ts"
 

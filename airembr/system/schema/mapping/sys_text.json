@@ -37,20 +37,6 @@
       "default": "NULL"
     },
     {
-      "column": "model",
-      "sr_column_type": "varchar(64)",
-      "ddb_column_type": "VARCHAR",
-      "property": "model",
-      "default": "NULL"
-    },
-    {
-      "column": "vector",
-      "sr_column_type": "ARRAY<FLOAT>",
-      "ddb_column_type": "FLOAT[]",
-      "property": "vector",
-      "default": "NULL"
-    },
-    {
       "column": "require_ner",
       "sr_column_type": "boolean",
       "ddb_column_type": "BOOLEAN",

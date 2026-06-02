@@ -1,7 +1,9 @@
+from airembr.model.bigdata.flat_text_vector import FlatTextVector
 from srd.domain.sql import Sql, Param
 from airembr.model.bigdata.flat_text import FlatText
 from airembr.model.bigdata.flat_ent_2_text import FlatEnt2Text
-from airembr.system.adapter.bigdata.general.utils.mapping import sys_text_mapping, sys_ent_2_text_mapping
+from airembr.system.adapter.bigdata.general.utils.mapping import sys_text_mapping, sys_ent_2_text_mapping, \
+    sys_text_vector_mapping
 from airembr.system.adapter.bigdata.env.bigdata_context import current_bd_database_name
 
 
@@ -18,22 +20,26 @@ def load_all_texts_sql():
 def count_not_embedded_texts_sql():
     database = current_bd_database_name()
     sys_text = sys_text_mapping()
+    sys_text_vector = sys_text_vector_mapping()
     return (
             Sql()
             + "  SELECT COUNT(*) as count"
             + f"  FROM {database}.{sys_text}"
-            + f"  WHERE {sys_text | FlatText.VECTOR} IS NULL"
+            + f"  JOIN LEFT {database}.{sys_text_vector} v ON {sys_text | FlatText.ID} = {sys_text_vector | FlatTextVector.TEXT_ID}"
+            + f"  WHERE v.{sys_text_vector | FlatTextVector.VECTOR} IS NULL"
     )
 
 
 def load_not_embedded_texts_sql():
     database = current_bd_database_name()
     sys_text = sys_text_mapping()
+    sys_text_vector = sys_text_vector_mapping()
     return (
             Sql()
             + "  SELECT *"
             + f"  FROM {database}.{sys_text}"
-            + f"  WHERE {sys_text | FlatText.VECTOR} IS NULL"
+            + f"  JOIN LEFT {database}.{sys_text_vector} v ON {sys_text | FlatText.ID} = {sys_text_vector | FlatTextVector.TEXT_ID}"
+            + f"  WHERE v.{sys_text_vector | FlatTextVector.VECTOR} IS NULL"
     )
 
 

@@ -117,5 +117,10 @@ def sys_text_mapping() -> EntityToTableMapping:
     return _read_mapping_records(os.path.join(_local_dir, f'{_schema_dir}/sys_text.json'))
 
 @run_once
+def sys_text_vector_mapping() -> EntityToTableMapping:
+    return _read_mapping_records(os.path.join(_local_dir, f'{_schema_dir}/sys_text_vector.json'))
+
+
+@run_once
 def sys_ent_2_text_mapping() -> EntityToTableMapping:
     return _read_mapping_records(os.path.join(_local_dir, f'{_schema_dir}/sys_ent_2_text.json'))

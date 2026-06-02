@@ -19,6 +19,7 @@ class Resource(metaclass=Singleton):
         self.system_tables = {
             "sys_evt": Table(name='sys_evt'),
             "sys_text": Table(name='sys_text'),
+            "sys_text_vector": Table(name='sys_text_vector'),
             "sys_ent": Table(name='sys_ent'),
             "sys_evt_job": Table(name='sys_evt_job'),
             "sys_ent_history": Table(name='sys_ent_history'),

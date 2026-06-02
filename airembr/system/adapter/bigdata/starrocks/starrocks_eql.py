@@ -23,7 +23,6 @@ def build_last_property_values(view: str):
             + f"  entity_type, property_name, MAX_BY(property_value, ts) AS property_value"
             + f"FROM {database}.{sys_ent_property_state_map}"
             + "GROUP BY entity_pk, entity_type, property_name)"
-
     )
 
 

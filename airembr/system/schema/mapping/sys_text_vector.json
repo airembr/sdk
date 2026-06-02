@@ -1,0 +1,41 @@
+{
+  "table": "sys_text_vector",
+  "distributed": "HASH(text_id)",
+  "pk": "text_id",
+  "properties": [
+    "\"enable_persistent_index\" = \"true\""
+  ],
+  "engine": "olap",
+  "indexes": [
+    {
+      "index_name": "idx_vector",
+      "columns": [
+        "vector"
+      ],
+      "type": "VECTOR (\"index_type\"=\"hnsw\", \"dim\"=\"5\", \"metric_type\"=\"l2_distance\", \"is_vector_normed\"=\"false\", \"M\" = \"16\", \"efconstruction\" = \"40\")"
+    }
+  ],
+  "columns": [
+    {
+      "column": "text_id",
+      "sr_column_type": "varchar(32)",
+      "ddb_column_type": "VARCHAR",
+      "property": "text.id",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "model",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "model",
+      "default": "NULL"
+    },
+    {
+      "column": "vector",
+      "sr_column_type": "ARRAY<FLOAT>",
+      "ddb_column_type": "FLOAT[]",
+      "property": "vector",
+      "default": "NOT NULL"
+    }
+  ]
+}
