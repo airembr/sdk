@@ -9,6 +9,10 @@ from airembr.system.adapter.bigdata.starrocks.starrocks_eql import build_select_
     build_select_expanded_entities_from_observations, \
     build_select_entity_types_from_observations, build_select_observations_with_eql
 from airembr.system.adapter.bigdata.starrocks.utils.sql_entity_search import sql_entity_by_properties
+from airembr.system.adapter.bigdata.starrocks.utils.sql_text import (
+    count_not_embedded_property_values_sql,
+    load_not_embedded_property_values_sql,
+)
 from airembr.system.adapter.bigdata.env.bigdata_context import current_bd_database_name
 from airembr.system.adapter.bigdata.general.utils.mapping import entity_property
 from airembr.model.bigdata.flat_ent_property import FlatEntityProperty
@@ -176,4 +180,14 @@ class StarrocksEntityPropertyAdapter(BdEntityHistoryAdapter):
                                          start_date: Optional[datetime] = None, end_date: Optional[datetime] = None):
         sql = build_select_entity_types_from_observations(eql_object, unmatched_entities, unmatched_traits,
                                                           start_date=start_date, end_date=end_date)
+        return await self.adapter.exec(sql)
+
+    async def count_not_embedded_property_values(self):
+        sql = count_not_embedded_property_values_sql()
+        result = await self.adapter.exec(sql)
+        return result.first().column(0) if result else 0
+
+    async def load_not_embedded_property_values(self):
+        sql = load_not_embedded_property_values_sql()
+        print(1, sql.literal())
         return await self.adapter.exec(sql)

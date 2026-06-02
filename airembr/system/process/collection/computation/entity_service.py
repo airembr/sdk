@@ -16,27 +16,27 @@ from airembr.system.process.logging.log_handler import get_logger
 logger = get_logger(__name__)
 
 
-def _compute_properties_from_traits(entity: DotDict):
-    traits = DotDict(entity[FlatObsEntity.ENTITY_TRAITS])
-    for key, value in traits.flat().items():
-        row = {
-            FlatEntityProperty.PK: entity[FlatObsEntity.ENTITY_PK],
-            FlatEntityProperty.ID: entity[FlatObsEntity.ENTITY_ID],
-            FlatEntityProperty.TYPE: entity[FlatObsEntity.ENTITY_TYPE],
-            FlatEntityProperty.NAME: key,
-            FlatEntityProperty.VALUE: value,
-        }
-
-        if isinstance(value, (int, float)):
-            row[FlatEntityProperty.NUMBER] = value
-            row[FlatEntityProperty.TEXT] = str(value).lower()
-        elif isinstance(value, list):
-            row[FlatEntityProperty.TEXT] = ", ".join(value)
-        else:
-            if isinstance(value, str):
-                row[FlatEntityProperty.TEXT] = value
-
-        yield row
+# def _compute_properties_from_traits(entity: DotDict):
+#     traits = DotDict(entity[FlatObsEntity.ENTITY_TRAITS])
+#     for key, value in traits.flat().items():
+#         row = {
+#             FlatEntityProperty.PK: entity[FlatObsEntity.ENTITY_PK],
+#             FlatEntityProperty.ID: entity[FlatObsEntity.ENTITY_ID],
+#             FlatEntityProperty.TYPE: entity[FlatObsEntity.ENTITY_TYPE],
+#             FlatEntityProperty.NAME: key,
+#             FlatEntityProperty.VALUE: value,
+#         }
+#
+#         if isinstance(value, (int, float)):
+#             row[FlatEntityProperty.NUMBER] = value
+#             row[FlatEntityProperty.TEXT] = str(value).lower()
+#         elif isinstance(value, list):
+#             row[FlatEntityProperty.TEXT] = ", ".join(value)
+#         else:
+#             if isinstance(value, str):
+#                 row[FlatEntityProperty.TEXT] = value
+#
+#         yield row
 
 
 def compute_data_hashes(indexed_entities: Dict[str, DotDict]) -> Dict[str, DotDict]:

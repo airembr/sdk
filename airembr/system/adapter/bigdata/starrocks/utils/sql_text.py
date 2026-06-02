@@ -5,7 +5,7 @@ from srd.domain.sql import Sql, Param
 from airembr.model.bigdata.flat_text import FlatText
 from airembr.model.bigdata.flat_ent_2_text import FlatEnt2Text
 from airembr.system.adapter.bigdata.general.utils.mapping import sys_text_mapping, sys_ent_2_text_mapping, \
-    sys_text_vector_mapping
+    sys_text_vector_mapping, entity_property
 from airembr.system.adapter.bigdata.env.bigdata_context import current_bd_database_name
 
 
@@ -144,4 +144,32 @@ def similar_texts_sql(query_vector: List[float], limit: int = 10):
             + f"  ORDER BY approx_l2_distance(v.{sys_text_vector | FlatTextVector.VECTOR}, {vector_str})"
             + f"  LIMIT :limit"
             + Param({"limit": limit})
+    )
+
+
+def count_not_embedded_property_values_sql():
+    database = current_bd_database_name()
+    sys_ent_property = entity_property()
+    sys_text_vector = sys_text_vector_mapping()
+    return (
+            Sql()
+            + "  SELECT COUNT(DISTINCT p.property_value_id) as count"
+            + f"  FROM {database}.{sys_ent_property} p"
+            + f"  LEFT JOIN {database}.{sys_text_vector} v ON p.property_value_id = v.{sys_text_vector | FlatTextVector.TEXT_ID}"
+            + "  WHERE p.property_value_id IS NOT NULL"
+            + f"  AND v.{sys_text_vector | FlatTextVector.VECTOR} IS NULL"
+    )
+
+
+def load_not_embedded_property_values_sql():
+    database = current_bd_database_name()
+    sys_ent_property = entity_property()
+    sys_text_vector = sys_text_vector_mapping()
+    return (
+            Sql()
+            + "  SELECT DISTINCT p.property_value_id as id, p.property_value as text_string"
+            + f"  FROM {database}.{sys_ent_property} p"
+            + f"  LEFT JOIN {database}.{sys_text_vector} v ON p.property_value_id = v.{sys_text_vector | FlatTextVector.TEXT_ID}"
+            + "  WHERE p.property_value_id IS NOT NULL"
+            + f"  AND v.{sys_text_vector | FlatTextVector.VECTOR} IS NULL"
     )

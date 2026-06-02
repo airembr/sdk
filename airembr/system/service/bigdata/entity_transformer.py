@@ -29,6 +29,7 @@ def _compute_properties_from_traits(relation: DotDict, is_relation: bool):
         else:
             if isinstance(value, str):
                 row[FlatEntityProperty.TEXT] = value
+            row[FlatEntityProperty.VALUE_ID] = md5(str(value))
 
         yield row
 
@@ -89,6 +90,7 @@ def compute_entity_property_from_entities(storage_context_entities: List[DotDict
                     f"-{row[FlatEntityProperty.TYPE]}"
                     f"-{row[FlatEntityProperty.VALUE]}"
                 )
+
                 yield row
 
             if entity_pk:
@@ -115,6 +117,7 @@ def compute_entity_property_from_entities(storage_context_entities: List[DotDict
                     f"-{row[FlatEntityProperty.TYPE]}"
                     f"-{row[FlatEntityProperty.VALUE]}"
                 )
+
                 yield row
 
             if label:
@@ -141,6 +144,7 @@ def compute_entity_property_from_entities(storage_context_entities: List[DotDict
                     f"-{row[FlatEntityProperty.TYPE]}"
                     f"-{row[FlatEntityProperty.VALUE]}"
                 )
+                row[FlatEntityProperty.VALUE_ID] = md5(label)
                 yield row
 
             # Yield type for relation
@@ -169,6 +173,7 @@ def compute_entity_property_from_entities(storage_context_entities: List[DotDict
                     f"-{row[FlatEntityProperty.TYPE]}"
                     f"-{row[FlatEntityProperty.VALUE]}"
                 )
+                row[FlatEntityProperty.VALUE_ID] = md5(event_type)
                 yield row
 
         elif isinstance(entity, ObservationEntity):
@@ -201,6 +206,7 @@ def compute_entity_property_from_entities(storage_context_entities: List[DotDict
                     f"-{row[FlatEntityProperty.TYPE]}"
                     f"-{row[FlatEntityProperty.VALUE]}"
                 )
+
                 yield row
 
             if entity_id:
@@ -227,6 +233,7 @@ def compute_entity_property_from_entities(storage_context_entities: List[DotDict
                     f"-{row[FlatEntityProperty.TYPE]}"
                     f"-{row[FlatEntityProperty.VALUE]}"
                 )
+
                 yield row
 
             if label:
@@ -253,4 +260,5 @@ def compute_entity_property_from_entities(storage_context_entities: List[DotDict
                     f"-{row[FlatEntityProperty.TYPE]}"
                     f"-{row[FlatEntityProperty.VALUE]}"
                 )
+                row[FlatEntityProperty.VALUE_ID] = md5(label)
                 yield row
