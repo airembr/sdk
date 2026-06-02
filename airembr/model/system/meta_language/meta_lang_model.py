@@ -9,6 +9,19 @@ class MetaLangEntityBase(BaseModel):
         super().__init__(**data)
         self.type = self.type.lower()
 
+    def __str__(self) -> str:
+        parts = []
+        for key, val in (self.properties or []):
+            if isinstance(val, bool):
+                parts.append(f'{key}={"true" if val else "false"}')
+            elif isinstance(val, (int, float)):
+                parts.append(f'{key}={val}')
+            else:
+                parts.append(f'{key}="{val}"')
+        inner = ", ".join(parts)
+        prefix = "NOT " if getattr(self, "negation", False) else ""
+        return f'{prefix}{self.type}({inner})'
+
 
 class MetaLangEntity(MetaLangEntityBase):
     negation: Optional[bool] = False
@@ -20,12 +33,21 @@ class MetaLangLogic(BaseModel):
     operator: str  # AND, OR, NOT
     group: MetaLangGroup
 
+    def __str__(self) -> str:
+        parts = [str(e) for e in self.group.entities]
+        if len(parts) == 1:
+            return parts[0]
+        return f'({f" {self.operator} ".join(parts)})'
+
 
 
 class MetaLangQuery(BaseModel):
     clause: str
     query: Union[MetaLangEntity, MetaLangLogic]
     returns: Optional[List[str]] = None
+
+    def __str__(self) -> str:
+        return str(self.query)
 
     def add(self, logic: Union[MetaLangEntity, 'MetaLangLogic']):
         if  isinstance(self.query, MetaLangLogic):
