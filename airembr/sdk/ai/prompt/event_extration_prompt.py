@@ -51,6 +51,7 @@ Extract each event as an atomic, self-contained sentence. Infer shared time and 
 - Split complex sentences into simple, atomic events or facts
 
 ## Output 
+- Maximal number of facts is 50. You can output less.
 Structured JSON: {{"events": {{"fact":"John entered the warehouse in Berlin at 9am on Monday.", "type": "event"}}, ...]}}
 """
 

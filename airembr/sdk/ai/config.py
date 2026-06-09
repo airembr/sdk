@@ -14,10 +14,11 @@ LLM_ENTITY_EXTRACTION_MODEL = 'minimax/minimax-m2.5'
 LLM_ENTITY_EXTRACTION_MODEL = 'mistralai/ministral-3b-2512'
 
 LLM_ENTITY_EXTRACTION_MODEL = 'qwen/qwen3-max-thinking'
-LLM_ENTITY_EXTRACTION_MODEL = 'mistralai/ministral-14b-2512'
 LLM_ENTITY_EXTRACTION_MODEL = 'mistralai/mistral-small-3.2-24b-instruct'
+LLM_ENTITY_EXTRACTION_MODEL = 'mistralai/ministral-14b-2512'
 
 SECOND_LLM_ENTITY_EXTRACTION_MODEL = 'mistralai/mistral-small-3.2-24b-instruct'
+SECOND_LLM_ENTITY_EXTRACTION_MODEL = 'mistralai/ministral-14b-2512'
 
 LLM_PROVIDER = 'open-router'
 LLM_PROVIDER_API_KEY = os.environ.get('OPENROUTER_API_KEY')

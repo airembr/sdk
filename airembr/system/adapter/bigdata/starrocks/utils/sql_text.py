@@ -4,8 +4,9 @@ from airembr.model.bigdata.flat_text_vector import FlatTextVector
 from srd.domain.sql import Sql, Param
 from airembr.model.bigdata.flat_text import FlatText
 from airembr.model.bigdata.flat_ent_2_text import FlatEnt2Text
+from airembr.model.bigdata.flat_obs import FlatObs
 from airembr.system.adapter.bigdata.general.utils.mapping import sys_text_mapping, sys_ent_2_text_mapping, \
-    sys_text_vector_mapping, entity_property
+    sys_text_vector_mapping, entity_property, sys_obs_mapping
 from airembr.system.adapter.bigdata.env.bigdata_context import current_bd_database_name
 
 
@@ -146,6 +147,30 @@ def similar_texts_sql(query_vector: List[float], limit: int = 10):
             + f"         approx_l2_distance(v.{sys_text_vector | FlatTextVector.VECTOR}, {vector_str}) AS distance"
             + f"  FROM {database}.{sys_text_vector} v"
             + f"  JOIN {database}.{sys_text} t ON v.{sys_text_vector | FlatTextVector.TEXT_ID} = t.{sys_text | FlatText.ID}"
+            + f"  ORDER BY approx_l2_distance(v.{sys_text_vector | FlatTextVector.VECTOR}, {vector_str})"
+            + f"  LIMIT :limit"
+            + Param({"limit": limit})
+    )
+
+
+def similar_observations_sql(query_vector: List[float], limit: int = 10):
+    database = current_bd_database_name()
+    sys_text = sys_text_mapping()
+    sys_text_vector = sys_text_vector_mapping()
+    sys_obs = sys_obs_mapping()
+    vector_str = f"[{', '.join(str(float(v)) for v in query_vector)}]"
+    return (
+            Sql()
+            + f"  SELECT"
+            + f"    t.{sys_text | FlatText.OBSERVATION_ID} AS observation_id,"
+            + f"    approx_l2_distance(v.{sys_text_vector | FlatTextVector.VECTOR}, {vector_str}) AS distance,"
+            + f"    o.{sys_obs | FlatObs.ID} AS obs_id,"
+            + f"    o.{sys_obs | FlatObs.DESCRIPTION} AS description,"
+            + f"    o.{sys_obs | FlatObs.SUMMARY} AS summary,"
+            + f"    o.{sys_obs | FlatObs.LABEL} AS label"
+            + f"  FROM {database}.{sys_text_vector} v"
+            + f"  JOIN {database}.{sys_text} t ON v.{sys_text_vector | FlatTextVector.TEXT_ID} = t.{sys_text | FlatText.ID}"
+            + f"  JOIN {database}.{sys_obs} o ON t.{sys_text | FlatText.OBSERVATION_ID} = o.{sys_obs | FlatObs.ID}"
             + f"  ORDER BY approx_l2_distance(v.{sys_text_vector | FlatTextVector.VECTOR}, {vector_str})"
             + f"  LIMIT :limit"
             + Param({"limit": limit})

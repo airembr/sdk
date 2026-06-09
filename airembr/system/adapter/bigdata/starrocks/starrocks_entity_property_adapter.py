@@ -18,6 +18,7 @@ from airembr.system.adapter.bigdata.starrocks.utils.sql_entity_search import sql
 from airembr.system.adapter.bigdata.starrocks.utils.sql_text import (
     count_not_embedded_property_values_sql,
     load_not_embedded_property_values_sql,
+    similar_observations_sql,
 )
 from airembr.system.adapter.bigdata.env.bigdata_context import current_bd_database_name
 from airembr.system.adapter.bigdata.general.utils.mapping import entity_property
@@ -245,3 +246,14 @@ class StarrocksEntityPropertyAdapter(BdEntityHistoryAdapter):
         sql = load_not_embedded_property_values_sql()
         print(1, sql.literal())
         return await self.adapter.exec(sql)
+
+    async def semantic_search(self, query: str, limit: int = 10) -> None:
+        emb_client = EmbeddingApiClient(embedding_host, embedding_api_key)
+        response = await asyncio.to_thread(lambda: emb_client.call({"query": query}).get_mapped_embeddings())
+        query_vector = response.dense["query"]
+
+        sql = similar_observations_sql(query_vector, limit)
+        result = await self.adapter.exec(sql)
+
+        vector_sim_result: List[dict] = {row.get('observation_id', None):dict(row) for row in result} if result else {}
+        return vector_sim_result

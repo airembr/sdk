@@ -94,23 +94,21 @@ def _render_yaml(observations: dict) -> str:
         default_flow_style=False,
     )
 
+def _render_text(observation_id, obs):
+    lines = [f"Observation: ID: {observation_id}"]
 
-def observations_to_prompt(observations: dict) -> str:
-    blocks = []
+    summary = obs.get('summary', '')
+    if summary:
+        lines.append(f"├── Summary: {obs.get('summary', '')}", )
 
-    for observation_id, obs in observations.items():
-        lines = [
-            f"Observation: ID: {observation_id}",
-            f"├── Summary: {obs.get('summary', '')}",
-            f"├── Description: {obs.get('description', '')}",
-            "├── Observed Entities",
-        ]
+    description = obs.get('description', '')
+    if description:
+        lines.append(f"├── Description: {obs.get('description', '')}", )
 
-        entities = obs.get("entities", [])
+    entities = obs.get("entities", [])
 
-        if not entities:
-            lines.append("│   └── None")
-
+    if entities:
+        lines.append("├── Observed Entities", )
         for entity in entities:
             entity_id = entity.get("entity_pk")
             entity_type = entity.get("entity_type")
@@ -143,39 +141,50 @@ def observations_to_prompt(observations: dict) -> str:
                 else:
                     lines.append("│   │       └── None")
 
-        facts = obs.get("facts", [])
+    facts = obs.get("facts", [])
 
+    if facts:
         lines.append("└── Facts")
+        for fact in facts:
+            fact = DotDict(fact)
+            ts = fact.get('ts_create', 'Unknown')
+            summary = fact.get(".summary", None)
+            description = fact.get("description", None)
 
-        if facts:
-            for fact in facts:
-                fact = DotDict(fact)
-                ts = fact.get('ts_create', 'Unknown')
-                summary = fact.get(".summary", None)
-                description = fact.get("description", None)
+            if not summary and not description:
+                continue
 
-                if not summary and not description:
-                    continue
+            lines.extend([
+                f"    ├── {ts}",
+            ])
 
-                lines.extend([
-                    f"    ├── {ts}",
-                ])
-
-                if fact.get(".summary", None):
-                    lines.append(
+            if fact.get(".summary", None):
+                lines.append(
                     f"    │   ├── Summary: {fact['summary']}"
-                    )
+                )
 
-                if (
-                        fact.get("description", None)
-                        and fact.get("description") != fact.get("summary")
-                ):
-                    lines.append(
+            if (
+                    fact.get("description", None)
+                    and fact.get("description") != fact.get("summary")
+            ):
+                lines.append(
                     f"    │    └── Description: {fact['description']}"
-                    )
-        else:
-            lines.append("    └── None")
+                )
+    else:
+        lines.append("    └── None")
 
-        blocks.append("\n".join(lines))
+    return lines
+
+def observations_to_prompt(observations: dict) -> str:
+    blocks = []
+
+    for observation_id, obs in observations.items():
+        if isinstance(obs, list):
+            for o in obs:
+                lines = _render_text(observation_id, o)
+                blocks.append("\n".join(lines))
+        else:
+            lines = _render_text(observation_id, obs)
+            blocks.append("\n".join(lines))
 
     return "\n\n" + ("\n\n" + "=" * 80 + "\n\n").join(blocks)
