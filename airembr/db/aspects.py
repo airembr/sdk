@@ -26,7 +26,7 @@ aspects = {
     "spiritual": "Concerns beliefs, meaning, purpose, and existential or religious dimensions."
 }
 
-def render_aspects_sorted(aspects: dict) -> str:
+def render_aspects_sorted() -> str:
     return "\n".join(
         f"{key.capitalize()}: {aspects[key]}"
         for key in sorted(aspects.keys())

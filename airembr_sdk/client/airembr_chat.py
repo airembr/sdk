@@ -83,10 +83,18 @@ class AiRembrEntity:
     def get_reference(self) -> Tuple[InstanceLink, IObservationEntity]:
         return self.link, self.entity
 
+    def __repr__(self) -> str:
+        return (
+            f"AiRembrEntity("
+            f"link={self.link}"
+            f")"
+        )
+
 
 class AiRembrChatPeer:
 
-    def __init__(self, client: 'AiRembrChatClient', observation: 'AirembrObservation', chats: _Chats, entity: AiRembrEntity):
+    def __init__(self, client: 'AiRembrChatClient', observation: 'AirembrObservation', chats: _Chats,
+                 entity: AiRembrEntity):
         self.observation = observation
         self.client = client
         self.entity: AiRembrEntity = entity
@@ -209,7 +217,9 @@ class AirembrObservation:
                  description: Optional[str] = None,
                  id: Optional[str] = None,
                  session_id: Optional[str] = None,
-                 traits: Optional[dict] = None):
+                 traits: Optional[dict] = None,
+                 tags: Optional[List[str]] = None,
+                 ):
 
         self.client = client
         self.observation_id = id
@@ -221,6 +231,7 @@ class AirembrObservation:
         self.description = description
         self.entities: Optional[Set[AiRembrEntity]] = None
         self.relations: List[IObservationRelation] = []
+        self.tags = tags
 
     def chat(self,
              chat_id: str,
@@ -260,7 +271,7 @@ class AirembrObservation:
         self.entities = entities
         return self
 
-    def _get_observation(self):
+    def _get_observation(self, session_id):
         if self.entities:
             entities = {ent.link: ent.entity for ent in self.entities}
         else:
@@ -268,8 +279,12 @@ class AirembrObservation:
 
         return IObservation(
             id=self.observation_id,
+            insert_ts=now_in_utc(),
+            create_ts=now_in_utc(),
+            session=ISession(id=session_id),
             label=self.label,
-            text=ISemantic(description=self.description, ner=False),
+            text=ISemantic(summary=self.description, ner=False),
+            tags=self.tags,
             traits=self.traits,
             observer=self.observer_link,
             source=IEntity(id=self.source_id) if self.source_id else IEntity(id=self.observation_id.source_id),
@@ -281,9 +296,15 @@ class AirembrObservation:
                  realtime: Optional[str] = None,
                  skip: Optional[str] = None,
                  bridge: Optional[str] = None,
-                 context: Optional[str] = None) -> Tuple[QueryStatus, IMemorySessions]:
+                 context: Optional[str] = None,
+                 session_id: Optional[str] = None) -> Tuple[QueryStatus, IMemorySessions]:
 
-        observation = self._get_observation()
+        if not session_id:
+            session_id = str(uuid4())
+
+        observation = self._get_observation(session_id)
+        print(333, observation.model_dump(mode="json", exclude_none=True),)
+
         transport = AirembrApi(self.client.api)
         return transport.remember(
             observation.model_dump(mode="json", exclude_none=True),
@@ -292,6 +313,20 @@ class AirembrObservation:
             False,
             bridge,
             context
+        )
+
+    def __str__(self) -> str:
+        entities_count = len(self.entities) if self.entities else 0
+        relations_count = len(self.relations)
+        return (
+            f"AirembrObservation("
+            f"id={self.observation_id}, "
+            f"session={self.session_id}, "
+            f"source={self.source_id}, "
+            f"label={self.label!r}, "
+            f"entities={entities_count}, "
+            f"relations={relations_count}"
+            f")"
         )
 
 
@@ -321,6 +356,7 @@ class AiRembrChatClient:
                     id: Optional[str] = None,
                     session_id: Optional[str] = None,
                     description: Optional[str] = None,
+                    tags: Optional[Set[str]] = None,
                     traits=None) -> AirembrObservation:
         if traits is None:
             traits = {}
@@ -332,4 +368,6 @@ class AiRembrChatClient:
                                   description,
                                   id,
                                   session_id,
-                                  traits)
+                                  traits,
+                                  tags
+                                  )

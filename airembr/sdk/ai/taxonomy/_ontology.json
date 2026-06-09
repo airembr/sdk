@@ -79,7 +79,7 @@
     "subtype": "Location",
     "parent_id": "PhysicalObject",
     "level": 3,
-    "definition": "A spatial region identifiable by geo coordinates or boundaries",
+    "definition": "A spatial region or place identifiable by geo coordinates or boundaries. All geographical entities like town, country,etc. are locations.",
     "traits": {
       "$id": "string",
       "$latitude": "float",
@@ -92,7 +92,7 @@
     "subtype": "Place",
     "parent_id": "PhysicalObject",
     "level": 3,
-    "definition": "A physical object that can contain other objects or object can be placed/located there, more abstract then location, e.g. garage, drawer, house, home, pocket, street, square, see, etc.",
+    "definition": "A physical object that can contain other objects or object can be placed there, This is not goe location rather, e.g. drawer, pocket, shelf, etc.",
     "traits": {
       "$id": "string",
       "$type": "string",
@@ -266,30 +266,6 @@
       "$type": "string",
       "$floors": "int",
       "$usage": "string"
-    }
-  },
-  {
-    "subtype": "City",
-    "parent_id": "Location",
-    "level": 4,
-    "definition": "A large human settlement with infrastructure and governance",
-    "traits": {
-      "$id": "string",
-      "$name": "string",
-      "$population": "int",
-      "$country": "ref"
-    }
-  },
-  {
-    "subtype": "Country",
-    "parent_id": "Location",
-    "level": 4,
-    "definition": "A sovereign geopolitical entity with defined territory",
-    "traits": {
-      "$id": "string",
-      "$name": "string",
-      "$population": "int",
-      "$continent": "string"
     }
   },
   {

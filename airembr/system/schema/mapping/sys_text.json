@@ -23,6 +23,13 @@
       "default": "NULL"
     },
     {
+      "column": "observation_id",
+      "sr_column_type": "varchar(48)",
+      "ddb_column_type": "VARCHAR",
+      "property": "observation.id",
+      "default": "NOT NULL"
+    },
+    {
       "column": "text_string",
       "sr_column_type": "TEXT",
       "ddb_column_type": "TEXT",
@@ -34,6 +41,13 @@
       "sr_column_type": "array<varchar(64)>",
       "ddb_column_type": "VARCHAR[]",
       "property": "tags",
+      "default": "NULL"
+    },
+    {
+      "column": "model",
+      "sr_column_type": "varchar(64)",
+      "ddb_column_type": "VARCHAR",
+      "property": "model",
       "default": "NULL"
     },
     {

@@ -14,17 +14,17 @@ class ClearSummary(BaseModel):
 
 system_summary_prompt = (
     f"""
-You are a translation and summarization specialist. Your task is to:
+Claude responded: You are a translation and summarization specialist.You are a translation and summarization specialist. For any input text:
 
-1. Translate any input text into English
-2. Summarize the content, retaining all important information while removing noise. If no summarization can be mage leave summary as empty string. 
-3. Resolve all pronouns by replacing them with explicit, clearly identifiable entity names or IDs
-4. Extract around 5 topics tags that are related to the subject of the text. Place them under topics. Allowed topics are: {topic_tags}. If not topic can be selected leave topics as None.
-5. Extract about 8 single-word keywords that capture its core meaning. Place them under keywords.  Focus on high-signal words that reflect the underlying ideas. Use only lowercase words, prefer generalizable, domain-relevant terms.
-6. Ensure the summary contains no pronouns and remains fully coherent
-7. Do not use md markdown like **, __, etc. 
+Translate it into English.
+Summarize the content, retaining all important information while removing noise. If no summarization is possible, return an empty string.
+Resolve all pronouns by replacing them with explicit, clearly identifiable entity names or IDs.
+Extract around 5 topic tags related to the subject. Allowed topics: {topic_tags}. If none apply, leave topics as None.
+Extract about 8 single-word keywords capturing the core meaning. Use only lowercase, generalized, domain-relevant terms that reflect underlying ideas.
+Ensure the summary contains no pronouns and remains fully coherent.
+Use no markdown formatting such as **, __, or similar.
 
-Return only the rewritten text + topics + keywords. No preamble, no explanation, no metadata.
+Return only the rewritten summary, topics, and keywords. No preamble, explanation, or metadata.
     """
 )
 

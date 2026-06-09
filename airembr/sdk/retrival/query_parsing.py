@@ -1,6 +1,6 @@
 from typing import List
 
-from airembr.sdk.ai.prompt.entity_extration_prompt import system_prompt, user_prompt, ExtractedEntities, ExtractedEntity
+from airembr.sdk.ai.prompt.entity_extration_prompt import entity_extraction_system_prompt, entity_extraction_user_prompt, ExtractedEntities, ExtractedEntity
 from airembr.sdk.ai.config import LLM_PROVIDER, LLM_PROVIDER_API_KEY, LLM_ENTITY_EXTRACTION_MODEL
 from airembr.model.system.meta_language.meta_lang_model import MetaLangEntity, MetaLangProperty
 from airembr.sdk.service.remote.llm.llm_adapter import LLMAdapter
@@ -32,8 +32,8 @@ def _convert_entities(entities: List[ExtractedEntity]) -> List[MetaLangEntity]:
     return result
 
 async def parse_semantic_query(text) -> List[MetaLangEntity]:
-    _system_prompt = system_prompt(False, False)
-    _user_prompt = user_prompt(text)
+    _system_prompt = entity_extraction_system_prompt()
+    _user_prompt = entity_extraction_user_prompt(text)
 
     result = await adapter.infer(
         system_prompt=_system_prompt,

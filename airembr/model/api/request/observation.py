@@ -363,6 +363,7 @@ class Observation(BaseModel):
     label: Optional[str] = Field(None, description="Observation label")
     traits: Optional[dict] = Field(None, description="Observation traits")
     text: Semantic = Field(Semantic(), description="Observation semantics")
+    tags: Optional[list] = []
     observer: InstanceLink = Field(..., description="Observation observer entity.")
     source: Entity = Field(..., description="Observation source entity.")
     session: Optional[Session] = Field(Session(), description="Observation session entity.")

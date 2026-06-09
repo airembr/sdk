@@ -95,37 +95,42 @@ def count_not_summarized_texts_sql():
     )
 
 
-def count_no_ner_texts_sql():
+def count_to_ner_texts_sql():
     database = current_bd_database_name()
     sys_text = sys_text_mapping()
+    sys_text_vector = sys_text_vector_mapping()
     return (
             Sql()
             + "  SELECT COUNT(*) count"
-            + f"  FROM {database}.{sys_text}"
-            + f"  WHERE {sys_text | FlatText.REQUIRE_NER} = true AND {sys_text | FlatText.OBSERVATION_ID} IS NOT NULL"
+            + f"  FROM {database}.{sys_text} t"
+            + f"   LEFT JOIN {database}.{sys_text_vector} as v ON v.{sys_text_vector | FlatTextVector.TEXT_ID} = t.{sys_text | FlatText.ID}"
+            + f"  WHERE t.{sys_text | FlatText.REQUIRE_NER} = true AND t.{sys_text | FlatText.MODEL} IS NULL AND t.{sys_text | FlatText.OBSERVATION_ID} IS NOT NULL"
     )
 
 
-def load_no_ner_texts_sql():
+def load_to_ner_texts_sql():
     database = current_bd_database_name()
     sys_text = sys_text_mapping()
+    sys_text_vector = sys_text_vector_mapping()
+
     return (
             Sql()
             + "  SELECT *"
-            + f"  FROM {database}.{sys_text}"
-            + f"  WHERE {sys_text | FlatText.REQUIRE_NER} = true AND {sys_text | FlatText.OBSERVATION_ID} IS NOT NULL"
+            + f"  FROM {database}.{sys_text} t"
+            + f"   LEFT JOIN {database}.{sys_text_vector} as v ON v.{sys_text_vector | FlatTextVector.TEXT_ID} = t.{sys_text | FlatText.ID}"
+            + f"  WHERE t.{sys_text | FlatText.REQUIRE_NER} = true AND t.{sys_text | FlatText.MODEL} IS NULL AND t.{sys_text | FlatText.OBSERVATION_ID} IS NOT NULL"
     )
 
 
-def update_required_ner_texts_sql(text_id: str):
+def update_required_ner_texts_sql(text_id: str, model: str):
     database = current_bd_database_name()
     sys_text = sys_text_mapping()
     return (
             Sql()
             + f"UPDATE {database}.{sys_text}"
-            + f"SET {sys_text | FlatText.REQUIRE_NER} = false"
+            + f"SET {sys_text | FlatText.REQUIRE_NER} = false, {sys_text | FlatText.MODEL} = :model"
             + f"  WHERE {sys_text | FlatText.ID} = :text_id"
-            + Param({"text_id": text_id})
+            + Param({"text_id": text_id, "model":model})
     )
 
 

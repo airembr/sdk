@@ -225,6 +225,7 @@ class StarrocksEntityPropertyAdapter(BdEntityHistoryAdapter):
         embeddings = await self._prepare_embeddings(eql_object)
         sql = build_select_observations_with_eql(eql_object, unmatched_entities, unmatched_traits,
                                                  start_date=start_date, end_date=end_date, embeddings=embeddings)
+        print(1, sql.literal())
         return await self.adapter.exec(sql)
 
     async def load_entity_types_with_eql(self, eql_object, unmatched_entities: int = 0, unmatched_traits: int = 0,

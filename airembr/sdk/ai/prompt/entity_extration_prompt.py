@@ -3,13 +3,11 @@ from uuid import uuid4
 
 from pydantic import BaseModel, Field
 
-from airembr.sdk.ai.taxonomy.entity_ontology import ontology, render_ontology, yield_entity_types
-from airembr.sdk.ai.taxonomy.entity_taxonomy import taxonomy
-from airembr.sdk.ai.taxonomy.entity_taxonomy_converter import flatten_taxonomy
-from airembr.db.aspects import aspects, render_aspects_sorted
+from airembr.db.aspects import render_aspects_sorted
+from airembr.db.ontology import ontology
 from airembr.core.hash.hash import md5
-
-flat_taxonomy = flatten_taxonomy(taxonomy)
+from airembr.system.utils.text.cleaners import clean_text
+from airembr.system.utils.text.ontology_formater import display_ontology, get_entities
 
 
 class ExtractedEntity(BaseModel):
@@ -47,6 +45,9 @@ class ExtractedEntity(BaseModel):
         if entity_type in ['document']:
             return ['$type', '$number'], True
 
+        if entity_type in ['location', 'country']:
+            return ['$label'], True
+
         return None
 
 
@@ -60,317 +61,371 @@ class ExtractedEntities(BaseModel):
                     ent.traits[key] = value.lower()
             yield ent
 
-class SummarizedExtractedEntities(ExtractedEntities):
-    summary: str = Field(..., description="Plain text summary in English.")
+def print_extracted_entities_md(extracted: ExtractedEntities) -> str:
+    lines = []
+    for entity in extracted.entities:
+        entity_id = entity.get_entity_id()
+        lines.append(f"## {entity.type} (ID: {entity_id})")
+        lines.append("- Traits:")
+        for key, value in entity.traits.items():
+            lines.append(f" * {key} = {value}")
 
+        lines.append("")  # blank line between entities
 
-def _clean_text(text: str) -> str:
-    lines = text.splitlines()
+    return "\n".join(lines)
 
-    cleaned = []
-    for line in lines:
-        stripped = line.rstrip()  # remove trailing spaces
-        if stripped:  # skip empty lines (optional)
-            cleaned.append(stripped.lstrip())  # remove leading spaces too
+def entity_extraction_system_prompt():
 
-    return "\n".join(cleaned)
+    prompt = f"""
+You specialize in extracting key information as entities and its directly related traits/attributes from given text. 
+Output of your job should  be in JSON format holding all possible extracted entities.
 
+Example {{\"entities\":[{{\"type\": \"person\", \"traits\":{{\"$first_name\":\"<entity-first-name>\", \"$last_name\":\"<entity-last-name>\", \"$label\":\"<entity-first-name> <entity-last-name>\",}}}}, more...]}}
 
-def system_prompt(summary: bool, identification: bool):
-    prompt = "You specialize in extracting key information as entities and its directly related traits/attributes from given text. "
-    prompt += "Output should of your job be in JSON format holding all possible extracted entities."
-    if summary:
-        prompt += "You also specialize in summarization of the texts."
-        prompt += "Example {{\"entities\":[{{\"type\": Person, \"traits\":{{\"$name\":\"<entity-name>\", \"$surname\":\"<entity-surname>\"}}, \"summary\": \"Summary of the text. Max 5 sentences.\"}}, more...]}}"
-    else:
-        prompt += "Example {{\"entities\":[{{\"type\": Person, \"traits\":{{\"$name\":\"<entity-name>\", \"$surname\":\"<entity-surname>\"}}}}, more...]}}"
+Your task is to extract, from the text below, key information that can serve as hooks for information retrival. In order to do that use predefined 
+entities classes, entity types together with their traits.
 
-    prompt += f"""
-    Your task is to extract, from the text below, key information that can serve as hooks for information retrival. In order to do that use predefined 
-    entities classes, entity types together with their traits.
+Follow these rules carefully:
 
-    Follow these rules carefully:
+## Use only this entities and its traits from this list. 
 
-    ## Use only this entities and its traits from this list. 
+<ontology>
+{display_ontology(ontology, show_refs=False)}
+</ontology>
 
-    {render_ontology(ontology)}
+## Output Schema
+The output must be a valid JSON object matching the following structure:
 
-    ## Entity Types
-    - Extraction must be done in English
-    - Use only the entity types and traits defined above.
-    - Allowed entity types: {list(yield_entity_types())}
-    - If from question we cane infer Topic the add Topic entity with $name. If there are many topic extract many.
-    - Extract aspects if question has strong indication towards some aspect. Simple questions may not have aspects. 
-      Available aspect $type: {render_aspects_sorted(aspects)}
-    - Extract entities at every applicable level of abstraction (e.g., a Company is also an Organization and an Agent — extract whichever levels add meaningful information).
-    - If multiple instances of the same type appear (e.g., several people or locations), extract each as a separate entity.
+```
+{{
+  "entities": [
+    {{
+      "type": "<entity-type>",
+      "traits": {{
+        "$id": "<unique-identifier-best-uuid4>",
+        "<trait>": "<value>"
+      }}
+    }}
+  ]
+}}
+```
 
-    ## Attributes
-    - Use only traits listed for the entity's type.
-    - Do not remove $ from traits keys.
-    - Trait $type value is a subtype of entity type.
-    - For person entity always separte $name and $surname.
-    - Attribute values must match the declared data type. 
-    - Not all traits are required, if you do not know the value of trait do not include it.
-    - One identified entity must have all its traits in this identified entity.
-    - Do not use attributes to reference other entities (e.g., do not add belongs_to: some-organization). Relations between entities are not captured in attributes.
-    - Keep attributes separate — do not merge multiple values into one field.
-    
-    ## What to do when some keywords can not be matched with entities.
-    In this case lower the abstraction for entity. Each key information can be extracted as type  Entity so there is always way to 
-    extract some key meaning as Entity or other lower entityt type. Example: I paid for my English course yesterday. There is not Payment entity type. The closest to Payment is Process. Because Payment is Process. The use Process and set $type = "payment". 
-    Extract as many as possible key infromations that could server as a hook for information retrival.
+## Entity Types
+- Extraction must be done in English
+- Use only the allowed entity types: {",".join(get_entities(ontology))}
+- Extract entities at the top applicable level of abstraction (e.g., a Company is also an Organization but we should extract it as company only).
+- If multiple instances of the same type appear (e.g., several people or locations), extract each as a separate entity with unique ID.
+- If there is an email or phone always extract email_address or phone_number entity. 
+- Aspect entity can take only the following $type: {render_aspects_sorted()}
+- Extract max 3 aspects.
+ 
+## Attributes/Traits extraction
+- Use only traits listed for the entity's type and do not remove $ from traits keys.
+- Trait $type value is a subtype of entity type.
+- Fill/extract $label according to its descrition/template whenever this is possible. You may use partial traits if not all available. 
+- For person entity always separate $first_name and $last_name and $label.
+- Not all traits are required, if you do not know, or can't extract the value of trait do not include it.
+- Identified entity must have all its traits under a single entry with a single $id. Do not create separate entries for new trait, keep them all under one identified entity.
+- Keep attributes separate — do not merge multiple values into one field.
 
+## What to do when some keywords cannot be matched with entity types.
+If a concept cannot be matched to any allowed entity type, find the closest allowed type and use it. 
+Set the $type trait to describe the concept more specifically.
+Example: "I paid installments for my English course yesterday." 
+There is no installment entity type, but an installment is a kind of payment. 
+Use payment and set $type to installment. Extract as much key information as possible to serve as hooks for information retrieval.
+
+## What to do if traits in the text do not match any ontology trait.
+You can always add non-canonical traits to any entity. Unlike ontology traits, non-canonical traits do not start with $. 
+Use them when the text contains relevant information that has no matching trait in the ontology.
+Example: a person entity has no $age trait in the ontology, but the text mentions the person's age. 
+Add it as a non-canonical trait:
+
+Type: person
+Traits:
+- $id: a1b2c3d4
+- $first_name: Adam
+- age: 7
+
+Rules for non-canonical traits:
+- No $ prefix.
+- Keep names short and simple — single lowercase words or snake_case (e.g. age, fur_color, weight).
+- Values must be simple scalars — string, number, or date. Do not nest objects.
+
+## Identification, Pronoun and Reference Resolution
+- Assign a unique $id (random string) to every entity but keep the identification constant, meaning identified entity must have all its traits. 
+
+Incorrect example: 
+entities = [
+{{
+'type':'person',
+'traits': {{
+    '$id': '8f9a0f4e',
+    '$first_name': 'John',
+    '$last_name': 'Smith',
+    }}
+}},
+{{
+'type':'person',
+'traits': {{
+    '$id': '1a2b3c4d',
+    '$email': 'John.Smith@linkedunion.com'
+    }}
+}}
+] - Extracted entities have different id but it is the same person. 
+
+Correct extraction will have all traits belonging to entity under one entity:
+
+entities = [
+{{    
+'type':'person',
+'traits': {{
+    '$id': '8f9a0f4e',
+    '$first_name': 'John',
+    '$last_name': 'Smith',
+    '$email': 'John.Smith@linkedunion.com'
+    }}
+}}
+]
+- When a pronoun or description refers to a previously mentioned entity, assign the resolved information to the same entity ID.
+- Example: "Adam is a child. He is 7 years old." — both sentences describe entity Id: abc1 (Adam).
+
+## Formatting
+
+   * Use the following JSON-like format:
+
+```json
+Type: <entity-type>
+Traits:
+- <trait>: <value>
+- <trait>: <value>
+---
+
+<attribute-label> should NOT include verb
+Attributes should NOT include relations to other entities. 
+```
+
+### Pronouns and references example
+
+Text:
+Adam is a child. He is 7 years old and loves soccer. He lives in Paris.
+
+Output:
+
+```json
+Type: person
+Traits:
+- $id: as5hs34d98g2
+- $first_name: Adam
+---
+Type: location
+Traits:
+- $id: abs34d98g2
+- $name: Paris
+---
+Type: category
+Traits:
+- $id: 3ask93jdnfur6
+- $name: Soccer
+- $type: topic
+---
+Type: aspect
+Traits:
+- $id: 4dffd996-6663-4128-4556-40d9560e0571
+- $type: personal
+---
+Type: aspect
+Traits:
+- $id: aa23996f-9893-4f48-4504-40d95410e057
+- $type: Informational
+```
 """
 
-    if identification:
-        prompt += """## Identification, Pronoun and Reference Resolution
-    - Assign a unique $id (random string) to every entity but keep the identification conistant, meaning identified entity must have all its traits. Incorrect exmaple: 
-       entities = [
-        ExtractedEntity(
-         type='Person',
-            traits={{
-                '$id': '8f9a0f4e-5b2a-4b3e-9e6a-1d2c3b4a5f6e',
-                '$name': 'John Smith'
-            }}
-        ),
-        ExtractedEntity(
-         type='Person',
-            traits={{
-                '$id': '1a2b3c4d-5e6f-7081-92a3-b4c5d6e7f809',
-                '$email': 'John.Smith@linkedunion.com'
-            }}
-        )
-    ] - Extracted entities have different id but it is the same person. 
-
-    Correct extraction will have all traits belonging to entity under one entity:
-
-    entities = [
-        ExtractedEntity(
-        type='Person',
-            traits={{
-                '$id': '8f9a0f4e-5b2a-4b3e-9e6a-1d2c3b4a5f6e',
-                '$name': 'John Smith',
-                '$email': 'John.Smith@linkedunion.com'
-            }},
-        )
-    ]
-    - When a pronoun or description refers to a previously mentioned entity, assign the resolved information to the same entity ID.
-    - Example: "Adam is a child. He is 7 years old." — both sentences describe entity Id: abc1 (Adam).
-
-    ## Formatting
-
-       * Use the following JSON-like format:
-
-    ```json
-    Type: <entity-type>
-    Attributes:
-    - <attribute_label>: <attribute_value>
-    - <attribute_label>: <attribute_value>
-    ---
-
-    <attribute-label> should NOT include verb
-    Attributes should NOT include relations to other entities. 
-    ```
-
-    ### Pronouns and references example
-
-    Text:
-    Adam is a child. He is 7 years old and loves soccer. He lives in Paris.
-
-    Output:
-
-    ```json
-    Type: Person
-    Attributes:
-    - $id: as5hs34d98g2
-    - $name: Adam  # No age as there is not age trait for person.
-    ---
-    Type: City
-    Attributes:
-    - $id: abs34d98g2
-    - $type: Capital
-    - $name: Paris
-    ---
-    Type: Sport
-    Attributes:
-    - $id: 3ask93jdnfur6
-    - $type: soccer
-    ---
-    Type: Topic
-    Attributes:
-    - $id: aeafd996-9893-4f48-4504--40d95410e057
-    - $type: personal
-    ---
-    Type: Aspect
-    Attributes:
-    - $id: 4dffd996-6663-4128-45564--40d9560e057
-    - $type: informational
-    ---
-    Type: Aspect
-    Attributes:
-    - $id: aa23996-9893-4f48-4504--40d95410e057
-    - $type: personal
-    ```
-   
-    ## Simple Example
-
-    Text:
-    The European ground squirrel (Spermophilus citellus), ID: sq1984, also known as the European souslik, is a species in the squirrel
-    family, Sciuridae. Like all squirrels, it is a member of the order of rodents, and it is found in central
-    and southeastern Europe, with its range divided into two parts by the Carpathian Mountains. It is a colonial animal
-    and mainly diurnal. The European ground squirrel excavates a branching system of tunnels up to 2 metres (6 ft) deep,
-    with several entrances. This requires a habitat of short turf, such as on steppes, pasture, dry banks, sports fields,
-    parks and lawns. Its short, dense fur is yellowish grey, tinged with red, with a few indistinct pale and dark spots
-    on the back. Adults typically measure 20 to 23 centimetres (8 to 9 in) with a weight of 240 to 340 grams (8.5 to 12.0 oz).
-    It has a slender build with a short, bushy tail, and makes a shrill alarm call that causes all other individuals
-    in the vicinity to dive for cover. This European ground squirrel was photographed in Obrovisko Family Park,
-    near Muráň, Slovakia.
-
-    Output:
-    Type: Animal
-    Attributes:
-    - $id: sq1984
-    - $name: European ground squirrel
-    - $species: Spermophilus citellus
-    - $age: adult (20–23 cm body length, 240–340 g weight)
-
-    -- 
-    Type: Topic
-    Attributes:
-    - $id: aeafd996-4f48-4504-9893-50d954410e056
-    - $name: Zoology
-    ---
-    Type: Aspect
-    Attributes:
-    - $id: aeafd996-9893-4f48-4504--40d95410e057
-    - $type: environmental
-    ---
-    Type: Concept
-    Attributes:
-    - $id: 59afd996-4504-4f48-9893-30d95410e057
-    - $name: Sciuridae
-    - $domain: zoological taxonomy
-    ---
-    Type: Concept
-    Attributes:
-    - $id: 5e8c309b-f2a0-4363-af1f-5d51ac7ef2bc
-    - $type: zoological
-    - $name: Rodentia
-    - $domain: zoological taxonomy
-    ---
-    Type: NaturalEntity
-    Attributes:
-    - $id: 4f7ab51d-f5e3-44bd-97a9-ecb5f275ad68
-    - $type: mountain range
-    - $name: Carpathian Mountains
-    ---
-    Type: Location
-    Attributes:
-    - $id: cc13f689-af87-4366-bbb6-6b21f99bd550
-    - $type: region
-    - $address: central and southeastern Europe
-
-    ---
-    Type: Place
-    Attributes:
-    - $id: 756598ce-a8d1-4e5b-8d75-72e4ee316988
-    - $type: park
-    - $name: Obrovisko Family Park
-    - $address: near Muráň, Slovakia
-
-    ---
-    Type: City
-    Attributes:
-    - $id: d56ef58a-16e1-4bf3-8e20-71ea74aaf60e
-    - $name: Muráň
-    ---
-    Type: Country
-    Attributes:
-    - $id: d23e1b44-0092-4460-9cdc-15b376ec75fb
-    - $name: Slovakia
-    ---
-"""
-    else:
-        prompt += """
-            ## Identification
-            Add $id trait only if the text the ID of the entity is available in the text.
-        
-            ## Simple Example
-
-            Text:
-            The European ground squirrel (Spermophilus citellus) ID: sq1984, also known as the European souslik, is a species in the squirrel
-            family, Sciuridae. Like all squirrels, it is a member of the order of rodents, and it is found in central
-            and southeastern Europe, with its range divided into two parts by the Carpathian Mountains. It is a colonial animal
-            and mainly diurnal. The European ground squirrel excavates a branching system of tunnels up to 2 metres (6 ft) deep,
-            with several entrances. This requires a habitat of short turf, such as on steppes, pasture, dry banks, sports fields,
-            parks and lawns. Its short, dense fur is yellowish grey, tinged with red, with a few indistinct pale and dark spots
-            on the back. Adults typically measure 20 to 23 centimetres (8 to 9 in) with a weight of 240 to 340 grams (8.5 to 12.0 oz).
-            It has a slender build with a short, bushy tail, and makes a shrill alarm call that causes all other individuals
-            in the vicinity to dive for cover. This European ground squirrel was photographed in Obrovisko Family Park,
-            near Muráň, Slovakia.
-
-            Output:
-            Type: Animal
-            Attributes:
-            - $id: sq1984   # Add only if id is available in text.
-            - $name: European ground squirrel
-            - $species: Spermophilus citellus
-            - $age: adult (20–23 cm body length, 240–340 g weight)
-
-            -- 
-            Type: Topic
-            Attributes:
-            - $name: Zoology
-            ---
-            Type: Aspect
-            Attributes:
-            - $type: environmental
-            ---
-            Type: Concept
-            Attributes:
-            - $name: Sciuridae
-            - $domain: zoological taxonomy
-            ---
-            Type: Concept
-            Attributes:
-            - $type: zoological
-            - $name: Rodentia
-            - $domain: zoological taxonomy
-            ---
-            Type: NaturalEntity
-            Attributes:
-            - $type: mountain range
-            - $name: Carpathian Mountains
-            ---
-            Type: Location
-            Attributes:
-            - $type: region
-            - $address: central and southeastern Europe
-
-            ---
-            Type: Place
-            Attributes:
-            - $type: park
-            - $name: Obrovisko Family Park
-            - $address: near Muráň, Slovakia
-
-            ---
-            Type: City
-            Attributes:
-            - $name: Muráň
-            ---
-            Type: Country
-            Attributes:
-            - $name: Slovakia
-            ---
-        """
-
-    if summary:
-        prompt += f"## Summarization\nSummarize the text in the English language. Keep the most relevant information in teh summary in a factual manner. Just pure facts in triplet from: Subject predicate object. Use plain text NO MARKUP."
-
-    return _clean_text(prompt)
+    return clean_text(prompt)
 
 
-def user_prompt(text):
+def entity_extraction_user_prompt(text):
     return f"Text to process:\n{text}"
+
+
+def second_entity_extraction_system_prompt():
+    prompt = f"""
+You specialize in completing information extraction and its directly related traits/attributes from given text. You append new information to already extracted entities form text.  
+Output of your job should  be in JSON format holding all possible extracted entities.
+
+Example {{\"entities\":[{{\"type\": \"person\", \"traits\":{{\"$first_name\":\"<entity-first-name>\", \"$last_name\":\"<entity-last-name>\", \"$label\":\"<entity-first-name> <entity-last-name>\",}}}}, more...]}}
+
+You are an expert critique agent acting on top of a previous agent's extraction work. Your role is to rigorously review what has already been extracted and identify everything that was missed, incomplete, or incorrectly structured.
+You must follow these rules strictly:
+
+If an entity already exists, do not duplicate it — add the missing traits under the existing entity.
+If an entity does not exist but is present in the text, create it and populate it with all relevant traits.
+Be exhaustive — your job is to find every piece of information the previous agent failed to capture.
+
+Your output must be fully consistent with the existing entity structure and format.
+
+Follow these rules carefully:
+
+## Use only this entities and its traits from this list. 
+
+<ontology>
+{display_ontology(ontology, show_refs=False)}
+</ontology>
+
+## Output Schema
+The output must be a valid JSON object matching the following structure:
+
+```
+{{
+  "entities": [
+    {{
+      "type": "<entity-type>",
+      "traits": {{
+        "$id": "<unique-identifier-best-uuid4>",
+        "<trait>": "<value>"
+      }}
+    }}
+  ]
+}}
+```
+
+## Methodology
+- Append new data to each entity; the entity ID must never change
+- Create new entities for any that are missing
+- If duplicate entities are detected, merge them under a single chosen entity ID
+- Duplications are not permitted
+
+## Entity Types
+- Extraction must be done in English
+- Use only the allowed entity types: {",".join(get_entities(ontology))}
+- Extract entities at the top applicable level of abstraction (e.g., a Company is also an Organization but we should extract it as company only).
+- If multiple instances of the same type appear (e.g., several people or locations), extract each as a separate entity with unique ID.
+- If there is an email or phone always extract email_address or phone_number entity. 
+- Aspect entity can take only the following $type: {render_aspects_sorted()}
+- Extract max 3 aspects.
+
+## Attributes/Traits extraction
+- Use only traits listed for the entity's type and do not remove $ from traits keys.
+- Trait $type value is a subtype of entity type.
+- Fill/extract $label according to its descrition/template whenever this is possible. You may use partial traits if not all available. 
+- For person entity always separate $first_name and $last_name and $label.
+- Not all traits are required, if you do not know, or can't extract the value of trait do not include it.
+- Identified entity must have all its traits under a single entry with a single $id. Do not create separate entries for new trait, keep them all under one identified entity.
+- Keep attributes separate — do not merge multiple values into one field.
+
+## What to do when some keywords cannot be matched with entity types.
+If a concept cannot be matched to any allowed entity type, find the closest allowed type and use it. 
+Set the $type trait to describe the concept more specifically.
+Example: "I paid installments for my English course yesterday." 
+There is no installment entity type, but an installment is a kind of payment. 
+Use payment and set $type to installment. Extract as much key information as possible to serve as hooks for information retrieval.
+
+## What to do if traits in the text do not match any ontology trait.
+You can always add non-canonical traits to any entity. Unlike ontology traits, non-canonical traits do not start with $. 
+Use them when the text contains relevant information that has no matching trait in the ontology.
+Example: a person entity has no $age trait in the ontology, but the text mentions the person's age. 
+Add it as a non-canonical trait:
+
+Type: person
+Traits:
+- $id: a1b2c3d4
+- $first_name: Adam
+- age: 7
+
+Rules for non-canonical traits:
+- No $ prefix.
+- Keep names short and simple — single lowercase words or snake_case (e.g. age, fur_color, weight).
+- Values must be simple scalars — string, number, or date. Do not nest objects.
+
+## Identification, Pronoun and Reference Resolution
+- Assign a unique $id (random string) to every entity but keep the identification constant, meaning identified entity must have all its traits. 
+
+Incorrect example: 
+entities = [
+{{
+'type':'person',
+'traits': {{
+    '$id': '8f9a0f4e',
+    '$first_name': 'John',
+    '$last_name': 'Smith',
+    }}
+}},
+{{
+'type':'person',
+'traits': {{
+    '$id': '1a2b3c4d',
+    '$email': 'John.Smith@linkedunion.com'
+    }}
+}}
+] - Extracted entities have different id but it is the same person. 
+
+Correct extraction will have all traits belonging to entity under one entity:
+
+entities = [
+{{    
+'type':'person',
+'traits': {{
+    '$id': '8f9a0f4e',
+    '$first_name': 'John',
+    '$last_name': 'Smith',
+    '$email': 'John.Smith@linkedunion.com'
+    }}
+}}
+]
+- When a pronoun or description refers to a previously mentioned entity, assign the resolved information to the same entity ID.
+- Example: "Adam is a child. He is 7 years old." — both sentences describe entity Id: abc1 (Adam).
+
+## Formatting
+
+   * Use the following JSON-like format:
+
+```json
+Type: <entity-type>
+Traits:
+- <trait>: <value>
+- <trait>: <value>
+---
+
+<attribute-label> should NOT include verb
+Attributes should NOT include relations to other entities. 
+```
+
+### Pronouns and references example
+
+Text:
+Adam is a child. He is 7 years old and loves soccer. He lives in Paris.
+
+Output:
+
+```json
+Type: person
+Traits:
+- $id: as5hs34d98g2
+- $first_name: Adam
+---
+Type: location
+Traits:
+- $id: abs34d98g2
+- $name: Paris
+---
+Type: category
+Traits:
+- $id: 3ask93jdnfur6
+- $name: Soccer
+- $type: topic
+---
+Type: aspect
+Traits:
+- $id: 4dffd996-6663-4128-4556-40d9560e0571
+- $type: personal
+---
+Type: aspect
+Traits:
+- $id: aa23996f-9893-4f48-4504-40d95410e057
+- $type: Informational
+```
+"""
+    return clean_text(prompt)
+
+def second_entity_extraction_user_prompt(text, entities: ExtractedEntities):
+    return f"Already found entities: {print_extracted_entities_md(entities)}\n\nText to process:\n{text}. Now fill missing data."
