@@ -126,6 +126,21 @@ class StarrocksInstallAdapter(StarrocksBaseAdapter):
             logger.error(f"Could not create table in database: {database_name}. SQL: {sql},  Details: {str(e)}")
             raise e
 
+    async def _enable_vector_support(self):
+        try:
+            await self._client.create_tables(
+                'ADMIN SET FRONTEND CONFIG ("enable_experimental_vector" = "true")',
+                'sys'
+            )
+            logger.info("StarRocks vector index support enabled.")
+        except Exception as e:
+            logger.warning(
+                f"Could not enable vector index support. "
+                f"If installation fails with a vector index error, run manually: "
+                f'ADMIN SET FRONTEND CONFIG ("enable_experimental_vector" = "true"). '
+                f"Details: {str(e)}"
+            )
+
     async def install_big_data_database(self, credentials: Credentials):
         if sys_config.multi_tenant:
             context = get_context()
@@ -162,6 +177,8 @@ class StarrocksInstallAdapter(StarrocksBaseAdapter):
 
         tables = list(_resource.get_create_table_stmts())
         views = list(_resource.get_create_view_stmts('starrocks'))
+
+        await self._enable_vector_support()
 
         with ServerContext(get_context().switch_context(production=False)) as cm:
             database = current_bd_database_name()
