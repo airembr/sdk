@@ -144,10 +144,10 @@ def similar_texts_sql(query_vector: List[float], limit: int = 10):
             Sql()
             + f"  SELECT v.{sys_text_vector | FlatTextVector.TEXT_ID} AS text_id,"
             + f"         t.{sys_text | FlatText.TEXT} AS text_string,"
-            + f"         approx_l2_distance(v.{sys_text_vector | FlatTextVector.VECTOR}, {vector_str}) AS distance"
+            + f"         approx_cosine_similarity(v.{sys_text_vector | FlatTextVector.VECTOR}, {vector_str}) AS similarity"
             + f"  FROM {database}.{sys_text_vector} v"
             + f"  JOIN {database}.{sys_text} t ON v.{sys_text_vector | FlatTextVector.TEXT_ID} = t.{sys_text | FlatText.ID}"
-            + f"  ORDER BY approx_l2_distance(v.{sys_text_vector | FlatTextVector.VECTOR}, {vector_str})"
+            + f"  ORDER BY approx_cosine_similarity(v.{sys_text_vector | FlatTextVector.VECTOR}, {vector_str}) DESC"
             + f"  LIMIT :limit"
             + Param({"limit": limit})
     )
@@ -163,7 +163,7 @@ def similar_observations_sql(query_vector: List[float], limit: int = 10):
             Sql()
             + f"  SELECT"
             + f"    t.{sys_text | FlatText.OBSERVATION_ID} AS observation_id,"
-            + f"    approx_l2_distance(v.{sys_text_vector | FlatTextVector.VECTOR}, {vector_str}) AS distance,"
+            + f"    approx_cosine_similarity(v.{sys_text_vector | FlatTextVector.VECTOR}, {vector_str}) AS similarity,"
             + f"    o.{sys_obs | FlatObs.ID} AS obs_id,"
             + f"    o.{sys_obs | FlatObs.DESCRIPTION} AS description,"
             + f"    o.{sys_obs | FlatObs.SUMMARY} AS summary,"
@@ -171,7 +171,7 @@ def similar_observations_sql(query_vector: List[float], limit: int = 10):
             + f"  FROM {database}.{sys_text_vector} v"
             + f"  JOIN {database}.{sys_text} t ON v.{sys_text_vector | FlatTextVector.TEXT_ID} = t.{sys_text | FlatText.ID}"
             + f"  JOIN {database}.{sys_obs} o ON t.{sys_text | FlatText.OBSERVATION_ID} = o.{sys_obs | FlatObs.ID}"
-            + f"  ORDER BY approx_l2_distance(v.{sys_text_vector | FlatTextVector.VECTOR}, {vector_str})"
+            + f"  ORDER BY approx_cosine_similarity(v.{sys_text_vector | FlatTextVector.VECTOR}, {vector_str}) DESC"
             + f"  LIMIT :limit"
             + Param({"limit": limit})
     )

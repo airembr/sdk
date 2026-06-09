@@ -98,15 +98,15 @@ logger = logging.getLogger(__name__)
 # in the query before the SQL is generated.
 EmbeddingMap = Dict[Tuple[str, str, str], List[float]]
 
-# L2 distance threshold for vector similarity (approx_l2_distance).
-# Candidates whose distance exceeds this value are excluded.
-# Lower = stricter; 0.3 works well for normalised sentence embeddings.
-DEFAULT_MAX_VECTOR_DISTANCE: float = 0.3
+# Cosine similarity threshold for vector search (approx_cosine_similarity).
+# Candidates whose similarity is below this value are excluded.
+# Higher = stricter; 0.7 works well for normalised sentence embeddings.
+DEFAULT_MIN_VECTOR_SIMILARITY: float = 0.7
 
 # Number of ANN candidates fetched per ~ property via the HNSW index.
-# ORDER BY dist LIMIT top_k engages StarRocks's HNSW index; a plain
-# WHERE dist <= threshold would fall back to a brute-force scan.
-# Filtered further by DEFAULT_MAX_VECTOR_DISTANCE after the top-k fetch.
+# ORDER BY dist DESC LIMIT top_k engages StarRocks's HNSW index; a plain
+# WHERE dist >= threshold would fall back to a brute-force scan.
+# Filtered further by DEFAULT_MIN_VECTOR_SIMILARITY after the top-k fetch.
 DEFAULT_TOP_K: int = 100
 
 
@@ -485,7 +485,7 @@ def _build_exact_traits_cte(view: str, plan: QueryPlan) -> Optional[Sql]:
         Sql()
         + "entities_with_exact_traits AS ("
         + "SELECT p.property_name, p.property_value,"
-        + "  o.entity_pk, o.observation_id, o.entity_type, c.group_id"
+        + "  o.entity_pk, o.observation_id, o.entity_type, c.group_id, 1.0 AS dist"
         + f"FROM {view} p"
         + f"JOIN {database}.{sys_ent_2_obs_map} o ON p.entity_pk = o.entity_pk"
         + "LEFT JOIN traits_conditions c"
@@ -503,14 +503,14 @@ def _build_vector_top_k_ctes(
     plan: QueryPlan,
     embeddings: EmbeddingMap,
     top_k: int,
-    max_distance: float,
+    min_similarity: float,
 ) -> List[Tuple[str, str, str, float]]:
     """Build one ANN top-k CTE per ``~`` property that has a known embedding.
 
     For each ``~`` property whose ``(entity_type, prop_name, value)`` key
     appears in ``embeddings``, one CTE is emitted.  The CTE uses
-    ``approx_l2_distance`` with ``ORDER BY dist LIMIT top_k`` to engage
-    StarRocks's HNSW vector index (a bare ``WHERE dist <= threshold`` would
+    ``approx_cosine_similarity`` with ``ORDER BY dist DESC LIMIT top_k`` to engage
+    StarRocks's HNSW vector index (a bare ``WHERE dist >= threshold`` would
     fall back to a full brute-force scan of ``sys_text_vector``).
 
     The query embedding vector is inlined directly into the SQL string rather
@@ -521,12 +521,12 @@ def _build_vector_top_k_ctes(
 
         vector_top_k_t_1_1 AS (
           SELECT p.entity_pk, p.property_name, p.property_value,
-                 approx_l2_distance(sv.vector, [0.1, 0.2, 0.3]) AS dist
+                 approx_cosine_similarity(sv.vector, [0.1, 0.2, 0.3]) AS dist
           FROM last_property_values p
           JOIN testdb.sys_text_vector sv ON p.property_value_id = sv.text_id
           WHERE LOWER(p.entity_type) = LOWER('location')
             AND p.property_name = '$name'
-          ORDER BY dist
+          ORDER BY dist DESC
           LIMIT 100
         )
 
@@ -567,7 +567,7 @@ def _build_vector_top_k_ctes(
             safe_gid  = group.group_id.replace(".", "_")
             cte_name  = f"vector_top_k_{safe_gid}_{prop_idx}"
             vector_str = f"[{', '.join(str(float(v)) for v in vector)}]"
-            dist_expr  = f"approx_l2_distance(sv.{tv_vector}, {vector_str})"
+            dist_expr  = f"approx_cosine_similarity(sv.{tv_vector}, {vector_str})"
 
             cte_sql = (
                 f"{cte_name} AS ("
@@ -576,10 +576,10 @@ def _build_vector_top_k_ctes(
                 f"JOIN {database}.{tv_map} sv ON p.property_value_id = sv.{tv_text_id} "
                 f"WHERE LOWER(p.entity_type) = LOWER('{group.entity_type}') "
                 f"AND p.property_name = '{prop.name}' "
-                f"ORDER BY dist "          # triggers HNSW index
+                f"ORDER BY dist DESC "      # triggers HNSW index
                 f"LIMIT {top_k})"         # cap candidates before distance filter
             )
-            distance = prop.distance if prop.distance is not None else max_distance
+            distance = prop.distance if prop.distance is not None else min_similarity
             entries.append((cte_sql, cte_name, group.group_id, distance))
     return entries
 
@@ -592,9 +592,9 @@ def _build_vector_traits_cte(
     Each arm in the UNION joins one ``vector_top_k_*`` CTE (which already
     holds ``entity_pk, property_name, property_value, dist``) to
     ``sys_ent_2_obs`` to obtain ``observation_id``.  The distance threshold
-    filter ``WHERE t.dist <= max_distance`` is applied here (after the top-k
-    HNSW fetch) to drop candidates that are close in rank but too far in L2
-    space.
+    filter ``WHERE t.dist >= min_similarity`` is applied here (after the top-k
+    HNSW fetch) to drop candidates that are close in rank but below the cosine
+    similarity threshold.
 
     Example for two ~ properties in two groups::
 
@@ -603,13 +603,13 @@ def _build_vector_traits_cte(
                  o.entity_pk, o.observation_id, o.entity_type, 't.1' AS group_id
           FROM vector_top_k_t_1_1 t
           JOIN testdb.sys_ent_2_obs o ON t.entity_pk = o.entity_pk
-          WHERE t.dist <= 0.3
+          WHERE t.dist >= 0.7
           UNION ALL
           SELECT t.property_name, t.property_value,
                  o.entity_pk, o.observation_id, o.entity_type, 't.2' AS group_id
           FROM vector_top_k_t_2_1 t
           JOIN testdb.sys_ent_2_obs o ON t.entity_pk = o.entity_pk
-          WHERE t.dist <= 0.3
+          WHERE t.dist >= 0.7
         )
 
     Output schema matches ``entities_with_exact_traits`` exactly so they can
@@ -627,10 +627,10 @@ def _build_vector_traits_cte(
     for _cte_sql, cte_name, group_id, distance in top_k_entries:
         union_parts.append(
             f"SELECT t.property_name, t.property_value,"
-            f" o.entity_pk, o.observation_id, o.entity_type, '{group_id}' AS group_id"
+            f" o.entity_pk, o.observation_id, o.entity_type, '{group_id}' AS group_id, t.dist"
             f" FROM {cte_name} t"
             f" JOIN {database}.{sys_ent_2_obs_map} o ON t.entity_pk = o.entity_pk"
-            f" WHERE t.dist <= {distance}"
+            f" WHERE t.dist >= {distance}"
         )
     return Sql(
         "entities_with_vector_traits AS ("
@@ -643,7 +643,7 @@ def _build_entities_with_traits_cte(
     view: str,
     plan: QueryPlan,
     embeddings: Optional[EmbeddingMap],
-    max_distance: float,
+    min_similarity: float,
     top_k: int,
 ) -> Optional[Sql]:
     """Build the complete trait-match CTE chain and return it as one Sql block.
@@ -696,7 +696,7 @@ def _build_entities_with_traits_cte(
 
     top_k_entries: List[Tuple[str, str, str, float]] = []
     if embeddings is not None:
-        top_k_entries = _build_vector_top_k_ctes(view, plan, embeddings, top_k, max_distance)
+        top_k_entries = _build_vector_top_k_ctes(view, plan, embeddings, top_k, min_similarity)
     vector_cte = _build_vector_traits_cte(top_k_entries) if top_k_entries else None
 
     has_exact  = exact_cte is not None
@@ -770,7 +770,7 @@ def _build_entities_without_traits_cte(plan: QueryPlan) -> Optional[Sql]:
         Sql()
         + "entities_without_traits AS ("
         + "SELECT NULL AS property_name, NULL AS property_value,"
-        + "  o.entity_pk, o.observation_id, o.entity_type, c.group_id"
+        + "  o.entity_pk, o.observation_id, o.entity_type, c.group_id, NULL AS dist"
         + f"FROM {database}.{sys_ent_2_obs_map} o"
         + "JOIN entity_conditions c ON LOWER(o.entity_type) = LOWER(c.entity_type)"
         + "WHERE c.group_id IS NOT NULL AND o.entity_type IN :no_trait_filter"
@@ -873,7 +873,7 @@ def _build_entity_matches_cte() -> Sql:
     """
     return Sql(
         "entity_matches AS ("
-        "SELECT observation_id, entity_pk, group_id, COUNT(*) AS matched_props "
+        "SELECT observation_id, entity_pk, group_id, COUNT(*) AS matched_props, MAX(dist) AS max_similarity "
         "FROM entities "
         "GROUP BY observation_id, entity_pk, group_id)"
     )
@@ -884,7 +884,7 @@ def _build_eql_preamble(
     start_date: Optional[datetime],
     end_date: Optional[datetime],
     embeddings: Optional[EmbeddingMap],
-    max_distance: float = DEFAULT_MAX_VECTOR_DISTANCE,
+    min_similarity: float = DEFAULT_MIN_VECTOR_SIMILARITY,
     top_k: int = DEFAULT_TOP_K,
 ) -> Sql:
     """Build the shared CTE chain that all four ``build_select_*`` functions start with.
@@ -921,7 +921,7 @@ def _build_eql_preamble(
     # Build the two major arms first so we know which ones exist before
     # constructing the entities UNION CTE.
     traits_chain = _build_entities_with_traits_cte(
-        "last_property_values", plan, embeddings, max_distance, top_k
+        "last_property_values", plan, embeddings, min_similarity, top_k
     )
     no_traits_cte = _build_entities_without_traits_cte(plan)
     entities_cte  = _build_entities_union_cte(
@@ -1055,13 +1055,14 @@ def build_select_observation_will_all_entities(
         + "SELECT em.observation_id,"
         + "  COUNT(DISTINCT em.group_id) AS no_of_entities,"
         + "  SUM(em.matched_props) AS no_of_matched_props,"
-        + "  GROUP_CONCAT(DISTINCT em.entity_pk) AS entity_pks"
+        + "  GROUP_CONCAT(DISTINCT em.entity_pk) AS entity_pks,"
+        + "  MAX(em.max_similarity) AS max_similarity"
         + "FROM entity_matches em"
         + "JOIN group_requirements gr ON em.group_id = gr.group_id"
         + "WHERE em.matched_props >= gr.required_props"
         + "GROUP BY em.observation_id"
         + f"HAVING no_of_entities >= {no_of_entities}"
-        + "ORDER BY no_of_matched_props DESC"
+        + "ORDER BY max_similarity DESC NULLS LAST, no_of_matched_props DESC"
     )
 
 
@@ -1115,7 +1116,8 @@ def build_select_observations_with_eql(
         + "matching_entities AS ("
         + "SELECT em.observation_id,"
         + "  COUNT(DISTINCT em.group_id) AS no_of_entities,"
-        + "  SUM(em.matched_props) AS no_of_matched_props"
+        + "  SUM(em.matched_props) AS no_of_matched_props,"
+        + "  MAX(em.max_similarity) AS max_similarity"
         + "FROM entity_matches em"
         + "JOIN group_requirements gr ON em.group_id = gr.group_id"
         + "WHERE em.matched_props >= gr.required_props"
@@ -1132,10 +1134,10 @@ def build_select_observations_with_eql(
         + f"  o.{sys_obs | FlatObs.SUMMARY} AS summary,"
         + f"  o.{sys_obs | FlatObs.DESCRIPTION} AS description,"
         + f"  o.{sys_obs | FlatObs.ENTITIES},"
-        + "  matched.no_of_entities, matched.no_of_matched_props"
+        + "  matched.no_of_entities, matched.no_of_matched_props, matched.max_similarity"
         + "FROM matching_entities AS matched"
         + f"JOIN {database}.{sys_obs} AS o ON o.{sys_obs | FlatObs.ID} = matched.observation_id"
-        + "ORDER BY matched.no_of_matched_props DESC"
+        + "ORDER BY matched.max_similarity DESC NULLS LAST, matched.no_of_matched_props DESC"
     )
 
 

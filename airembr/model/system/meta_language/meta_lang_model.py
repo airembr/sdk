@@ -6,7 +6,7 @@ class MetaLangProperty(BaseModel):
     name: str
     assign: str  # "=", "~", or ":"
     value: Any
-    distance: Optional[float] = None  # only for ~; None means use DEFAULT_MAX_VECTOR_DISTANCE
+    distance: Optional[float] = None  # only for ~; None means use DEFAULT_MIN_VECTOR_SIMILARITY
 
     def __str__(self) -> str:
         dist = f"[{self.distance}]" if self.distance is not None else ""
