@@ -29,7 +29,10 @@ return_entity: ENTITY_NAME
 // ---------------- Entities ----------------
 entity: ENTITY_NAME LPAR [pair (sep pair)*] RPAR
 sep: ","
-pair: PROPERTY_NAME ASSIGN value
+dist_spec: "[" NUMBER "]"
+pair: PROPERTY_NAME ASSIGN dist_spec value
+    | PROPERTY_NAME ASSIGN value dist_spec
+    | PROPERTY_NAME ASSIGN value
 
 ENTITY_NAME: CNAME
 PROPERTY_NAME: /[a-zA-Z_$!][a-zA-Z0-9_$!]*/ ("." /[a-zA-Z_$!][a-zA-Z0-9_$!]*/)*

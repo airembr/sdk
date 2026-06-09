@@ -206,7 +206,8 @@ class StarrocksEntityPropertyAdapter(BdEntityHistoryAdapter):
     async def load_expanded_entities_with_eql(self, eql_object, entity_types: list, unmatched_entities: int = 0,
                                               unmatched_traits: int = 0,
                                               start_date: Optional[datetime] = None,
-                                              end_date: Optional[datetime] = None):
+                                              end_date: Optional[datetime] = None,
+                                              traits_source: str = "ent_state"):
         embeddings = await self._prepare_embeddings(eql_object)
         sql = build_select_expanded_entities_from_observations(
             eql_object,
@@ -215,7 +216,8 @@ class StarrocksEntityPropertyAdapter(BdEntityHistoryAdapter):
             unmatched_traits,
             start_date=start_date,
             end_date=end_date,
-            embeddings=embeddings)
+            embeddings=embeddings,
+            traits_source=traits_source)
         return await self.adapter.exec(sql)
 
     async def load_observations_with_eql(self, eql_object, unmatched_entities: int = 0, unmatched_traits: int = 0,

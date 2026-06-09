@@ -4,6 +4,9 @@ from lark import Transformer, Token
 from airembr.model.system.meta_language.meta_lang_model import MetaLangEntity, MetaLangGroup, MetaLangLogic, MetaLangProperty, MetaLangQuery
 
 
+class _DistSpec(float):
+    """Sentinel wrapper so dist_spec floats are distinguishable from value floats in pair()."""
+
 
 def _is_valid_operand(a) -> bool:
     """Reject Tokens and un-transformed Trees — keep only AST nodes."""
@@ -40,9 +43,22 @@ class EQLTransformer(Transformer):
 
     # ---- Pairs / Entities --------------------------------------------------
 
+    def dist_spec(self, args):
+        val = float(args[0])
+        if not (0.0 <= val <= 1.0):
+            raise ValueError(f"Similarity distance must be between 0 and 1, got {val}")
+        return _DistSpec(val)
+
     def pair(self, args):
-        # args: [PROPERTY_NAME, ASSIGN, value]
-        return MetaLangProperty(name=str(args[0]), assign=str(args[1]), value=args[2])
+        distance = None
+        clean = []
+        for a in args:
+            if isinstance(a, _DistSpec):
+                distance = float(a)
+            else:
+                clean.append(a)
+        # clean is always [PROPERTY_NAME, ASSIGN, value]
+        return MetaLangProperty(name=str(clean[0]), assign=str(clean[1]), value=clean[2], distance=distance)
 
     def sep(self, _args):
         return None

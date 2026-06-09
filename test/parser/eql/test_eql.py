@@ -305,3 +305,69 @@ class TestAssignOperators:
         assert props[1].name == "$type"
         assert props[1].assign == "="
         assert props[1].value == "city"
+
+
+# ---------------------------------------------------------------------------
+# Similarity distance tests
+# ---------------------------------------------------------------------------
+
+class TestSimilarityDistance:
+
+    def test_distance_before_value(self, parse):
+        result = parse('location($name~[0.5]"Wroclaw")')
+        prop = result.query.properties[0]
+        assert prop.assign == "~"
+        assert prop.distance == 0.5
+        assert prop.value == "Wroclaw"
+
+    def test_distance_after_value(self, parse):
+        result = parse('location($name~"Wroclaw"[.32])')
+        prop = result.query.properties[0]
+        assert prop.assign == "~"
+        assert prop.distance == pytest.approx(0.32)
+        assert prop.value == "Wroclaw"
+
+    def test_no_distance_defaults_to_none(self, parse):
+        result = parse('location($name~"Wroclaw")')
+        prop = result.query.properties[0]
+        assert prop.assign == "~"
+        assert prop.distance is None
+
+    def test_exact_match_has_no_distance(self, parse):
+        result = parse('location($name="Wroclaw")')
+        prop = result.query.properties[0]
+        assert prop.assign == "="
+        assert prop.distance is None
+
+    def test_colon_match_has_no_distance(self, parse):
+        result = parse('location($name:"Wroclaw")')
+        prop = result.query.properties[0]
+        assert prop.assign == ":"
+        assert prop.distance is None
+
+    def test_distance_boundary_zero(self, parse):
+        result = parse('location($name~[0]"Wroclaw")')
+        assert result.query.properties[0].distance == 0.0
+
+    def test_distance_boundary_one(self, parse):
+        result = parse('location($name~[1]"Wroclaw")')
+        assert result.query.properties[0].distance == 1.0
+
+    def test_distance_out_of_range_raises(self, parse):
+        with pytest.raises((ValueError, Exception)):
+            parse('location($name~[1.5]"Wroclaw")')
+
+    def test_per_property_distances_independent(self, parse):
+        result = parse('location($name~[0.4]"Wroclaw", $type~"city"[0.2])')
+        props = result.query.properties
+        assert props[0].distance == pytest.approx(0.4)
+        assert props[1].distance == pytest.approx(0.2)
+
+    def test_distance_on_vector_exact_mix(self, parse):
+        result = parse('location($name~[0.4]"Wroclaw") AND person($age=30)')
+        from airembr.model.system.meta_language.meta_lang_model import MetaLangLogic
+        assert isinstance(result.query, MetaLangLogic)
+        loc_entity = result.query.group.entities[0]
+        person_entity = result.query.group.entities[1]
+        assert loc_entity.properties[0].distance == pytest.approx(0.4)
+        assert person_entity.properties[0].distance is None

@@ -503,7 +503,8 @@ def _build_vector_top_k_ctes(
     plan: QueryPlan,
     embeddings: EmbeddingMap,
     top_k: int,
-) -> List[Tuple[str, str, str]]:
+    max_distance: float,
+) -> List[Tuple[str, str, str, float]]:
     """Build one ANN top-k CTE per ``~`` property that has a known embedding.
 
     For each ``~`` property whose ``(entity_type, prop_name, value)`` key
@@ -535,7 +536,7 @@ def _build_vector_top_k_ctes(
     ``~`` property within the group (so two ``~`` props in the same group get
     ``_1`` and ``_2`` suffixes).
 
-    Returns a list of ``(cte_sql_string, cte_name, group_id)`` triples.
+    Returns a list of ``(cte_sql_string, cte_name, group_id, distance)`` 4-tuples.
     The caller assembles them into a ``Sql`` object and builds the
     ``entities_with_vector_traits`` UNION on top.
 
@@ -548,7 +549,7 @@ def _build_vector_top_k_ctes(
     tv_text_id = tv_map | FlatTextVector.TEXT_ID
     tv_vector  = tv_map | FlatTextVector.VECTOR
 
-    entries: List[Tuple[str, str, str]] = []
+    entries: List[Tuple[str, str, str, float]] = []
     for group in plan.trait_groups:
         prop_idx = 0
         for prop in group.properties:
@@ -578,13 +579,13 @@ def _build_vector_top_k_ctes(
                 f"ORDER BY dist "          # triggers HNSW index
                 f"LIMIT {top_k})"         # cap candidates before distance filter
             )
-            entries.append((cte_sql, cte_name, group.group_id))
+            distance = prop.distance if prop.distance is not None else max_distance
+            entries.append((cte_sql, cte_name, group.group_id, distance))
     return entries
 
 
 def _build_vector_traits_cte(
-    top_k_entries: List[Tuple[str, str, str]],
-    max_distance: float,
+    top_k_entries: List[Tuple[str, str, str, float]],
 ) -> Optional[Sql]:
     """Build ``entities_with_vector_traits`` as a UNION ALL of top-k results.
 
@@ -623,13 +624,13 @@ def _build_vector_traits_cte(
     sys_ent_2_obs_map = sys_ent_2_obs()
 
     union_parts = []
-    for _cte_sql, cte_name, group_id in top_k_entries:
+    for _cte_sql, cte_name, group_id, distance in top_k_entries:
         union_parts.append(
             f"SELECT t.property_name, t.property_value,"
             f" o.entity_pk, o.observation_id, o.entity_type, '{group_id}' AS group_id"
             f" FROM {cte_name} t"
             f" JOIN {database}.{sys_ent_2_obs_map} o ON t.entity_pk = o.entity_pk"
-            f" WHERE t.dist <= {max_distance}"
+            f" WHERE t.dist <= {distance}"
         )
     return Sql(
         "entities_with_vector_traits AS ("
@@ -693,10 +694,10 @@ def _build_entities_with_traits_cte(
 
     exact_cte = _build_exact_traits_cte(view, plan)
 
-    top_k_entries: List[Tuple[str, str, str]] = []
+    top_k_entries: List[Tuple[str, str, str, float]] = []
     if embeddings is not None:
-        top_k_entries = _build_vector_top_k_ctes(view, plan, embeddings, top_k)
-    vector_cte = _build_vector_traits_cte(top_k_entries, max_distance) if top_k_entries else None
+        top_k_entries = _build_vector_top_k_ctes(view, plan, embeddings, top_k, max_distance)
+    vector_cte = _build_vector_traits_cte(top_k_entries) if top_k_entries else None
 
     has_exact  = exact_cte is not None
     has_vector = vector_cte is not None
@@ -709,7 +710,7 @@ def _build_entities_with_traits_cte(
     cte_sqls: List[Sql] = []
     if exact_cte is not None:
         cte_sqls.append(exact_cte)
-    for cte_sql_str, _name, _gid in top_k_entries:
+    for cte_sql_str, _name, _gid, _dist in top_k_entries:
         cte_sqls.append(Sql(cte_sql_str))
     if vector_cte is not None:
         cte_sqls.append(vector_cte)
@@ -1146,42 +1147,33 @@ def build_select_expanded_entities_from_observations(
     start_date: Optional[datetime] = None,
     end_date: Optional[datetime] = None,
     embeddings: Optional[EmbeddingMap] = None,
+    traits_source: str = "ent_state",
 ) -> Sql:
     """Return a query that yields entity state rows for entities inside qualifying observations.
 
-    Use this when you need the full entity data (traits snapshot from
-    ``sys_ent_state``), not just observation metadata.  The query finds
-    qualifying observations via the standard two-level aggregation, then
-    collects ALL entities linked to those observations via ``sys_ent_2_obs``,
-    and finally LEFT JOINs ``sys_ent_state`` to bring in the latest traits
-    snapshot for each entity.
+    Use this when you need the full entity data, not just observation metadata.
+    The query finds qualifying observations via the standard two-level aggregation,
+    then collects ALL entities linked to those observations via ``sys_ent_2_obs``,
+    and finally fetches traits according to ``traits_source``.
 
     Only entities whose ``entity_type`` appears in ``entity_types`` are returned.
     This lets callers request a subset (e.g. only ``["location", "person"]``) from
     an observation that may contain many more entity types.
 
-    Terminal section (after the preamble):
-
-    .. code-block:: sql
-
-        qualifying_observations AS ( ... HAVING COUNT(DISTINCT group_id) >= N ),
-        all_obs_entities AS (
-          SELECT eo.observation_id, eo.entity_pk, eo.entity_type
-          FROM testdb.sys_ent_2_obs eo
-          JOIN qualifying_observations q ON eo.observation_id = q.observation_id
-        )
-        SELECT a.observation_id, a.entity_pk, a.entity_type, s.ts, s.traits
-        FROM all_obs_entities a
-        LEFT JOIN testdb.sys_ent_state s ON s.entity_pk = a.entity_pk
-        WHERE a.entity_type IN ('location', 'person')
-        ORDER BY a.observation_id, a.entity_type, a.entity_pk
-
     Parameters
     ----------
+    traits_source:
+        ``"ent_state"`` (default) — LEFT JOIN ``sys_ent_state`` for stitched,
+        cross-observer traits.  Traits are NULL until the background stitching
+        worker has run for a given entity.
+
+        ``"property_state"`` — build traits inline from ``last_property_values``
+        using ``TO_JSON(MAP_AGG(property_name, property_value))``.  Traits are
+        available immediately after ingestion but reflect only the current
+        observer window used by the preamble CTE.
     entity_types:
         Allowlist of entity types to include in the output.  Independent of
-        the entity types in the EQL query — you may request types that were not
-        part of the search predicate.
+        the entity types in the EQL query.
     All other parameters are the same as ``build_select_observation_will_all_entities``.
     """
     plan = QueryPlan.from_entities(entities, unmatched_traits)
@@ -1189,23 +1181,50 @@ def build_select_expanded_entities_from_observations(
     preamble = _build_eql_preamble(plan, start_date, end_date, embeddings)
 
     database = current_bd_database_name()
-    sys_ent_state_map = sys_ent_state()
+    qualifying_ctes = _build_qualifying_observations_ctes(no_of_entities)
 
-    return (
-        preamble + ","
-        + _build_qualifying_observations_ctes(no_of_entities)
-        + "SELECT"
-        + "  a.observation_id,"
-        + "  a.entity_pk,"
-        + "  a.entity_type,"
-        + "  s.ts,"
-        + "  s.traits"
-        + "FROM all_obs_entities a"
-        + f"LEFT JOIN {database}.{sys_ent_state_map} s ON s.entity_pk = a.entity_pk"
-        + "WHERE a.entity_type IN :entity_types"
-        + "ORDER BY a.observation_id, a.entity_type, a.entity_pk"
-        + Param({"entity_types": tuple(entity_types)})
-    )
+    if traits_source == "property_state":
+        entity_props_agg_cte = (
+            Sql()
+            + "entity_props_agg AS ("
+            + "SELECT lpv.entity_pk,"
+            + "       TO_JSON(MAP_AGG(lpv.property_name, lpv.property_value)) AS traits"
+            + "FROM last_property_values lpv"
+            + "GROUP BY lpv.entity_pk)"
+        )
+        return (
+            preamble + ","
+            + qualifying_ctes + ","
+            + entity_props_agg_cte
+            + "SELECT"
+            + "  a.observation_id,"
+            + "  a.entity_pk,"
+            + "  a.entity_type,"
+            + "  NULL AS ts,"
+            + "  epa.traits"
+            + "FROM all_obs_entities a"
+            + "LEFT JOIN entity_props_agg epa ON epa.entity_pk = a.entity_pk"
+            + "WHERE a.entity_type IN :entity_types"
+            + "ORDER BY a.observation_id, a.entity_type, a.entity_pk"
+            + Param({"entity_types": tuple(entity_types)})
+        )
+    else:  # "ent_state"
+        sys_ent_state_map = sys_ent_state()
+        return (
+            preamble + ","
+            + qualifying_ctes
+            + "SELECT"
+            + "  a.observation_id,"
+            + "  a.entity_pk,"
+            + "  a.entity_type,"
+            + "  s.ts,"
+            + "  s.traits"
+            + "FROM all_obs_entities a"
+            + f"LEFT JOIN {database}.{sys_ent_state_map} s ON s.entity_pk = a.entity_pk"
+            + "WHERE a.entity_type IN :entity_types"
+            + "ORDER BY a.observation_id, a.entity_type, a.entity_pk"
+            + Param({"entity_types": tuple(entity_types)})
+        )
 
 
 def build_select_entity_types_from_observations(

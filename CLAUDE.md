@@ -44,9 +44,9 @@ Used by server processes, workers, and internal tooling. Heavy dependencies.
 ## Infrastructure
 
 The service stack runs via Docker Compose:
-- **GUI** — `http://localhost:14000`
-- **GUI API** — `http://localhost:14001`
-- **Collector API** (observation ingestion endpoint) — `http://localhost:14002`
+- **GUI** — `http://localhost:4000`
+- **GUI API** — `http://localhost:4001`
+- **Collector API** (observation ingestion endpoint) — `http://localhost:4002`
 - **Redis** — `localhost:6379` (conversation memory)
 - **StarRocks** — `localhost:9030/8030/8040` (analytical/big-data storage)
 

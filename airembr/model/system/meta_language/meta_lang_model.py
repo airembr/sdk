@@ -6,13 +6,15 @@ class MetaLangProperty(BaseModel):
     name: str
     assign: str  # "=", "~", or ":"
     value: Any
+    distance: Optional[float] = None  # only for ~; None means use DEFAULT_MAX_VECTOR_DISTANCE
 
     def __str__(self) -> str:
+        dist = f"[{self.distance}]" if self.distance is not None else ""
         if isinstance(self.value, bool):
-            return f'{self.name}{self.assign}{"true" if self.value else "false"}'
+            return f'{self.name}{self.assign}{dist}{"true" if self.value else "false"}'
         if isinstance(self.value, (int, float)):
-            return f'{self.name}{self.assign}{self.value}'
-        return f'{self.name}{self.assign}"{self.value}"'
+            return f'{self.name}{self.assign}{dist}{self.value}'
+        return f'{self.name}{self.assign}{dist}"{self.value}"'
 
 
 class MetaLangEntityBase(BaseModel):
