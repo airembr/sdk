@@ -5,7 +5,7 @@ from airembr.system.adapter.bigdata.general.utils.mapping import sys_text_mappin
 from airembr.system.adapter.bigdata.starrocks.utils.sql_text import load_not_embedded_texts_sql, load_all_texts_sql, \
     load_not_summarized_texts_sql, load_texts_by_source_sql, count_texts_by_source_sql, count_not_summarized_texts_sql, \
     count_not_embedded_texts_sql, count_to_ner_texts_sql, load_to_ner_texts_sql, update_required_ner_texts_sql, \
-    load_texts_to_chunk_sql, count_texts_to_chunk_sql, update_chunked_text_sql
+    load_texts_to_chunk_sql, count_texts_to_chunk_sql, update_chunked_text_sql, update_chunked_texts_sql
 
 
 class StarrocksTextAdapter(AdapterRouter):
@@ -65,6 +65,10 @@ class StarrocksTextAdapter(AdapterRouter):
 
     async def update_chunked(self, text_id: str):
         sql = update_chunked_text_sql(text_id)
+        return await self.adapter.exec(sql)
+
+    async def update_chunked_many(self, text_ids: List[str]):
+        sql = update_chunked_texts_sql(text_ids)
         return await self.adapter.exec(sql)
 
     async def update_required_ner_texts(self, text_id: str, model: str):

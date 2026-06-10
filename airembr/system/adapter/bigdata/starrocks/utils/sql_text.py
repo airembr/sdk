@@ -161,6 +161,18 @@ def update_chunked_text_sql(text_id: str):
     )
 
 
+def update_chunked_texts_sql(text_ids: List[str]):
+    database = current_bd_database_name()
+    sys_text = sys_text_mapping()
+    return (
+            Sql()
+            + f"UPDATE {database}.{sys_text}"
+            + f"SET {sys_text | FlatText.CHUNKED} = true"
+            + f"  WHERE {sys_text | FlatText.ID} IN :text_ids"
+            + Param({"text_ids": tuple(text_ids)})
+    )
+
+
 def update_required_ner_texts_sql(text_id: str, model: str):
     database = current_bd_database_name()
     sys_text = sys_text_mapping()

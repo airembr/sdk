@@ -122,20 +122,12 @@ def _render_text(observation_id, obs):
     if summaries:
         lines.append("Summaries:")
         for s in summaries:
-            if isinstance(s, dict):
-                sim_str = f" [{s['similarity']*100:.2f}%]" if s.get('similarity') else ''
-                lines.append(f"  -{sim_str} {s['text']}")
-            else:
-                lines.append(f"  - {s}")
+            lines.append(f"  - {s['text']}")
 
     if descriptions:
         lines.append("Descriptions:")
         for d in descriptions:
-            if isinstance(d, dict):
-                sim_str = f" [{d['similarity']*100:.2f}%]" if d.get('similarity') else ''
-                lines.append(f"  -{sim_str} {d['text']}")
-            else:
-                lines.append(f"  - {d}")
+            lines.append(f"  - {d['text']}")
 
     return lines
 
