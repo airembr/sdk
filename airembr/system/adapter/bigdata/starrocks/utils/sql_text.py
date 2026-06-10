@@ -108,6 +108,19 @@ def count_to_ner_texts_sql():
             + f"  WHERE t.{sys_text | FlatText.REQUIRE_NER} = true AND t.{sys_text | FlatText.MODEL} IS NULL AND t.{sys_text | FlatText.OBSERVATION_ID} IS NOT NULL"
     )
 
+def count_texts_to_chunk_sql():
+    database = current_bd_database_name()
+    sys_text = sys_text_mapping()
+    sys_text_vector = sys_text_vector_mapping()
+
+    return (
+            Sql()
+            + "  SELECT COUNT(*) count"
+            + f"  FROM {database}.{sys_text} t"
+            + f"   LEFT JOIN {database}.{sys_text_vector} as v ON v.{sys_text_vector | FlatTextVector.TEXT_ID} = t.{sys_text | FlatText.ID}"
+            + f"  WHERE t.{sys_text | FlatText.CHUNKED} = false AND t.{sys_text | FlatText.PARENT_ID} IS NULL"
+    )
+
 
 def load_to_ner_texts_sql():
     database = current_bd_database_name()
@@ -122,6 +135,31 @@ def load_to_ner_texts_sql():
             + f"  WHERE t.{sys_text | FlatText.REQUIRE_NER} = true AND t.{sys_text | FlatText.MODEL} IS NULL AND t.{sys_text | FlatText.OBSERVATION_ID} IS NOT NULL"
     )
 
+def load_texts_to_chunk_sql():
+    database = current_bd_database_name()
+    sys_text = sys_text_mapping()
+    sys_text_vector = sys_text_vector_mapping()
+
+    return (
+            Sql()
+            + "  SELECT *"
+            + f"  FROM {database}.{sys_text} t"
+            + f"   LEFT JOIN {database}.{sys_text_vector} as v ON v.{sys_text_vector | FlatTextVector.TEXT_ID} = t.{sys_text | FlatText.ID}"
+            + f"  WHERE t.{sys_text | FlatText.CHUNKED} = false AND t.{sys_text | FlatText.PARENT_ID} IS NULL"
+    )
+
+
+def update_chunked_text_sql(text_id: str):
+    database = current_bd_database_name()
+    sys_text = sys_text_mapping()
+    return (
+            Sql()
+            + f"UPDATE {database}.{sys_text}"
+            + f"SET {sys_text | FlatText.CHUNKED} = true"
+            + f"  WHERE {sys_text | FlatText.ID} = :text_id"
+            + Param({"text_id": text_id})
+    )
+
 
 def update_required_ner_texts_sql(text_id: str, model: str):
     database = current_bd_database_name()
@@ -131,7 +169,7 @@ def update_required_ner_texts_sql(text_id: str, model: str):
             + f"UPDATE {database}.{sys_text}"
             + f"SET {sys_text | FlatText.REQUIRE_NER} = false, {sys_text | FlatText.MODEL} = :model"
             + f"  WHERE {sys_text | FlatText.ID} = :text_id"
-            + Param({"text_id": text_id, "model":model})
+            + Param({"text_id": text_id, "model": model})
     )
 
 
@@ -153,7 +191,7 @@ def similar_texts_sql(query_vector: List[float], limit: int = 10):
     )
 
 
-def similar_observations_sql(query_vector: List[float], limit: int = 10):
+def similar_observations_sql(query_vector: List[float], limit: int = 10, similarity:float = .7):
     database = current_bd_database_name()
     sys_text = sys_text_mapping()
     sys_text_vector = sys_text_vector_mapping()
@@ -162,18 +200,20 @@ def similar_observations_sql(query_vector: List[float], limit: int = 10):
     return (
             Sql()
             + f"  SELECT"
-            + f"    t.{sys_text | FlatText.OBSERVATION_ID} AS observation_id,"
-            + f"    approx_cosine_similarity(v.{sys_text_vector | FlatTextVector.VECTOR}, {vector_str}) AS similarity,"
-            + f"    o.{sys_obs | FlatObs.ID} AS obs_id,"
+            + f"    t.{sys_text | FlatText.OBSERVATION_ID} AS id,"
+            + f"    approx_cosine_similarity(v.{sys_text_vector | FlatTextVector.VECTOR}, {vector_str}) AS max_similarity,"
             + f"    o.{sys_obs | FlatObs.DESCRIPTION} AS description,"
             + f"    o.{sys_obs | FlatObs.SUMMARY} AS summary,"
+            + f"    o.{sys_obs | FlatObs.METADATA_TIME_CREATE} AS metadata_time_create,"
+            + f"    o.{sys_obs | FlatObs.METADATA_TIME_INSERT} AS metadata_time_insert,"
             + f"    o.{sys_obs | FlatObs.LABEL} AS label"
             + f"  FROM {database}.{sys_text_vector} v"
             + f"  JOIN {database}.{sys_text} t ON v.{sys_text_vector | FlatTextVector.TEXT_ID} = t.{sys_text | FlatText.ID}"
             + f"  JOIN {database}.{sys_obs} o ON t.{sys_text | FlatText.OBSERVATION_ID} = o.{sys_obs | FlatObs.ID}"
+            + f"  WHERE approx_cosine_similarity(v.{sys_text_vector | FlatTextVector.VECTOR}, {vector_str}) >= :similarity"
             + f"  ORDER BY approx_cosine_similarity(v.{sys_text_vector | FlatTextVector.VECTOR}, {vector_str}) DESC"
             + f"  LIMIT :limit"
-            + Param({"limit": limit})
+            + Param({"limit": limit, "similarity": similarity})
     )
 
 

@@ -28,3 +28,5 @@ pytimeparse
 
 # Required by AI
 instructor
+semchunk
+tiktoken

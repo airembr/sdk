@@ -8,6 +8,7 @@ class FlatText(DotDict):
     TEXT = "text_string"
     TAGS = "tags"
     REQUIRE_NER = "require_ner"
+    CHUNKED = "chunked"
     MODEL = "model"
     TS = "ts"
 

@@ -288,24 +288,61 @@ class BdObservationAdapter(AdapterRouter):
 
         return result
 
-    async def load_observations_entity_states_by_observation_id(self, obs_ids: List[str]) -> Optional[DotDictStream]:
+    async def load_observations_entity_states_by_observation_id(self, obs_ids: List[str], order_by: Optional[str] = None) -> Optional[DotDictStream]:
         _sys_ent_2_obs = sys_ent_2_obs()
         _sys_ent_2_text = sys_ent_2_text_mapping()
         _sys_ent_state = sys_ent_state()
         _sys_obs = sys_obs_mapping()
         database = current_bd_database_name()
+
+        if not order_by:
+            order_by = "o.metadata_time_create DESC"
+
         sql = (
                 Sql()
-                + f"SELECT e2o.*, es.traits, es.stitch_ts, "
-                  f"o.description, o.summary, o.label, "
-                  f"o.metadata_time_create, o.metadata_time_insert"
+                + f"SELECT e2o.*"
+                + ", es.traits, es.stitch_ts"
+                + ", o.description, o.summary, o.label, o.metadata_time_create, o.metadata_time_insert"
                 + f"FROM {database}.{_sys_ent_2_obs} AS e2o"
                 + f"JOIN {database}.{_sys_obs} AS o "
                   f"  ON o.{_sys_obs | FlatObs.ID}= e2o.{_sys_ent_2_obs | FlatEntity2Observation.OBSERVATION_ID}"
                 + f"LEFT JOIN {database}.{_sys_ent_state} AS es"
                   f"  ON es.{_sys_ent_state | FlatEntityState.PK}= e2o.{_sys_ent_2_obs | FlatEntity2Observation.ENTITY_PK}"
                 + f"WHERE e2o.{_sys_ent_2_obs | FlatEntity2Observation.OBSERVATION_ID} IN :obs_ids"
-                + f"ORDER BY o.metadata_time_create DESC"
+                + f"ORDER BY {order_by}"
+                + "LIMIT 500"
+                + Param({"obs_ids": tuple(obs_ids)})
+        )
+
+        result = await self.adapter.exec(sql)
+        if not result:
+            return None
+
+        return result
+
+
+    async def load_observations_entities_by_observation_id(self, obs_ids: List[str], order_by: Optional[str] = None) -> Optional[DotDictStream]:
+
+        # No connection to observations as there may be many, with different descriptions.
+
+        _sys_ent_2_obs = sys_ent_2_obs()
+        _sys_ent_2_text = sys_ent_2_text_mapping()
+        _sys_ent_state = sys_ent_state()
+        _sys_obs = sys_obs_mapping()
+        database = current_bd_database_name()
+
+        if not order_by:
+            order_by = "o.metadata_time_create DESC"
+
+        sql = (
+                Sql()
+                + f"SELECT e2o.*"
+                + ", es.traits, es.stitch_ts"
+                + f"FROM {database}.{_sys_ent_2_obs} AS e2o"
+                + f"LEFT JOIN {database}.{_sys_ent_state} AS es"
+                  f"  ON es.{_sys_ent_state | FlatEntityState.PK}= e2o.{_sys_ent_2_obs | FlatEntity2Observation.ENTITY_PK}"
+                + f"WHERE e2o.{_sys_ent_2_obs | FlatEntity2Observation.OBSERVATION_ID} IN :obs_ids"
+                + f"ORDER BY {order_by}"
                 + "LIMIT 500"
                 + Param({"obs_ids": tuple(obs_ids)})
         )

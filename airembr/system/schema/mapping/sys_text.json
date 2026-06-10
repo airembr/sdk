@@ -55,6 +55,14 @@
       "sr_column_type": "boolean",
       "ddb_column_type": "BOOLEAN",
       "property": "require_ner",
+      "default_value": "'0'",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "chunked",
+      "sr_column_type": "boolean",
+      "ddb_column_type": "BOOLEAN",
+      "property": "chunked",
       "default_value": "'0'"
     },
     {

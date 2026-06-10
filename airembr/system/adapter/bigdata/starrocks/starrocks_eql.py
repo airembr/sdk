@@ -1065,7 +1065,7 @@ def build_select_observation_will_all_entities(
         + "ORDER BY max_similarity DESC NULLS LAST, no_of_matched_props DESC"
     )
 
-
+# TODO add limit to SQL
 def build_select_observations_with_eql(
     entities: List[MetaLangEntityBase],
     unmatched_entities: int = 0,
@@ -1128,12 +1128,13 @@ def build_select_observations_with_eql(
     return (
         preamble + "," + matching_cte
         + "SELECT"
-        + f"  o.{sys_obs | FlatObs.ID},"
-        + f"  o.{sys_obs | FlatObs.METADATA_TIME_INSERT},"
-        + f"  o.{sys_obs | FlatObs.METADATA_TIME_CREATE},"
+        + f"  o.{sys_obs | FlatObs.ID} AS id,"
+        + f"  o.{sys_obs | FlatObs.METADATA_TIME_INSERT} AS metadata_time_insert,"
+        + f"  o.{sys_obs | FlatObs.METADATA_TIME_CREATE} AS metadata_time_create,"
         + f"  o.{sys_obs | FlatObs.SUMMARY} AS summary,"
         + f"  o.{sys_obs | FlatObs.DESCRIPTION} AS description,"
-        + f"  o.{sys_obs | FlatObs.ENTITIES},"
+        + f"  o.{sys_obs | FlatObs.LABEL} AS label,"
+        + f"  o.{sys_obs | FlatObs.ENTITIES} AS entities,"
         + "  matched.no_of_entities, matched.no_of_matched_props, matched.max_similarity"
         + "FROM matching_entities AS matched"
         + f"JOIN {database}.{sys_obs} AS o ON o.{sys_obs | FlatObs.ID} = matched.observation_id"

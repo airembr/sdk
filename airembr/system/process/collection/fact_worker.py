@@ -206,8 +206,6 @@ async def _save_texts(context,
             FlatEnt2Text.TS: now
         } for text, origin, ner, observation_id, entity_pk in texts]
 
-        print(11, sys_ent_2_text)
-
         ent_2_text_rows = map_to_table_columns(sys_ent_2_text, mapping=_sys_ent_2_text_mapping)
 
         # Save
@@ -225,18 +223,16 @@ async def _save_texts(context,
             FlatText.TEXT: text,
             FlatText.TAGS: [],
             FlatText.REQUIRE_NER: ner,
+            FlatText.CHUNKED: 0,
             FlatText.OBSERVATION_ID: observation_id,
             FlatText.TS: now
         } for text, origin, ner, observation_id, entity_pk in texts]
-
-        print(22, sys_text)
 
         text_rows = map_to_table_columns(sys_text, mapping=_sys_text_mapping)
 
         # Save
         status, total_rows, saved_rows, message = await bd_event_adapter.adapter.stream(text_rows,
                                                                                         _sys_text_mapping)
-        print(status)
         end_time = time()
         logger.stat(
             f"Texts: Saved {saved_rows}, "

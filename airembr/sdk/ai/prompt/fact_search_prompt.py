@@ -95,96 +95,53 @@ def _render_yaml(observations: dict) -> str:
     )
 
 def _render_text(observation_id, obs):
-    lines = [f"Observation: ID: {observation_id}"]
+    lines = [f"Observation ID: {observation_id}"]
 
-    summary = obs.get('summary', '')
-    if summary:
-        lines.append(f"├── Summary: {obs.get('summary', '')}", )
+    create_ts = obs.get('metadata_time_create', None)
+    insert_ts = obs.get('metadata_time_insert', None)
+    score = obs.get('_score') or obs.get('max_similarity')
 
-    description = obs.get('description', '')
-    if description:
-        lines.append(f"├── Description: {obs.get('description', '')}", )
+    if create_ts:
+        lines.append(f"Happened: {create_ts}")
 
-    entities = obs.get("entities", [])
+    if create_ts != insert_ts:
+        lines.append(f"Recorded: {insert_ts}")
 
-    if entities:
-        lines.append("├── Observed Entities", )
-        for entity in entities:
-            entity_id = entity.get("entity_pk")
-            entity_type = entity.get("entity_type")
-            stitch_ts = entity.get("stitch_ts")
+    if score:
+        lines.append(f"Relevance to question: {score*100:.2f}%")
 
-            try:
-                traits = json.loads(entity.get("traits", "{}"))
-            except Exception:
-                traits = {"raw": entity.get("traits")}
+    summaries = obs.get('summaries') or (
+        [{'text': obs['summary'], 'similarity': obs.get('max_similarity')}]
+        if obs.get('summary') else []
+    )
+    descriptions = obs.get('descriptions') or (
+        [{'text': obs['description'], 'similarity': obs.get('max_similarity')}]
+        if obs.get('description') else []
+    )
 
-            lines.extend([
-                f"│   ├── {entity_type} (PK: {entity_id})",
-                f"│   │   ├── When Created: {stitch_ts}",
-                "│   │   ├── Traits",
-            ])
+    if summaries:
+        lines.append("Summaries:")
+        for s in summaries:
+            if isinstance(s, dict):
+                sim_str = f" [{s['similarity']*100:.2f}%]" if s.get('similarity') else ''
+                lines.append(f"  -{sim_str} {s['text']}")
+            else:
+                lines.append(f"  - {s}")
 
-            trait_lines = _render_dict_tree(traits, "│   │   │   ")
-            lines.extend(trait_lines or ["│   │   │   └── None"])
-
-            descriptions = entity.get("descriptions", [])
-
-            if descriptions:
-                lines.append("│   │   └── Description:")
-
-                if descriptions:
-                    for desc in descriptions:
-                        lines.append(
-                            f"│   │       ├── {desc.get('text', '')}"
-                        )
-                else:
-                    lines.append("│   │       └── None")
-
-    facts = obs.get("facts", [])
-
-    if facts:
-        lines.append("└── Facts")
-        for fact in facts:
-            fact = DotDict(fact)
-            ts = fact.get('ts_create', 'Unknown')
-            summary = fact.get(".summary", None)
-            description = fact.get("description", None)
-
-            if not summary and not description:
-                continue
-
-            lines.extend([
-                f"    ├── {ts}",
-            ])
-
-            if fact.get(".summary", None):
-                lines.append(
-                    f"    │   ├── Summary: {fact['summary']}"
-                )
-
-            if (
-                    fact.get("description", None)
-                    and fact.get("description") != fact.get("summary")
-            ):
-                lines.append(
-                    f"    │    └── Description: {fact['description']}"
-                )
-    else:
-        lines.append("    └── None")
+    if descriptions:
+        lines.append("Descriptions:")
+        for d in descriptions:
+            if isinstance(d, dict):
+                sim_str = f" [{d['similarity']*100:.2f}%]" if d.get('similarity') else ''
+                lines.append(f"  -{sim_str} {d['text']}")
+            else:
+                lines.append(f"  - {d}")
 
     return lines
 
-def observations_to_prompt(observations: dict) -> str:
+def observations_to_prompt(observations: list) -> str:
     blocks = []
-
-    for observation_id, obs in observations.items():
-        if isinstance(obs, list):
-            for o in obs:
-                lines = _render_text(observation_id, o)
-                blocks.append("\n".join(lines))
-        else:
-            lines = _render_text(observation_id, obs)
-            blocks.append("\n".join(lines))
-
-    return "\n\n" + ("\n\n" + "=" * 80 + "\n\n").join(blocks)
+    for obs in observations:
+        lines = _render_text(obs.get('id', ''), obs)
+        blocks.append("\n".join(lines))
+    return "\n\n" + ("\n\n" + "---" + "\n\n").join(blocks)

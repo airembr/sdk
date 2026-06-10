@@ -224,9 +224,9 @@ class StarrocksEntityPropertyAdapter(BdEntityHistoryAdapter):
     async def load_observations_with_eql(self, eql_object, unmatched_entities: int = 0, unmatched_traits: int = 0,
                                          start_date: Optional[datetime] = None, end_date: Optional[datetime] = None):
         embeddings = await self._prepare_embeddings(eql_object)
+        # TODO add limit to function
         sql = build_select_observations_with_eql(eql_object, unmatched_entities, unmatched_traits,
                                                  start_date=start_date, end_date=end_date, embeddings=embeddings)
-        print(1, sql.literal())
         return await self.adapter.exec(sql)
 
     async def load_entity_types_with_eql(self, eql_object, unmatched_entities: int = 0, unmatched_traits: int = 0,
@@ -244,16 +244,17 @@ class StarrocksEntityPropertyAdapter(BdEntityHistoryAdapter):
 
     async def load_not_embedded_property_values(self):
         sql = load_not_embedded_property_values_sql()
-        print(1, sql.literal())
         return await self.adapter.exec(sql)
 
-    async def semantic_search(self, query: str, limit: int = 10) -> None:
+    async def semantic_search(self, query: str, limit: int = 10, similarity=.7) -> List[dict]:
         emb_client = EmbeddingApiClient(embedding_host, embedding_api_key)
         response = await asyncio.to_thread(lambda: emb_client.call({"query": query}).get_mapped_embeddings())
         query_vector = response.dense["query"]
 
-        sql = similar_observations_sql(query_vector, limit)
+        sql = similar_observations_sql(query_vector, limit, similarity)
         result = await self.adapter.exec(sql)
 
-        vector_sim_result: List[dict] = [dict(row) for row in result] if result else []
-        return vector_sim_result
+        if not result:
+            return []
+
+        return [dict(row) for row in result]
