@@ -263,13 +263,14 @@ ontology = [
       }
     },
     "properties": {
-      "$name": "Resource title or name.",
+      "$name": "Resource title or name. Tha can be filename, url title, video name, etc.",
       "$type": "Type: file, url, image, video, audio, archive, etc.",
       "$format": "e.g. digital, physical.",
       "$created_at": "Creation timestamp (ISO 8601).",
       "$modified_at": "Last modified timestamp (ISO 8601).",
       "$description": "Short description of the resource content or purpose.",
-      "$label": "Display: $name ($type)."
+      "$label": "Display: $name ($type).",
+      "$path": "Path to the resource on disk, in the Internet, etc. if applicable."
     }
   },
   {
