@@ -146,36 +146,3 @@ class BdEntityAdapter(AdapterRouter):
             if traits:
                 item['entity.traits'] = try_json(traits)
             yield item
-
-
-    async def load_observation_entities_from_ent_history(self, observation_id: str) -> AsyncGenerator[DotDict, None]:
-        sys_ent_2_obs_map = sys_ent_2_obs()
-        sys_sys_ent_history_map = entity_history_mapping()
-
-        if not observation_id:
-            return
-
-        database = current_bd_database_name()
-        sql = (
-                Sql()
-                + f"SELECT e2o.entity_pk, e2o.entity_type, eh.entity_classification, eh.entity_label, eh.entity_traits, rel_type, rel_label"
-                + f"FROM {database}.{sys_ent_2_obs_map} As e2o"
-                + f"JOIN {database}.{sys_sys_ent_history_map} AS eh ON e2o.entity_pk = eh.entity_pk"
-                + f"WHERE e2o.observation_id = :observation_id"
-                + Param({"observation_id": observation_id})
-                + "ORDER BY e2o.entity_type"
-        )
-
-        result = await self.adapter.exec(sql)
-        result = result >> {
-                "entity.pk": "entity_pk",
-                "entity.type": "entity_type",
-                "entity.classification": "entity_classification",
-                "entity.label": "entity_label",
-                "entity.traits": "entity_traits",
-            }
-        for item in result:
-            traits = item.get('entity.traits', None)
-            if traits:
-                item['entity.traits'] = try_json(traits)
-            yield item
