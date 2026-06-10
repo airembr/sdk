@@ -914,8 +914,7 @@ ontology = [
       }
     },
     "properties": {
-      "$type": "Type: personal, financial, scientific, etc.",
-      "$label": "Display: $type"
+      "$type": "Type: personal, financial, scientific, etc."
     }
   },
   {
