@@ -136,10 +136,10 @@ There is no installment entity type, but an installment is a kind of payment.
 Use payment and set $type to installment. Extract as much key information as possible to serve as hooks for information retrieval.
 
 ## What to do if traits in the text do not match any ontology trait.
-You can always add non-canonical traits to any entity. Unlike ontology traits, non-canonical traits do not start with $. 
-Use them when the text contains relevant information that has no matching trait in the ontology.
-Example: a person entity has no $age trait in the ontology, but the text mentions the person's age. 
-Add it as a non-canonical trait:
+- You can always add non-canonical traits to any entity. Unlike ontology traits, non-canonical traits do not start with $. 
+- Use them when the text contains relevant information that has no matching trait in the ontology.
+- Example: a person entity has no $age trait in the ontology, but the text mentions the person's age. 
+- Add it as a non-canonical trait:
 
 Type: person
 Traits:
@@ -149,6 +149,7 @@ Traits:
 
 Rules for non-canonical traits:
 - No $ prefix.
+- No nested keys like no_cannonical_trait.age. Simple key (e.g. age) without $.
 - Keep names short and simple — single lowercase words or snake_case (e.g. age, fur_color, weight).
 - Values must be simple scalars — string, number, or date. Do not nest objects.
 
