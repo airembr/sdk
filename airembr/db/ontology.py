@@ -3,7 +3,7 @@ ontology = [
     "type": "person",
     "ontology_id": "https://airembr.com/world/default",
     "domain": "general",
-    "description": "A person: alive, dead, undead, or fictional.",
+    "description": "A person: alive, dead, undead, or fictional. Person is always single person not a group of people.",
     "ref": {
       "@location": {
         "description": "Where the person is currently located.",
@@ -50,9 +50,9 @@ ontology = [
         "relation": "health_record",
         "verb": "has"
       },
-      "@category": {
+      "@topic": {
         "description": "Categories or tags applied to the person.",
-        "relation": "category",
+        "relation": "topic",
         "verb": "has"
       },
       "@sentiment": {
@@ -128,9 +128,9 @@ ontology = [
         "relation": "product",
         "verb": "has"
       },
-      "@category": {
+      "@topic": {
         "description": "Categories or tags applied to the organization.",
-        "relation": "category",
+        "relation": "topic",
         "verb": "has"
       },
       "@aspect": {
@@ -256,9 +256,9 @@ ontology = [
         "relation": "publisher",
         "verb": "has"
       },
-      "@category": {
+      "@topic": {
         "description": "Categories applied to the resource.",
-        "relation": "category",
+        "relation": "topic",
         "verb": "has"
       }
     },
@@ -294,9 +294,9 @@ ontology = [
         "relation": "issuer",
         "verb": "has"
       },
-      "@category": {
+      "@topic": {
         "description": "Categories applied to the document.",
-        "relation": "category",
+        "relation": "topic",
         "verb": "has"
       }
     },
@@ -380,9 +380,9 @@ ontology = [
         "relation": "attachment",
         "verb": "has"
       },
-      "@category": {
+      "@topic": {
         "description": "Categories applied to the message.",
-        "relation": "category",
+        "relation": "topic",
         "verb": "has"
       }
     },
@@ -426,9 +426,9 @@ ontology = [
         "relation": "resource",
         "verb": "has"
       },
-      "@category": {
+      "@topic": {
         "description": "Categories applied to the meeting.",
-        "relation": "category",
+        "relation": "topic",
         "verb": "has"
       },
       "@aspect": {
@@ -477,9 +477,9 @@ ontology = [
         "relation": "location",
         "verb": "has"
       },
-      "@category": {
+      "@topic": {
         "description": "Categories applied to the project.",
-        "relation": "category",
+        "relation": "topic",
         "verb": "has"
       },
       "@aspect": {
@@ -529,9 +529,9 @@ ontology = [
         "relation": "document",
         "verb": "has"
       },
-      "@category": {
+      "@topic": {
         "description": "Categories applied to the task.",
-        "relation": "category",
+        "relation": "topic",
         "verb": "has"
       },
       "@aspect": {
@@ -586,9 +586,9 @@ ontology = [
         "relation": "location",
         "verb": "has"
       },
-      "@category": {
+      "@topic": {
         "description": "Categories applied to the conflict.",
-        "relation": "category",
+        "relation": "topic",
         "verb": "has"
       },
       "@aspect": {
@@ -635,9 +635,9 @@ ontology = [
         "relation": "order",
         "verb": "has"
       },
-      "@category": {
+      "@topic": {
         "description": "Categories applied to the payment.",
-        "relation": "category",
+        "relation": "topic",
         "verb": "has"
       }
     },
@@ -677,9 +677,9 @@ ontology = [
         "relation": "availability",
         "verb": "located at"
       },
-      "@category": {
+      "@topic": {
         "description": "Categories applied to the product.",
-        "relation": "category",
+        "relation": "topic",
         "verb": "has"
       },
       "@aspect": {
@@ -730,9 +730,9 @@ ontology = [
         "relation": "payment",
         "verb": "has"
       },
-      "@category": {
+      "@topic": {
         "description": "Categories applied to the order.",
-        "relation": "category",
+        "relation": "topic",
         "verb": "has"
       }
     },
@@ -788,9 +788,9 @@ ontology = [
         "relation": "payment",
         "verb": "has"
       },
-      "@category": {
+      "@topic": {
         "description": "Categories applied to the contract.",
-        "relation": "category",
+        "relation": "topic",
         "verb": "has"
       }
     },
@@ -833,9 +833,9 @@ ontology = [
         "relation": "resource",
         "verb": "has"
       },
-      "@category": {
+      "@topic": {
         "description": "Categories applied to the record.",
-        "relation": "category",
+        "relation": "topic",
         "verb": "has"
       }
     },
@@ -849,23 +849,16 @@ ontology = [
     }
   },
   {
-    "type": "category",
+    "type": "topic",
     "ontology_id": "https://airembr.com/world/default",
     "domain": "abstract",
-    "description": "A taxonomy node used to classify, tag, or cluster entities — a category, tag, topic, or label. Categories may nest to form a hierarchy.",
-    "ref": {
-      "@category": {
-        "description": "Parent category in the hierarchy.",
-        "relation": "parent",
-        "verb": "has"
-      }
-    },
+    "description": "A taxonomy node used to classify, tag, or cluster entities.",
+    "ref": {},
     "properties": {
-      "$name": "Category, tag, or topic name.",
-      "$type": "Type: category, tag, topic, label, taxonomy.",
-      "$scheme": "Optional taxonomy or namespace this belongs to.",
-      "$description": "Short description of what the category covers.",
-      "$label": "Display name: $name."
+      "$name": "Topic, tag. Short 1 word name",
+      "$type": "Type: tag, topic, etc.",
+      "$summary": "Short description of what the topic covers. max 10 words",
+      "$label": "Display: ($type) $name."
     }
   },
   {
@@ -914,16 +907,15 @@ ontology = [
         "relation": "subject",
         "verb": "has"
       },
-      "@category": {
+      "@topic": {
         "description": "Categories applied to the aspect.",
-        "relation": "category",
+        "relation": "topic",
         "verb": "has"
       }
     },
     "properties": {
       "$type": "Type: personal, financial, scientific, etc.",
-      "$summary": "Max 100 words summary of the aspect.",
-      "$label": "Display: ($type) $subject."
+      "$label": "Display: $type"
     }
   },
   {
@@ -967,7 +959,7 @@ ontology = [
         "relation": "source",
         "verb": "has"
       },
-      "@category": {
+      "@topic": {
         "description": "Topic the sentiment is about.",
         "relation": "topic",
         "verb": "has"

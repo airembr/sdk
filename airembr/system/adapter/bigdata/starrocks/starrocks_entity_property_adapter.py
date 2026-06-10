@@ -255,5 +255,5 @@ class StarrocksEntityPropertyAdapter(BdEntityHistoryAdapter):
         sql = similar_observations_sql(query_vector, limit)
         result = await self.adapter.exec(sql)
 
-        vector_sim_result: List[dict] = {row.get('observation_id', None):dict(row) for row in result} if result else {}
+        vector_sim_result: List[dict] = [dict(row) for row in result] if result else []
         return vector_sim_result
