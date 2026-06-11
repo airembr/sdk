@@ -224,6 +224,7 @@ async def _save_texts(context,
             FlatText.TAGS: [],
             FlatText.REQUIRE_NER: ner,
             FlatText.CHUNKED: 0,
+            FlatText.ORIGIN: origin,
             FlatText.OBSERVATION_ID: observation_id,
             FlatText.TS: now
         } for text, origin, ner, observation_id, entity_pk in texts]
@@ -412,7 +413,13 @@ async def save_events_in_queue(transport_context: TransportContext,
                         f"Incorrect payload {fact_transport_payload}. Expected dict in schema of FactTransportPayload type, got `{type(fact_transport_payload)}`.")
 
                 # Recreate from dict
-                fact_transport_payload = FactTransportPayload(**fact_transport_payload)
+                try:
+                    fact_transport_payload = FactTransportPayload(**fact_transport_payload)
+                except TypeError as e:
+                    logger.warning(
+                        f"Skipping incompatible Kafka message — schema mismatch: {e}. "
+                        f"Payload keys: {list(fact_transport_payload.keys())}")
+                    continue
 
 
                 if fact_transport_payload.trace_id:
@@ -484,7 +491,7 @@ async def save_events_in_queue(transport_context: TransportContext,
                         sys_texts.add(
                             (
                                 fact_txt_description,
-                                'fact',
+                                2,  # 'fact'
                                 fact_txt_ner,
                                 observation_id,
                                 rel_pk # Entity_PK
@@ -496,7 +503,7 @@ async def save_events_in_queue(transport_context: TransportContext,
                         sys_texts.add(
                             (
                                 fact_txt_summary,
-                                'fact',
+                                2, # 'fact'
                                 fact_txt_ner,
                                 observation_id,
                                 rel_pk  # Entity_PK
@@ -511,7 +518,7 @@ async def save_events_in_queue(transport_context: TransportContext,
                     if obs_txt_summary: sys_texts.add(
                         (
                             obs_txt_summary,
-                            'observation',
+                            1, #'observation'
                             obs_txt_ner,
                             observation_id,
                             observation_id  # Entity_PK
@@ -520,7 +527,7 @@ async def save_events_in_queue(transport_context: TransportContext,
                     if obs_txt_description: sys_texts.add(
                         (
                             obs_txt_description,
-                            'observation',
+                            1, # 'observation'
                             obs_txt_ner,
                             observation_id,
                             observation_id  # Entity_PK
@@ -598,7 +605,7 @@ async def save_events_in_queue(transport_context: TransportContext,
                             sys_texts.add(
                                 (
                                     txt_description,
-                                    'entity',
+                                    3, # 'entity'
                                     txt_ner,
                                     observation_id,
                                     ent_pk  # Entity_PK
@@ -608,7 +615,7 @@ async def save_events_in_queue(transport_context: TransportContext,
                             sys_texts.add(
                                 (
                                     txt_summary,
-                                    'entity',
+                                    3, # 'entity'
                                     txt_ner,
                                     observation_id,
                                     ent_pk  # Entity_PK

@@ -228,6 +228,27 @@ def similar_observations_sql(query_vector: List[float], limit: int = 10, similar
             + Param({"limit": limit, "similarity": similarity})
     )
 
+def similar_observations_sql1(query_vector: List[float], limit: int = 10, similarity:float = .7):
+    database = current_bd_database_name()
+    sys_text = sys_text_mapping()
+    sys_text_vector = sys_text_vector_mapping()
+    vector_str = f"[{', '.join(str(float(v)) for v in query_vector)}]"
+    return (
+            Sql()
+            + f"  SELECT"
+            + f"    t.{sys_text | FlatText.ID} AS text_id,"
+            + f"    t.{sys_text | FlatText.OBSERVATION_ID} AS id,"
+            + f"    t.{sys_text | FlatText.TEXT} AS text_string,"
+            + f"    t.{sys_text | FlatText.TS} AS ts,"
+            + f"    approx_cosine_similarity(v.{sys_text_vector | FlatTextVector.VECTOR}, {vector_str}) AS max_similarity"
+            + f"  FROM {database}.{sys_text_vector} v"
+            + f"  JOIN {database}.{sys_text} t ON v.{sys_text_vector | FlatTextVector.TEXT_ID} = t.{sys_text | FlatText.ID}"
+            + f"  WHERE approx_cosine_similarity(v.{sys_text_vector | FlatTextVector.VECTOR}, {vector_str}) >= :similarity"
+            + f"  ORDER BY approx_cosine_similarity(v.{sys_text_vector | FlatTextVector.VECTOR}, {vector_str}) DESC"
+            + f"  LIMIT :limit"
+            + Param({"limit": limit, "similarity": similarity})
+    )
+
 
 def count_not_embedded_property_values_sql():
     database = current_bd_database_name()
@@ -254,4 +275,29 @@ def load_not_embedded_property_values_sql():
             + f"  LEFT JOIN {database}.{sys_text_vector} v ON p.property_value_id = v.{sys_text_vector | FlatTextVector.TEXT_ID}"
             + "  WHERE p.property_value_id IS NOT NULL"
             + f"  AND v.{sys_text_vector | FlatTextVector.VECTOR} IS NULL"
+    )
+
+
+def search_observations_full_text_sql(query: str, start_date=None, end_date=None, start: int = 0, limit: int = 500):
+    database = current_bd_database_name()
+    sys_text = sys_text_mapping()
+    sys_obs = sys_obs_mapping()
+    return (
+            Sql()
+            + f"  SELECT DISTINCT"
+            + f"    t.{sys_text | FlatText.OBSERVATION_ID} AS id,"
+            + f"    1.0 AS max_similarity,"
+            + f"    o.{sys_obs | FlatObs.DESCRIPTION} AS description,"
+            + f"    o.{sys_obs | FlatObs.SUMMARY} AS summary,"
+            + f"    o.{sys_obs | FlatObs.METADATA_TIME_CREATE} AS metadata_time_create,"
+            + f"    o.{sys_obs | FlatObs.METADATA_TIME_INSERT} AS metadata_time_insert,"
+            + f"    o.{sys_obs | FlatObs.LABEL} AS label"
+            + f"  FROM {database}.{sys_text} t"
+            + f"  JOIN {database}.{sys_obs} o ON t.{sys_text | FlatText.OBSERVATION_ID} = o.{sys_obs | FlatObs.ID}"
+            + f"  WHERE t.{sys_text | FlatText.TEXT} LIKE :pattern"
+            + Param({"pattern": f"%{query}%"})
+            + (start_date, f"  AND o.{sys_obs | FlatObs.METADATA_TIME_CREATE} >= :start_date", Param({"start_date": start_date}))
+            + (end_date,   f"  AND o.{sys_obs | FlatObs.METADATA_TIME_CREATE} <= :end_date",   Param({"end_date": end_date}))
+            + f"  LIMIT :start, :limit"
+            + Param({"start": start, "limit": limit})
     )

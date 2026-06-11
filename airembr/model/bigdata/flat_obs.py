@@ -8,6 +8,8 @@ class FlatObs(DotDict):
     LABEL = "label"
     DESCRIPTION = "description"
     SUMMARY = "summary"
+    DESCRIPTION_ID = "description_id"
+    SUMMARY_ID = "summary_id"
     ENTITIES = "entities"
     TS = "ts"
     METADATA_TIME_CREATE = "metadata.time.create"

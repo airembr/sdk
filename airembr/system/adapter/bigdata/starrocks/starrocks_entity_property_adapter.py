@@ -12,13 +12,14 @@ from airembr.system.adapter.bigdata.starrocks.starrocks_eql import (
     build_select_expanded_entities_from_observations,
     build_select_entity_types_from_observations,
     build_select_observations_with_eql,
-    EmbeddingMap,
+    EmbeddingMap, build_select_observations_with_eql1,
 )
 from airembr.system.adapter.bigdata.starrocks.utils.sql_entity_search import sql_entity_by_properties
 from airembr.system.adapter.bigdata.starrocks.utils.sql_text import (
     count_not_embedded_property_values_sql,
     load_not_embedded_property_values_sql,
     similar_observations_sql,
+    search_observations_full_text_sql, similar_observations_sql1,
 )
 from airembr.system.adapter.bigdata.env.bigdata_context import current_bd_database_name
 from airembr.system.adapter.bigdata.general.utils.mapping import entity_property
@@ -222,11 +223,15 @@ class StarrocksEntityPropertyAdapter(BdEntityHistoryAdapter):
         return await self.adapter.exec(sql)
 
     async def load_observations_with_eql(self, eql_object, unmatched_entities: int = 0, unmatched_traits: int = 0,
-                                         start_date: Optional[datetime] = None, end_date: Optional[datetime] = None):
+                                         start_date: Optional[datetime] = None, end_date: Optional[datetime] = None,
+                                         limit: Optional[int] = None):
+
         embeddings = await self._prepare_embeddings(eql_object)
-        # TODO add limit to function
-        sql = build_select_observations_with_eql(eql_object, unmatched_entities, unmatched_traits,
-                                                 start_date=start_date, end_date=end_date, embeddings=embeddings)
+        sql = build_select_observations_with_eql1(eql_object, unmatched_entities, unmatched_traits,
+                                                  start_date=start_date, end_date=end_date,
+                                                  embeddings=embeddings, limit=limit)
+        # print(1, sql.literal())
+
         return await self.adapter.exec(sql)
 
     async def load_entity_types_with_eql(self, eql_object, unmatched_entities: int = 0, unmatched_traits: int = 0,
@@ -235,6 +240,7 @@ class StarrocksEntityPropertyAdapter(BdEntityHistoryAdapter):
         sql = build_select_entity_types_from_observations(eql_object, unmatched_entities, unmatched_traits,
                                                           start_date=start_date, end_date=end_date,
                                                           embeddings=embeddings)
+
         return await self.adapter.exec(sql)
 
     async def count_not_embedded_property_values(self):
@@ -251,10 +257,18 @@ class StarrocksEntityPropertyAdapter(BdEntityHistoryAdapter):
         response = await asyncio.to_thread(lambda: emb_client.call({"query": query}).get_mapped_embeddings())
         query_vector = response.dense["query"]
 
-        sql = similar_observations_sql(query_vector, limit, similarity)
+        sql = similar_observations_sql1(query_vector, limit, similarity)
         result = await self.adapter.exec(sql)
 
         if not result:
             return []
 
+        return [dict(row) for row in result]
+
+    async def search_observations_full_text(self, query: str, start_date=None, end_date=None, start: int = 0,
+                                            limit: int = 500) -> List[dict]:
+        sql = search_observations_full_text_sql(query, start_date, end_date, start, limit)
+        result = await self.adapter.exec(sql)
+        if not result:
+            return []
         return [dict(row) for row in result]

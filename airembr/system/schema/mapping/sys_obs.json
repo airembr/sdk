@@ -80,6 +80,20 @@
       "default": "NULL"
     },
     {
+      "column": "summary_id",
+      "sr_column_type": "varchar(32)",
+      "ddb_column_type": "VARCHAR",
+      "property": "summary_id",
+      "default": "NULL"
+    },
+    {
+      "column": "description_id",
+      "sr_column_type": "varchar(32)",
+      "ddb_column_type": "VARCHAR",
+      "property": "description_id",
+      "default": "NULL"
+    },
+    {
       "column": "entities",
       "sr_column_type": "integer",
       "ddb_column_type": "INTEGER",

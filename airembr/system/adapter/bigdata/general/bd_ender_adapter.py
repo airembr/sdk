@@ -21,7 +21,7 @@ from airembr.system.adapter.bigdata.adapter_router import AdapterRouter
 from airembr.system.adapter.bigdata.general.helpers.aggregations import bucket_data
 from airembr.system.adapter.bigdata.general.sql.histogram import observation_histogram_sql
 from airembr.system.adapter.bigdata.general.sql.observation_sqls import search_observation_by_query_sql, \
-    count_observation_by_query_sql, load_observation_by_id_sql
+    count_observation_by_query_sql, load_observation_by_id_sql, load_observations_by_ids_sql
 from airembr.system.adapter.bigdata.general.utils.mapping import event_mapping, sys_observation_trigger, \
     entity_history_mapping, \
     event_job_mapping, sys_obs_mapping, sys_ent_2_obs, sys_ent_state, sys_ent_2_text_mapping, sys_text_mapping
@@ -66,30 +66,30 @@ class BdObservationAdapter(AdapterRouter):
             return None
 
         return result.list()
-
-    async def load_observations_by_ids(self, ids: List[str]) -> Optional[Row]:
-        sys_evt = event_mapping()
-        sys_ent_history = entity_history_mapping()
-
-        database = current_bd_database_name()
-        sql = (
-                Sql()
-                + f"SELECT fact.actor_type, fact.actor_pk, actor.entity_traits as actor_traits, fact.rel_label, fact.object_type, fact.object_pk, object.entity_traits as object_traits"
-                + f"FROM {database}.{sys_evt} AS fact "
-
-                + f"LEFT JOIN {database}.{sys_ent_history} AS actor ON actor.{sys_ent_history | FlatEntityHistory.ENTITY_PK} = fact.{sys_evt | FlatFact.ACTOR_PK} AND actor.{sys_ent_history | FlatEntityHistory.DATA_HASH} = fact.{sys_evt | FlatFact.ACTOR_DATA_HASH}"
-                + f"LEFT JOIN {database}.{sys_ent_history} AS object ON object.{sys_ent_history | FlatEntityHistory.ENTITY_PK} = fact.{sys_evt | FlatFact.OBJECT_PK} AND object.{sys_ent_history | FlatEntityHistory.DATA_HASH} = fact.{sys_evt | FlatFact.OBJECT_DATA_HASH}"
-
-                + f"WHERE fact.{sys_evt | FlatFact.OBS_ID} in :ids"
-                + f"ORDER BY fact.{sys_evt | FlatFact.METADATA_TIME_CREATE} ASC"
-                + Param({"ids": ids})
-        )
-
-        result = await self.adapter.exec(sql)
-        if not result:
-            return None
-
-        return result
+    #
+    # async def load_observations_by_ids(self, ids: List[str]) -> Optional[Row]:
+    #     sys_evt = event_mapping()
+    #     sys_ent_history = entity_history_mapping()
+    #
+    #     database = current_bd_database_name()
+    #     sql = (
+    #             Sql()
+    #             + f"SELECT fact.actor_type, fact.actor_pk, actor.entity_traits as actor_traits, fact.rel_label, fact.object_type, fact.object_pk, object.entity_traits as object_traits"
+    #             + f"FROM {database}.{sys_evt} AS fact "
+    #
+    #             + f"LEFT JOIN {database}.{sys_ent_history} AS actor ON actor.{sys_ent_history | FlatEntityHistory.ENTITY_PK} = fact.{sys_evt | FlatFact.ACTOR_PK} AND actor.{sys_ent_history | FlatEntityHistory.DATA_HASH} = fact.{sys_evt | FlatFact.ACTOR_DATA_HASH}"
+    #             + f"LEFT JOIN {database}.{sys_ent_history} AS object ON object.{sys_ent_history | FlatEntityHistory.ENTITY_PK} = fact.{sys_evt | FlatFact.OBJECT_PK} AND object.{sys_ent_history | FlatEntityHistory.DATA_HASH} = fact.{sys_evt | FlatFact.OBJECT_DATA_HASH}"
+    #
+    #             + f"WHERE fact.{sys_evt | FlatFact.OBS_ID} in :ids"
+    #             + f"ORDER BY fact.{sys_evt | FlatFact.METADATA_TIME_CREATE} ASC"
+    #             + Param({"ids": ids})
+    #     )
+    #
+    #     result = await self.adapter.exec(sql)
+    #     if not result:
+    #         return None
+    #
+    #     return result
 
     async def load_all_unprocessed_events(self, trigger_id: str,
                                           actor_type: str = None,
@@ -189,6 +189,15 @@ class BdObservationAdapter(AdapterRouter):
         if not result:
             return None
 
+        return result
+
+    async def load_observations_by_ids(self, obs_ids: List[str]) -> Optional[DotDictStream]:
+        if not obs_ids:
+            return None
+        sql = load_observations_by_ids_sql(obs_ids)
+        result = await self.adapter.exec(sql)
+        if not result:
+            return None
         return result
 
     async def load_facts_by_observation_id(self, obs_id: str, start: int, limit: int) -> Optional[DotDictStream]:

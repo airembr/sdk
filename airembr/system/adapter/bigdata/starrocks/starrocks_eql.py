@@ -1141,6 +1141,82 @@ def build_select_observations_with_eql(
         + "ORDER BY matched.max_similarity DESC NULLS LAST, matched.no_of_matched_props DESC"
     )
 
+def build_select_observations_with_eql1(
+    entities: List[MetaLangEntityBase],
+    unmatched_entities: int = 0,
+    unmatched_traits: int = 0,
+    start_date: Optional[datetime] = None,
+    end_date: Optional[datetime] = None,
+    embeddings: Optional[EmbeddingMap] = None,
+    limit: Optional[int] = None,
+) -> Sql:
+    """Return a query that yields full observation records matching the EQL query.
+
+    Compared to ``build_select_observation_will_all_entities``, this function
+    adds a ``matching_entities`` CTE that consolidates qualified observations,
+    then JOINs ``sys_obs`` to return the full observation metadata:
+    id, timestamps, summary, description, entities JSON, match counters.
+
+    Terminal CTE and SELECT:
+
+    .. code-block:: sql
+
+        matching_entities AS (
+          SELECT em.observation_id,
+                 COUNT(DISTINCT em.group_id) AS no_of_entities,
+                 SUM(em.matched_props)       AS no_of_matched_props
+          FROM entity_matches em
+          JOIN group_requirements gr ON em.group_id = gr.group_id
+          WHERE em.matched_props >= gr.required_props
+          GROUP BY em.observation_id
+          HAVING no_of_entities >= 2
+        )
+        SELECT o.id, o.metadata_time_insert, o.metadata_time_create,
+               o.summary, o.description, o.entities,
+               matched.no_of_entities, matched.no_of_matched_props
+        FROM matching_entities AS matched
+        JOIN testdb.sys_obs AS o ON o.id = matched.observation_id
+        ORDER BY matched.no_of_matched_props DESC
+
+    Parameters are the same as ``build_select_observation_will_all_entities``.
+    """
+    plan = QueryPlan.from_entities(entities, unmatched_traits)
+    no_of_entities = max(0, len(plan.all_groups) - unmatched_entities)
+    preamble = _build_eql_preamble(plan, start_date, end_date, embeddings)
+
+    database = current_bd_database_name()
+    sys_obs = sys_obs_mapping()
+
+    matching_cte = (
+        Sql()
+        + "matching_entities AS ("
+        + "SELECT em.observation_id,"
+        + "  COUNT(DISTINCT em.group_id) AS no_of_entities,"
+        + "  SUM(em.matched_props) AS no_of_matched_props,"
+        + "  MAX(em.max_similarity) AS max_similarity"
+        + "FROM entity_matches em"
+        + "JOIN group_requirements gr ON em.group_id = gr.group_id"
+        + "WHERE em.matched_props >= gr.required_props"
+        + "GROUP BY em.observation_id"
+        + f"HAVING no_of_entities >= {no_of_entities})"
+    )
+
+    return (
+        preamble + "," + matching_cte
+        + "SELECT"
+        + f"  o.{sys_obs | FlatObs.ID} AS id,"
+        + f"  o.{sys_obs | FlatObs.METADATA_TIME_INSERT} AS metadata_time_insert,"
+        + f"  o.{sys_obs | FlatObs.METADATA_TIME_CREATE} AS metadata_time_create,"
+        + f"  o.{sys_obs | FlatObs.SUMMARY} AS summary,"
+        + f"  o.{sys_obs | FlatObs.DESCRIPTION} AS description,"
+        + f"  o.{sys_obs | FlatObs.LABEL} AS label,"
+        + f"  o.{sys_obs | FlatObs.ENTITIES} AS entities,"
+        + "  matched.no_of_entities, matched.no_of_matched_props, matched.max_similarity"
+        + "FROM matching_entities AS matched"
+        + f"JOIN {database}.{sys_obs} AS o ON o.{sys_obs | FlatObs.ID} = matched.observation_id"
+        + "ORDER BY matched.max_similarity DESC NULLS LAST, matched.no_of_matched_props DESC"
+    )
+
 
 def build_select_expanded_entities_from_observations(
     entities: List[MetaLangEntityBase],

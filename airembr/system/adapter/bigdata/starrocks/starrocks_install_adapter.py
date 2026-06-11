@@ -129,7 +129,7 @@ class StarrocksInstallAdapter(StarrocksBaseAdapter):
     async def _enable_vector_support(self):
         try:
             await self._client.create_tables(
-                'ADMIN SET FRONTEND CONFIG ("enable_experimental_vector" = "true")',
+                'ADMIN SET FRONTEND CONFIG ("enable_experimental_vector" = "true"); ADMIN SET FRONTEND CONFIG ("enable_experimental_gin" = "true");',
                 'sys'
             )
             logger.info("StarRocks vector index support enabled.")

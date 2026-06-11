@@ -1,6 +1,7 @@
 from time import time
 from typing import Optional, List
 
+from airembr.core.hash.hash import md5
 from pararun_adapter import queue_type
 from pararun.consumer.batcher import BulkedResult
 from pararun.model.batcher import BatcherConfig
@@ -30,6 +31,8 @@ async def _save_observations(transport_context, observation_batch: List[dict]):
             _ts = _sys_obs_mapping | FlatObs.TS
             _metadata_time_insert = _sys_obs_mapping | FlatObs.METADATA_TIME_INSERT
             _metadata_time_create = _sys_obs_mapping | FlatObs.METADATA_TIME_CREATE
+            _summary_id = _sys_obs_mapping | FlatObs.SUMMARY_ID
+            _description_id = _sys_obs_mapping | FlatObs.DESCRIPTION_ID
 
             for item in observation_batch:  # ObsTransportPayload has the same schema as sys_obs table
 
@@ -38,6 +41,15 @@ async def _save_observations(transport_context, observation_batch: List[dict]):
                         f"Incorrect payload {item}. Expected dict in schema of ObsTransportPayload type, got `{type(item)}`.")
 
                 item[_ts] = now
+
+                summary: Optional[str] = item.get("summary", None)
+                if summary is not None:
+                    item[_summary_id] = md5(summary)
+
+                description: Optional[str] = item.get("description", None)
+                if description is not None:
+                    item[_description_id] = md5(description)
+
                 item[_metadata_time_insert] = item[_metadata_time_insert] if item.get(_metadata_time_insert, None) is not None else now
                 item[_metadata_time_create] = item[_metadata_time_create] if item.get(_metadata_time_create, None) is not None else now
 

@@ -1,3 +1,5 @@
+from typing import List
+
 from srd.domain.sql import Sql, Param
 
 from airembr.system.adapter.bigdata.general.utils.mapping import sys_obs_mapping
@@ -42,6 +44,18 @@ def search_observation_by_query_sql(query: DatetimeRangePayload):
             + (query.where, f"AND {query.where}")
             + f"ORDER BY {ts} DESC"
             + (query.limit, f"LIMIT :limit OFFSET :offset", Param({"offset": query.start, "limit": query.limit}))
+    )
+
+
+def load_observations_by_ids_sql(obs_ids: List[str], time_order: bool = True):
+    sys_obs = sys_obs_mapping()
+    database = current_bd_database_name()
+    return (
+            Sql()
+            + f"SELECT * FROM {database}.{sys_obs}"
+            + f"WHERE {sys_obs | FlatObs.ID} IN :obs_ids"
+            + (time_order, f"ORDER BY {sys_obs | FlatObs.TS} ASC")
+            + Param({"obs_ids": tuple(obs_ids)})
     )
 
 

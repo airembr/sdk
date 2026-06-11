@@ -7,6 +7,15 @@
     "\"enable_persistent_index\" = \"true\""
   ],
   "engine": "olap",
+    "indexes": [
+    {
+      "index_name": "idx_text",
+      "columns": [
+        "text_string"
+      ],
+      "type": "NGRAMBF (\"gram_num\" = \"4\")"
+    }
+  ],
   "columns": [
     {
       "column": "id",
@@ -49,6 +58,13 @@
       "ddb_column_type": "VARCHAR",
       "property": "model",
       "default": "NULL"
+    },
+    {
+      "column": "origin",
+      "sr_column_type": "INTEGER",
+      "ddb_column_type": "INTEGER",
+      "property": "origin",
+      "default": "NOT NULL"
     },
     {
       "column": "require_ner",

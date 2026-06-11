@@ -7,6 +7,7 @@ class FlatText(DotDict):
     OBSERVATION_ID = "observation.id"
     TEXT = "text_string"
     TAGS = "tags"
+    ORIGIN = "origin"
     REQUIRE_NER = "require_ner"
     CHUNKED = "chunked"
     MODEL = "model"
