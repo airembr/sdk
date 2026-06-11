@@ -44,4 +44,4 @@ pandas==2.2.3
 dotdict_parser>=0.7.2
 qdrant-client
 prometheus-client==0.24.0
-sklearn
+scikit-learn
