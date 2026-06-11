@@ -8,9 +8,11 @@ import airembr.system.adapter.metadata.mysql.interface.dao.deployment as deploym
 import airembr.system.adapter.metadata.mysql.interface.dao.entity_object as entity_object_dao
 import airembr.system.adapter.metadata.mysql.interface.dao.entity_segment as segment_dao
 import airembr.system.adapter.metadata.mysql.interface.dao.embedding_setting as embedding_setting_dao
-import airembr.system.adapter.metadata.mysql.interface.dao.workflow as workflow_dao
 import airembr.system.adapter.metadata.mysql.interface.dao.canonical_entity as canonical_entity_dao
 import airembr.system.adapter.metadata.mysql.interface.dao.ontology as ontology_dao
+
+# Commercial
+import airembr.system.adapter.metadata.mysql.interface.dao.workflow as workflow_dao
 
 __all__ = [
     'destination_dao',
@@ -23,7 +25,7 @@ __all__ = [
     'entity_object_dao',
     'segment_dao',
     'embedding_setting_dao',
-    'workflow_dao',
     'canonical_entity_dao',
     'ontology_dao',
+    'workflow_dao',
 ]
