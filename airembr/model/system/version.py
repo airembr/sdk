@@ -6,7 +6,7 @@ import os
 from airembr.core.env.validator import get_env_as_bool
 
 APP_NAME = 'airembr'
-VERSION = os.environ.get('_DEBUG_VERSION', '0.0.1')
+VERSION = os.environ.get('_DEBUG_VERSION', '0.0.2')
 TENANT_NAME = os.environ.get('TENANT_NAME', None)
 PRODUCTION = os.environ.get('PRODUCTION', 'no').lower() == 'yes'
 MULTI_TENANT = get_env_as_bool('MULTI_TENANT', "no")
@@ -18,7 +18,7 @@ class Version(BaseModel):
     upgrades: List[str] = []
     production: bool = False
     config: Optional[dict] = {}
-    db_version: str = '200'
+    db_version: str = '002'
     mysql_version: int = 1
     multi_tenant: Optional[bool] = False
 
