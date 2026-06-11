@@ -33,12 +33,13 @@ class LicenseVerifier:
 
         def __init__(self, valid: bool, owner: str = None,
                      valid_until: datetime = None, issued_at: datetime = None,
-                     error: str = None):
+                     error: str = None, multi_tenant: bool = False):
             self.valid       = valid
             self.owner       = owner
             self.valid_until = valid_until
             self.issued_at   = issued_at
             self.error       = error
+            self.multi_tenant = multi_tenant
 
         def __repr__(self):
             if self.valid:
@@ -121,6 +122,7 @@ class LicenseVerifier:
             valid_until = datetime.fromisoformat(payload["valid_until"])
             issued_at   = datetime.fromisoformat(payload["issued_at"])
             owner       = payload["owner"]
+            multi_tenant = payload["multi_tenant"]
         except KeyError as e:
             return self.Result(valid=False, error=f"Missing field in payload: {e}")
 
@@ -131,6 +133,7 @@ class LicenseVerifier:
                 owner=owner,
                 valid_until=valid_until,
                 issued_at=issued_at,
+                multi_tenant=multi_tenant
             )
 
         return self.Result(
@@ -138,6 +141,7 @@ class LicenseVerifier:
             owner=owner,
             valid_until=valid_until,
             issued_at=issued_at,
+            multi_tenant=multi_tenant
         )
 
 licenser = LicenseVerifier()
