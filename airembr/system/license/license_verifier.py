@@ -1,24 +1,27 @@
 import json
+import os
 import base64
 from datetime import datetime
+from pathlib import Path
 from cryptography.hazmat.primitives.serialization import load_pem_public_key
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import hashes
 from cryptography.exceptions import InvalidSignature
+
+_CERT_PATH = Path(__file__).parent / "certs" / "public.pem"
 
 
 class LicenseVerifier:
     """
     Verifies RSA-signed licenses using only the public key.
 
+    Reads the public key from ./certs/public.pem (co-located with this module)
+    and the license string from the LICENSE environment variable.
+
     Usage:
-        # From a PEM string
-        verifier = LicenseVerifier(public_key_pem="-----BEGIN PUBLIC KEY-----...")
-
-        # From a file
-        verifier = LicenseVerifier(public_key_path="public.pem")
-
-        result = verifier.verify("eyJwYXlsb2FkI...")
+        verifier = LicenseVerifier()
+        result = verifier.verify()          # reads LICENSE env var
+        result = verifier.verify("eyJ...")  # explicit license string
         if result.valid:
             print(f"Licensed to: {result.owner}, expires: {result.valid_until}")
         else:
@@ -52,28 +55,19 @@ class LicenseVerifier:
 
     # ── Construction ──────────────────────────────────────────────────────────
 
-    def __init__(self, public_key_pem: str = None, public_key_path: str = None):
-        """
-        Provide exactly one of:
-          public_key_pem  — PEM string (e.g. embedded in your application)
-          public_key_path — path to a .pem file on disk
-        """
-        if public_key_pem and public_key_path:
-            raise ValueError("Provide public_key_pem OR public_key_path, not both.")
-        if not public_key_pem and not public_key_path:
-            raise ValueError("Provide either public_key_pem or public_key_path.")
-
-        if public_key_pem:
-            self._public_key = load_pem_public_key(public_key_pem.encode())
-        else:
-            with open(public_key_path, "rb") as f:
-                self._public_key = load_pem_public_key(f.read())
+    def __init__(self):
+        if not _CERT_PATH.exists():
+            raise FileNotFoundError(f"Public key not found: {_CERT_PATH}")
+        with open(_CERT_PATH, "rb") as f:
+            self._public_key = load_pem_public_key(f.read())
 
     # ── Public API ────────────────────────────────────────────────────────────
 
-    def verify(self, license_str: str) -> "LicenseVerifier.Result":
+    def verify(self, license_str: str = None) -> "LicenseVerifier.Result":
         """
-        Verify a license string produced by LicenseIssuer.
+        Verify a license string.
+
+        When license_str is omitted, reads from the LICENSE environment variable.
 
         Checks:
           1. The license string is well-formed and not corrupted.
@@ -82,6 +76,11 @@ class LicenseVerifier:
 
         Returns a LicenseVerifier.Result — truthy on success, falsy on failure.
         """
+        if license_str is None:
+            license_str = os.environ.get("LICENSE")
+            if not license_str:
+                return self.Result(valid=False, error="LICENSE environment variable not set")
+
         payload_bytes, signature = self._decode(license_str)
         if payload_bytes is None:
             return self.Result(valid=False, error="Malformed license — could not decode")
@@ -96,7 +95,7 @@ class LicenseVerifier:
     def _decode(self, license_str: str):
         """Decode the base64 license string into (payload_bytes, signature)."""
         try:
-            bundle       = json.loads(base64.b64decode(license_str).decode())
+            bundle        = json.loads(base64.b64decode(license_str).decode())
             payload_bytes = base64.b64decode(bundle["payload"])
             signature     = base64.b64decode(bundle["signature"])
             return payload_bytes, signature
@@ -140,3 +139,6 @@ class LicenseVerifier:
             valid_until=valid_until,
             issued_at=issued_at,
         )
+
+licenser = LicenseVerifier()
+system_license = licenser.verify()
