@@ -49,11 +49,14 @@ def load_not_embedded_texts_sql():
 def count_texts_by_source_sql(source_id: str):
     database = current_bd_database_name()
     sys_text = sys_text_mapping()
+    sys_obs = sys_obs_mapping()
+
     return (
             Sql()
             + "  SELECT COUNT(*) as count"
-            + f"  FROM {database}.{sys_text}"
-            + f"  WHERE {sys_text | FlatText.SOURCE_ID} = :source_id"
+            + f"  FROM {database}.{sys_text} t"
+            + f"  JOIN {database}.{sys_obs} o ON o.{sys_obs | FlatObs.ID} = t.{sys_text | FlatText.OBSERVATION_ID}"
+            + f"  WHERE o.{sys_obs | FlatObs.SOURCE_ID} = :source_id"
             + Param({"source_id": source_id})
     )
 
@@ -61,11 +64,14 @@ def count_texts_by_source_sql(source_id: str):
 def load_texts_by_source_sql(source_id: str, start: int = 0, limit: int = 10000):
     database = current_bd_database_name()
     sys_text = sys_text_mapping()
+    sys_obs = sys_obs_mapping()
+
     return (
             Sql()
-            + "  SELECT *"
-            + f"  FROM {database}.{sys_text}"
-            + f"  WHERE {sys_text | FlatText.SOURCE_ID} = :source_id"
+            + "  SELECT t.* "
+            + f"  FROM {database}.{sys_text} t"
+            + f"  JOIN {database}.{sys_obs} o ON o.{sys_obs | FlatObs.ID} = t.{sys_text | FlatText.OBSERVATION_ID}"
+            + f"  WHERE o.{sys_obs | FlatObs.SOURCE_ID} = :source_id"
             + Param({"source_id": source_id})
             + f"  LIMIT :start, :limit"
             + Param({"start": start, "limit": limit})
@@ -108,6 +114,7 @@ def count_to_ner_texts_sql():
             + f"  WHERE t.{sys_text | FlatText.REQUIRE_NER} = true AND t.{sys_text | FlatText.MODEL} IS NULL AND t.{sys_text | FlatText.OBSERVATION_ID} IS NOT NULL"
     )
 
+
 def count_texts_to_chunk_sql():
     database = current_bd_database_name()
     sys_text = sys_text_mapping()
@@ -134,6 +141,7 @@ def load_to_ner_texts_sql():
             + f"   LEFT JOIN {database}.{sys_text_vector} as v ON v.{sys_text_vector | FlatTextVector.TEXT_ID} = t.{sys_text | FlatText.ID}"
             + f"  WHERE t.{sys_text | FlatText.REQUIRE_NER} = true AND t.{sys_text | FlatText.MODEL} IS NULL AND t.{sys_text | FlatText.OBSERVATION_ID} IS NOT NULL"
     )
+
 
 def load_texts_to_chunk_sql():
     database = current_bd_database_name()
@@ -203,7 +211,7 @@ def similar_texts_sql(query_vector: List[float], limit: int = 10):
     )
 
 
-def similar_observations_sql(query_vector: List[float], limit: int = 10, similarity:float = .7):
+def similar_observations_sql(query_vector: List[float], limit: int = 10, similarity: float = .7):
     database = current_bd_database_name()
     sys_text = sys_text_mapping()
     sys_text_vector = sys_text_vector_mapping()
@@ -228,7 +236,8 @@ def similar_observations_sql(query_vector: List[float], limit: int = 10, similar
             + Param({"limit": limit, "similarity": similarity})
     )
 
-def similar_observations_sql1(query_vector: List[float], limit: int = 10, similarity:float = .7):
+
+def similar_observations_sql1(query_vector: List[float], limit: int = 10, similarity: float = .7):
     database = current_bd_database_name()
     sys_text = sys_text_mapping()
     sys_text_vector = sys_text_vector_mapping()
@@ -296,8 +305,10 @@ def search_observations_full_text_sql(query: str, start_date=None, end_date=None
             + f"  JOIN {database}.{sys_obs} o ON t.{sys_text | FlatText.OBSERVATION_ID} = o.{sys_obs | FlatObs.ID}"
             + f"  WHERE t.{sys_text | FlatText.TEXT} LIKE :pattern"
             + Param({"pattern": f"%{query}%"})
-            + (start_date, f"  AND o.{sys_obs | FlatObs.METADATA_TIME_CREATE} >= :start_date", Param({"start_date": start_date}))
-            + (end_date,   f"  AND o.{sys_obs | FlatObs.METADATA_TIME_CREATE} <= :end_date",   Param({"end_date": end_date}))
+            + (start_date, f"  AND o.{sys_obs | FlatObs.METADATA_TIME_CREATE} >= :start_date",
+               Param({"start_date": start_date}))
+            + (end_date, f"  AND o.{sys_obs | FlatObs.METADATA_TIME_CREATE} <= :end_date",
+               Param({"end_date": end_date}))
             + f"  LIMIT :start, :limit"
             + Param({"start": start, "limit": limit})
     )
