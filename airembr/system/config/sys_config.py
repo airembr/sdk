@@ -44,8 +44,6 @@ class SysConfig(metaclass=Singleton):
         self.internal_source = f"@internal-{random_hash[:20]}"
         self.api_key = env.get('API_KEY', None)
 
-        self.auto_profile_merging = env.get('AUTO_PROFILE_MERGING', 's>a.d-kljsa87^5adh')
-
         self.maxmind_host = env.get('MAXMIND_HOST', 'geolite.info')
         self.maxmind_license_key: str | None = env.get('MAXMIND_LICENSE_KEY', None)
         self.maxmind_account_id: int | None = get_env_as_int('MAXMIND_ACCOUNT_ID', None)

@@ -10,13 +10,6 @@ from airembr.sdk.storage.cache.config import redis_config
 system_settings = [
     SystemSettings(
         **{
-            "label": "EFF_LATE_PROFILE_BINDING",
-            "value": global_settings.eff_late_profile_binding,
-            "desc": "Default: 'no'. Experimental feature. Late Profile Binding. By default disabled."
-        }
-    ),
-    SystemSettings(
-        **{
             "label": "PULSAR_HOST",
             "value": global_settings.pulsar_host,
             "desc": "Default: pulsar://localhost:6650. Pulsar broker connection."

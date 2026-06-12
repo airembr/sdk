@@ -43,15 +43,7 @@ class Settings:
 
         self.queue_adapter = env.get('QUEUE_ADAPTER', 'kafka')
 
-        self.move_events_on_merge = get_env_as_bool('MOVE_EVENTS_ON_MERGE', 'yes')
         self.disable_consistency_check = get_env_as_bool('DISABLE_CONSISTENCY_CHECK', 'no')
 
-        self.eff_late_profile_binding = get_env_as_bool('EFF_LATE_PROFILE_BINDING', 'yes')
-
-        system_events_for_property_change = env.get('SYSTEM_EVENTS_FOR_PROPERTY_CHANGE', None)
-        if isinstance(system_events_for_property_change, str):
-            self.system_events_for_property_change = system_events_for_property_change.split(',')
-        else:
-            self.system_events_for_property_change = []
 
 global_settings = Settings(os.environ)
