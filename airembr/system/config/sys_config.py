@@ -53,12 +53,6 @@ class SysConfig(metaclass=Singleton):
         self.queue_enabled = get_env_as_bool('QUEUE_ENABLED', 'yes')
         self.queue_tenant = env.get('QUEUE_TENANT', f'{APP_NAME}-{VERSION}')
 
-        # Not used now
-        self.dispatch_log_partitioning = env.get('DISPATCH_LOG_PARTITIONING', 'month')
-        self.console_log_partitioning = env.get('CONSOLE_LOG_PARTITIONING', 'month')
-        self.item_partitioning = env.get('ITEM_PARTITIONING', 'year')
-        self.skip_errors_on_profile_mapping = get_env_as_bool('SKIP_ERRORS_ON_PROFILE_MAPPING', 'no')
-
         self.cache_adapter = env.get('CACHE_ADAPTER', 'redis')
         self.big_data_adapter = env.get('BIG_DATA_ADAPTER', 'starrocks')  # starrocks, duckdb
         self.meta_data_adapter = env.get('META_DATA_ADAPTER', 'mysql')  # sqlite, mysql
