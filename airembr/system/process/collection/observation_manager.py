@@ -1,8 +1,12 @@
+import json
+from uuid import uuid4
 from durable_dot_dict.dotdict import DotDict
 from typing import List, Tuple, Optional, AsyncGenerator
 
 from pydantic import ValidationError
 
+from airembr.system.config.sys_config import sys_config
+from airembr_sdk.core.date import now_in_utc
 from pararun.model.transport_context import TransportContext
 from pararun_adapter import queue_type
 
@@ -13,9 +17,10 @@ from airembr.model.system.context import ServerContext, Context
 from airembr.system.process.logging.log_handler import get_logger
 from airembr.system.adapter.queue.queue_adapter import queue_adapter
 from airembr.system.process.dispatching.trigger_manager import run_triggers
-from airembr.system.process.embedding.embedding_manager import run_embedding
 from airembr.system.process.collection.computation.event_computer import compute_events
 from airembr.system.process.sourcing.source_validation import valid_sources
+from airembr.model.bigdata.flat_log_payload import FlatLogPayload
+from airembr.system.adapter.bigdata.big_data_adapter import bd_log_payload_adapter
 from airembr.system.process.collection.fact_worker import save_events_in_queue, event_storage_worker
 from airembr.system.process.collection.observation_worker import obs_storage_worker, save_obs_in_queue
 
@@ -136,6 +141,24 @@ async def _yield_valid_observation(headers, observations: List[dict]) -> AsyncGe
         # Observation, flat_fact, flat_relation, storage_context_entities, timer
         yield observation, [item async for item in compute_events(observation, headers)]
 
+def _unpack_observations(observations: List[dict], headers: Headers):
+    _headers = json.dumps(dict(headers))
+    _now = now_in_utc()
+    for observation in observations:
+        yield {
+            FlatLogPayload.ID: str(uuid4()),
+            FlatLogPayload.TS: _now,
+            FlatLogPayload.HEADERS: _headers,
+            FlatLogPayload.OBSERVATIONS: json.dumps([observation], default=str),
+        }
+
+async def _store_log_payload(observations: List[dict], headers: Headers):
+    try:
+        rows = list(_unpack_observations(observations, headers))
+        await bd_log_payload_adapter.save_payload(rows)
+        logger.stat(f"Backed up {len(rows)} observations.")
+    except Exception as e:
+        logger.warning(f"Could not back up observations die to error: {str(e)}")
 
 async def compute_and_save_events(context,
                                   observations: List[dict],
@@ -166,16 +189,17 @@ async def compute_and_save_events(context,
             metadata_time_insert=observation.insert_ts,
         ))
 
-        # Triggers
+        # Triggers per observation
         await run_triggers(headers, observation)
-
-        # Embeddings
-        await run_embedding(headers, observation)
 
     # Store observations
     await _store_observations(context, headers, single_observation_list)
 
     # Store facts
     await _store_facts(context, headers, single_storage_payload_list)
+
+    # Store api calls
+    if sys_config.backup_api_calls:
+        await _store_log_payload(observations, headers)
 
     return sent_records

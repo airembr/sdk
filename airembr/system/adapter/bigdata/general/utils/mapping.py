@@ -109,6 +109,10 @@ def log_mapping() -> EntityToTableMapping:
     return _read_mapping_records(os.path.join(_local_dir, f'{_schema_dir}/sys_log.json'))
 
 @run_once
+def log_payload_mapping() -> EntityToTableMapping:
+    return _read_mapping_records(os.path.join(_local_dir, f'{_schema_dir}/sys_log_payload.json'))
+
+@run_once
 def sys_timer_mapping() -> EntityToTableMapping:
     return _read_mapping_records(os.path.join(_local_dir, f'{_schema_dir}/sys_timer.json'))
 

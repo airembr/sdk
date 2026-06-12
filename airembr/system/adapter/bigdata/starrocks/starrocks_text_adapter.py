@@ -32,7 +32,6 @@ class StarrocksTextAdapter(AdapterRouter):
 
     async def load_not_embedded_tests(self):
         sql = load_not_embedded_texts_sql()
-        print(1, sql.literal())
         return await self.adapter.exec(sql)
 
     async def load_not_summarized_tests(self):

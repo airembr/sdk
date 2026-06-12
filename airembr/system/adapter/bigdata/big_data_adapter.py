@@ -15,6 +15,7 @@ if _bd_adapter_var == 'starrocks':
     from airembr.system.adapter.bigdata.starrocks.starrocks_entity_property_state_adapter import \
         StarrocksEntityPropertyStateAdapter
     from airembr.system.adapter.bigdata.starrocks.starrocks_hyper_egde import BdHyperEdgeAdapter
+    from airembr.system.adapter.bigdata.starrocks.starrocks_log_payload_adapter import StarrocksLogPayloadAdapter
 else:
     raise ValueError(f"Unknown big data adapter `{_bd_adapter_var}`")
 
@@ -29,6 +30,11 @@ from airembr.system.adapter.bigdata.general.bd_event_job_adapter import DbEventJ
 from airembr.system.adapter.bigdata.general.bd_gid_2_pk import BdGid2PKAdapter
 from airembr.system.adapter.bigdata.general.bd_ender_adapter import BdObservationAdapter
 from airembr.system.adapter.bigdata.general.bd_state_adapter import BdStateAdapter
+
+
+@run_once
+def _bd_log_payload_adapter():
+    return StarrocksLogPayloadAdapter()
 
 
 @run_once
@@ -120,7 +126,7 @@ def _bd_hyper_edge_adapter():
 
 
 bd_install_adapter = _bd_install_adapter()
-bd_raw_adapter = None
+bd_log_payload_adapter = _bd_log_payload_adapter()
 bd_log_adapter = _bd_log_adapter()
 bd_apm_adapter = None
 bd_entity_adapter = _bd_entity_adapter()

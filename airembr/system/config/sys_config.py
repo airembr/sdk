@@ -23,6 +23,9 @@ class SysConfig(metaclass=Singleton):
         env = os.environ
         self.version = version
         self.app_name = 'airembr'
+
+        self.backup_api_calls = get_env_as_bool('BACKUP_API_CALLS', 'yes')
+
         self.enable_triggers = get_env_as_bool('ENABLE_TRIGGERS', 'yes')
         self.enable_event_validation = get_env_as_bool('ENABLE_EVENT_VALIDATION', 'yes')
         self.enable_event_reshaping = get_env_as_bool('ENABLE_EVENT_RESHAPING', 'yes')
