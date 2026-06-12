@@ -1,0 +1,42 @@
+{
+  "table": "sys_log_payload",
+  "distributed": "HASH(id)",
+  "duplicate_key": [
+    "id"
+  ],
+  "buckets": 10,
+  "partitioned": "RANGE(ts) ()",
+  "order": "ts",
+  "properties": [
+    "\"enable_persistent_index\" = \"true\""
+  ],
+  "engine": "olap",
+  "columns": [
+    {
+      "column": "id",
+      "sr_column_type": "varchar(48)",
+      "ddb_column_type": "VARCHAR",
+      "property": "id",
+      "default": "NOT NULL"
+    },
+    {
+      "column": "ts",
+      "sr_column_type": "datetime",
+      "ddb_column_type": "TIMESTAMP",
+      "property": "ts",
+      "default_value": "CURRENT_TIMESTAMP"
+    },
+    {
+      "column": "headers",
+      "sr_column_type": "VARCHAR(64000)",
+      "ddb_column_type": "text",
+      "property": "headers"
+    },
+    {
+      "column": "observations",
+      "sr_column_type": "VARCHAR(1048576)",
+      "ddb_column_type": "text",
+      "property": "observations"
+    }
+  ]
+}

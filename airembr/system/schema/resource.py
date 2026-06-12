@@ -28,6 +28,7 @@ class Resource(metaclass=Singleton):
             "sys_ent_2_obs": Table(name='sys_ent_2_obs'),
             "sys_ent_state": Table(name='sys_ent_state'),
             "sys_log": Table(name='sys_log'),
+            "sys_log_payload": Table(name='sys_log_payload'),
             'sys_timer': Table(name='sys_timer'),
             'sys_obs_trigger': Table(name='sys_obs_trigger'),
             'sys_obs': Table(name='sys_obs'),

@@ -40,7 +40,7 @@
     },
     {
       "column": "text_string",
-      "sr_column_type": "TEXT",
+      "sr_column_type": "VARCHAR(1048576)",
       "ddb_column_type": "TEXT",
       "property": "text_string",
       "default": "NOT NULL"
