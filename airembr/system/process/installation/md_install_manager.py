@@ -1,5 +1,6 @@
 from uuid import uuid4
 
+from airembr.system.license.license_verifier import system_license
 from airembr.system.process.logging.log_handler import get_logger
 from airembr.system.adapter.metadata.mysql.service.version_service import VersionService
 from airembr.system.preconfig.setup_bridges import os_default_bridges
@@ -26,9 +27,13 @@ class MetaDataInstallManager(metaclass=Singleton):
         await BridgeService.bootstrap(default_bridges=os_default_bridges)
 
         # Install views
-        await self.ds.create_views(sqls=[
-            'sys_v_destination_resource.sql'
-        ], folder=get_md_sql_view_folder())
+        view_sqls = []
+
+        if system_license.valid:
+            view_sqls.append('sys_v_destination_resource.sql')
+
+        if view_sqls:
+            await self.ds.create_views(sqls=view_sqls, folder=get_md_sql_view_folder())
 
         # TODO context may not be needed - check
         # Install staging

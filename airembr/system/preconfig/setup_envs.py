@@ -66,13 +66,6 @@ system_settings = [
     ),
     SystemSettings(
         **{
-            "label": "SYSTEM_EVENTS_FOR_PROPERTY_CHANGE",
-            "value": global_settings.system_events_for_property_change,
-            "desc": "Default: None. Enable monitoring of profile property change. Put property name here to collect system event `Property Changed`."
-        }
-    ),
-    SystemSettings(
-        **{
             "label": "API_DOCS",
             "value": server_config.api_docs,
             "desc": "Default: Yes. Turns off APi documentations at /docs."
