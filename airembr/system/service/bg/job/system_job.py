@@ -9,6 +9,7 @@ from airembr.system.process.ai.chunker.text_chunk_embedder import chunk_texts
 from airembr.system.process.stitching.stitch import stitch
 from airembr.system.process.logging.log_handler import get_logger
 from airembr.system.adapter.bigdata.tenant.tenant_adapter import load_tenant_database_and_context
+from airembr.sdk.ai.config import embedding_host
 
 logger = get_logger(__file__)
 
@@ -18,8 +19,11 @@ async def main():
 
     config = StarRocksConfig()
 
-    logger.info(
-        f"Config: starrocks_database_uri = {config.starrocks_database_uri} (env: {os.environ.get('STARROCKS_HOST', None)})")
+    logger.dev_info(
+        f"Config: STARROCKS_HOST = {config.starrocks_database_uri} (env: {os.environ.get('STARROCKS_HOST', None)})")
+
+    logger.dev_info(
+        f"Config: EMBEDDING_HOST = {embedding_host} (env: {os.environ.get('EMBEDDING_HOST', None)})")
 
     # Scan database names and produce context
     async for database, context in load_tenant_database_and_context():

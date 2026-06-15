@@ -1,7 +1,6 @@
 from time import time
 
 from typing import Optional, Dict, List, Tuple
-from urllib3.exceptions import NewConnectionError, MaxRetryError
 
 from airembr.model.bigdata.flat_text_vector import FlatTextVector
 from airembr.model.system.context import get_context
