@@ -25,5 +25,7 @@ SECOND_LLM_ENTITY_EXTRACTION_MODEL = 'mistralai/ministral-14b-2512'
 LLM_QUERY_MODEL = 'qwen/qwen3-max-thinking'
 LLM_QUERY_MODEL = 'google/gemma-4-26b-a4b-it' # better
 
+LLM_TIME_EXTRACTION_MODEL = 'mistralai/ministral-14b-2512'
+
 LLM_PROVIDER = 'open-router'
 LLM_PROVIDER_API_KEY = os.environ.get('OPENROUTER_API_KEY')

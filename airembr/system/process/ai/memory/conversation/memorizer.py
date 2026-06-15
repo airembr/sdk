@@ -4,7 +4,7 @@ from typing import Tuple, List, Dict, Optional
 from airembr.system.decorator.run_every import run_every
 from airembr.model.api.response.conversation_memory import ConversationMemory
 from airembr.system.process.ai.memory.conversation.memory_facade import ConversationMemoryFacade
-from airembr.system.process.ai.memory.conversation.summarizer import summary_worker
+from airembr.system.process.ai.summarizer.summarizer import summary_worker
 
 
 def get_conversation_memory(chat_id: str) -> Tuple[List[str], int]:
