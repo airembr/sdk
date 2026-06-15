@@ -76,7 +76,10 @@ async def _embed_in_batches(chunk_map: Dict[str, dict], emb_client: EmbeddingApi
             try:
                 result = emb_client.call(batch).get_mapped_embeddings()
             except Exception as e:
-                logger.error(f"Probably missing or unavailable embedding API. Error in {context} {e}")
+                if not embedding_host:
+                    logger.error(f"Missing embedding API. Error in {context} {e}")
+                else:
+                    logger.error(f"Unavailable embedding API ({embedding_host}). Error in {context} {e}")
                 return None
             embeddings.update(result.dense)
             percent = (i + len(batch))/no_of_items
