@@ -59,6 +59,7 @@ def _collect_all_chunks(data, chunker, model: str, now) -> Tuple[Dict[str, dict]
                 'has_siblings': has_siblings,
                 'model': model,
                 'ts': now,
+                'origin': row.get('origin'),
             }
         original_ids.append(original_id)
     return chunk_map, original_ids
@@ -99,6 +100,7 @@ def _build_text_rows(chunk_map: Dict[str, dict]) -> List[dict]:
             FlatText.REQUIRE_NER: False,
             FlatText.CHUNKED: True,
             FlatText.MODEL: entry['model'],
+            FlatText.ORIGIN: entry['origin'],
             FlatText.TS: entry['ts'],
         }
         for chunk_id, entry in chunk_map.items()
