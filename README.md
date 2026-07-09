@@ -1,154 +1,71 @@
-# AiRembr SDK Documentation
+# AiRembr - AI memory that can explain itself.
 
-## Overview
+AiRembr is open-source, self-hosted memory infrastructure for AI applications. It turns documents, emails, APIs and conversations into a deterministic, structured semantic index — one where every fact traces back to the observation that produced it, every answer is reproducible, and everything runs on infrastructure you own.
 
-**AiRembr SDK** is a software development kit that enables developers to easily store, retrieve, and manage data within the **AiRembr memory system** — a distributed infrastructure for building **AI Based Systems**.
-It provides a seamless interface for integrating AiRembr’s real-time memory into any application, allowing AI agents, enterprise systems, and intelligent apps to **capture observations, query contextual memories, and evolve knowledge structures** with minimal latency.
+Instead of a single opaque `mem.add()` / `mem.search()` API bolted onto a vector store, AiRembr gives you a composable pipeline you configure: raw signals in, structured knowledge out.
 
----
+## The problem
 
-## What is AiRembr?
+Most AI initiatives don't fail on the model — they fail on the data underneath it. Knowledge is scattered across silos that don't agree with each other, most agent pilots never reach production, and the memory frameworks available today store raw text and embeddings with no way to explain *why* an answer came back, whether it's still true, or where it came from.
 
-**AiRembr** is a **neuroplastic, neurosymbolic distributed memory system** designed for real-time AI agents. It captures, synthesizes, and evolves data, enabling large language models to access stored information.
-It can store both **semantic** and **knowledge-graph-like** data. By applying background processes such as **entity extraction and identification**, AiRembr can further decompose and structure stored facts.
+## How it works
 
-Currently, these processes must be implemented by the developer using the SDK. AiRembr is designed to be **open and extensible** — we do not limit how you process data or extract knowledge.
-Future versions will introduce optional built-in background processes, but you’ll always be free to use your own implementations.
+Four steps take raw signals to structured, queryable memory:
 
-The vision behind AiRembr is to provide a **framework for anyone to build their own AI memory infrastructure**.
+1. **Observe** — Documents, emails, APIs and conversations stream in as observations. Nothing to model up front.
+2. **Understand** — Entities, events and relations are extracted and resolved (the email sender "ACME" becomes the customer "ACME").
+3. **Index** — Facts land in a versioned semantic index — compressed, deduplicated, and enriched by event-driven rules as new data arrives.
+4. **Retrieve** — Apps, agents and analysts query the same index. Deterministic answers, with AI reasoning invoked only on demand.
 
----
+Underneath, the pipeline is built from small, typed, composable stages you assemble yourself:
 
-## ✨ Key Features
+- **Capture** — Observation, Entity, Fact
+- **Enhance** — Extract Facts, Infer Implicit Facts, Orchestrate & Trigger
+- **Use** — Retrieval, Reasoning, Forgetting
 
-* **Open Interface** – Build modern AI Memory systems, independent of any LLM or architecture
-* **Real-Time Processing** – Sub-20ms latency with horizontally scalable distributed services
-* **Neuroplastic Design** – Memories that continuously learn and restructure themselves
-* **API-First Architecture** – Seamless integration into existing infrastructures
-* **Enterprise-Grade** – Built for production-scale workloads
-* **Neurosymbolic Approach** – Combines machine learning with symbolic reasoning for knowledge mining
-
----
-
-## 🧩 Use Cases
-
-* AI agents with persistent memory
-* Customer data and personalization platforms
-* Healthcare or enterprise knowledge systems
-* Conversational AI with contextual recall
-* Intelligent assistants with memory continuity
-
----
-
-## ⚙️ Installation
-
-### Prerequisites
-
-AiRembr requires both the **service infrastructure** and the **SDK library**.
-
----
-
-### Install AiRembr Service
-
-1. Get the `docker-compose.yml` file (`wget https://raw.githubusercontent.com/airembr/sdk/master/docker-compose.yaml`)
-2. Run the service:
-
-```bash
-docker compose up
-```
-
-The service will be available at:
-
-```
-http://localhost:14002
-```
-
----
-
-### Install AiRembr SDK
-
-```bash
-pip install airembr-sdk
-```
-
----
-
-## 🚀 Quick Start
-
-> **Note:** Currently, AiRembr supports **conversation-scoped memory**, but all stored facts are retained for future processing and retrieval.
-
-### 1. Initialize the Client
+## Two calls: observe, then search
 
 ```python
-from airembr_sdk.client.airembr_chat import AiRembrChatClient, entity, event
+from airembr_sdk.client.airembr_chat import AiRembrChatClient, entity
 
-client = AiRembrChatClient(api="http://localhost:4002")
+client = AiRembrChatClient(api="http://localhost:8686")
 
-# Define entities
 person = entity("person", traits={"name": "John"}, label="John Smith", id="1")
-agent = entity("agent", traits={"name": "ChatGPT"}, id="3")
-message = entity("message", traits={"type": "chat"}, id="2")
+agent  = entity("agent",  traits={"name": "ChatGPT"}, id="3")
 
-# Define observation
-observation = (
-    client.
-    observation(
-        source_id="123",
-        id="o1",
-        label="messaged",
-        observer=person,
-        description="Describe the observation in plain text")
-    .context({person, agent, message})  # Connected entities
+(
+    client
+    .observation(source_id="123", id="o1", label="messaged",
+                 observer=person, description="Describe the observation in plain text")
+    .context({person, agent})
+    .remember()
 )
-
-observation.remember()
 ```
 
----
+```python
+facts = client.search("open invoices for ACME", scope="facts")
 
-## 🧠 Core Concepts
+for f in facts:
+    print(f.entity, f.value, f.source)
+```
 
-### Observations
+## Why AiRembr
 
-Observations are the **fundamental data units** in AiRembr. Each observation contains:
+| Others | AiRembr |
+|---|---|
+| Stores raw text and embeddings | Stores structured entities, facts and relations |
+| Answers drift between runs | Deterministic, reproducible retrieval |
+| Black-box similarity scores | Explainable results with provenance |
+| Memory locked to a single app | One index shared by every app and agent |
+| Grows into an unsearchable pile | Compresses and forgets by rule |
+| An LLM in the loop of every lookup | AI only when reasoning is needed |
+| Self-hosting deprecated or feature-gated | Open source, self-hosted, nothing withheld |
+| Poisoned or stale memories persist silently | Versioned facts, conflict-aware, forgetting by rule |
 
-* **Actor** – The entity performing the action (e.g., person or agent)
-* **Event** – The type of action (e.g., "message")
-* **Objects** – Data associated with the event
+Core traits: **Observable** (every fact traces to its source), **Versioned** (ask what was true last quarter, not just today), **Deterministic** (same query, same answer), **Secure** (scoped access, encryption, audit trails), **Self-hosted**, **Composable**, **Extensible** (custom extractors, rules, storage backends), **Distributed** (scales horizontally across nodes and regions).
 
-Actors and objects are treated as **entities** that can be identified and merged. Over time, repeated interactions enrich entities with additional traits and relationships.
+## Who it's for
 
----
-
-### Conversation Memory vs. Long-Term Memory
-
-| Type                    | Description                                                                                                                                                       |
-| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Conversation Memory** | Stores and retrieves messages within a specific chat session. Provides contextual recall and automatic compression when limits are reached. Indexed by `chat_id`. |
-| **Long-Term Memory**    | (Coming Soon) Enables cross-session memory retrieval and semantic search across historical data. Currently requires a custom implementation.                      |
-
----
-
-### Extensibility
-
-AiRembr is designed to be **your experimental memory foundry** — a sandbox for developing different approaches to AI memory systems.
-Future versions will include built-in long-term retrieval APIs, but the current release empowers developers to build their own.
-
----
-
-## 🗺️ Roadmap
-
-Planned features for upcoming releases:
-
-* Built-in long-term memory retrieval across sessions
-* Internal reasoning and reflection mechanisms
-* Memory model training capabilities
-* Pre-built retrieval and embedding add-ons
-* Semantic and hybrid search integrations
-
----
-
-## 📜 SDK License
-
-AGPL License © 2026 AiRembr
-
+- **AI agencies & system integrators** — build the memory practice once, configure it per client, and hand over something the client can actually audit and maintain instead of walking away from a bespoke one-off.
+- **AI builders & indie/startup teams** — a memory framework you grow into, not out of: no metered credits, no feature-gated tiers, no self-hosting rug-pull.
+- **Enterprises entering the AI era** — a governed, explainable memory substrate that breaks down data silos without giving up control, with provenance and audit trails as the foundation rather than a compliance afterthought.
