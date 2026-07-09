@@ -80,59 +80,29 @@ pip install airembr-sdk
 ### 1. Initialize the Client
 
 ```python
-from airembr.sdk.chat_client import AiRembrChatClient
-from airembr_sdk.api.model.collection.instance import Instance
-from airembr.model.system.observation import ObservationEntity
+from airembr_sdk.client.airembr_chat import AiRembrChatClient, entity, event
 
-# Create references to entities that participate in the conversation
-observer, person, agent = AiRembrChatClient.get_references()
+client = AiRembrChatClient(api="http://localhost:4002")
 
-# Define main actor
-actor = ObservationEntity(
-            instance=Instance.type("person", "1"),
-            traits={"name": "Adam"}
-        )
+# Define entities
+person = entity("person", traits={"name": "John"}, label="John Smith", id="1")
+agent = entity("agent", traits={"name": "ChatGPT"}, id="3")
+message = entity("message", traits={"type": "chat"}, id="2")
 
-client = AiRembrChatClient(
-    api="http://localhost:14002",
-    source_id="701eeeb9-13f1-4263-9c59-98adeb3317c9",
-    entities={  # Entities that take part in the conversation.
-        observer: actor,
-        person: actor,
-        agent: ObservationEntity(
-            instance=Instance.type("agent"),
-            traits={"name": "ChatGPT", "model": "openai-5"}
-        )
-    },
-    observer=observer,  # Which entity is an observer? Observer is the owner of the conversation.
-    chat_id="chat-1"
+# Define observation
+observation = (
+    client.
+    observation(
+        source_id="123",
+        id="o1",
+        label="messaged",
+        observer=person,
+        description="Describe the observation in plain text")
+    .context({person, agent, message})  # Connected entities
 )
+
+observation.remember()
 ```
-
-### 2. Send Messages
-
-```python
-# Person sends a message. This should be somewhere in your chat code. It does not query LLM just saves the message.
-client.chat("Hi, how are you?", person)
-
-# Agent responds
-client.chat("I'm fine.", agent)
-```
-
-### 3. Retrieve Conversation Memory
-
-```python
-# Save Facts (messages)  and retrieve conversation memory for this chat
-status, response = client.remember(realtime='collect,store,destination')
-
-if status.ok():
-    print(response.get_chat_memory(client.chat_id).format())
-else:
-    print(status)
-```
-
-> The `remember()` method retrieves **conversation memory** for the specific `chat_id`.
-> It includes messages, summaries, entities, and contextual metadata — all compressed and indexed for low-latency recall.
 
 ---
 
@@ -159,119 +129,6 @@ Actors and objects are treated as **entities** that can be identified and merged
 
 ---
 
-### Memory Structure
-
-Each retrieved conversation memory includes:
-
-* **Summary** – Compressed representation of previous chat context
-* **Entities** – Identified actors with their traits
-* **Messages** – Recent conversation history
-* **Context** – Temporal and environmental metadata
-
-#### Example Response
-
-```python
-{
-    "chat-1": """
-        Summary of previous chat:
-        Adam and the agent discussed LLM history...
-
-        Entities:
-          person -> (name: Adam, surname: Nowak)
-          agent -> (name: ChatGPT, model: openai-5)
-
-        Current messages:
-          [date] person: Hi, how are you?
-          [date] agent: I’m fine.
-
-        Context:
-          Now: 2025-11-03 09:39:23 (Monday)
-    """
-}
-```
-
----
-
-## 🧰 API Reference
-
-### `AiRembrChatClient`
-
-#### Constructor Parameters
-
-| Parameter         | Type   | Required | Description                                    |
-| ----------------- | ------ | -------- | ---------------------------------------------- |
-| `api`             | `str`  | ✅        | AiRembr service endpoint URL                   |
-| `source_id`       | `str`  | ✅        | Unique identifier for the data source          |
-| `person_instance` | `str`  | ✅        | Identifier for the person instance  (entity #ID)           |
-| `person_traits`   | `dict` | ✅        | Attributes of the person (e.g., name, email)   |
-| `agent_traits`    | `dict` | ✅        | Attributes of the agent (e.g., model, version) |
-| `chat_id`         | `str`  | ✅        | Unique identifier for the conversation         |
-
----
-
-#### `chat(message, actor)`
-
-Sends a message to the AiRembr system and stores it as an observation.
-
-```python
-client.chat("Hello!", person)
-```
-
-**Parameters**
-
-* `message` *(str)* – Message text
-* `actor` *(LinkInstance)* – `person` or `agent`
-
----
-
-#### `remember(realtime)`
-
-Retrieves the stored conversation memory for the active chat session.
-
-```python
-memory = client.remember(realtime='collect,store,destination')
-```
-
-**Parameters**
-
-* `realtime` *(str)* – Specifies which parts of the ingestion pipeline run in real time
-
-**Returns**
-
-* A dictionary containing memories indexed by `chat_id`
-
----
-
-## ⚡ Features
-
-* **Automatic Context Compression** – Keeps context within window limits while maintaining continuity
-* **Multi-Chat Support** – Each `chat_id` maintains its own memory scope
-* **Entity Tracking** – Identifies and merges entities automatically, evolving over time
-
----
-
-## 🧩 Advanced Usage
-
-### Building Long-Term Memory Systems
-
-To extend AiRembr beyond conversation-scoped memory:
-
-1. **Build a Retrieval System**
-
-   * Query stored data across sessions
-   * Use vector or symbolic search
-
-2. **Implement an Embedding Pipeline**
-   * Process incoming facts and store embeddings in a database
-
-3. **Design a Retrieval Strategy**
-
-   * Combine symbolic and semantic search methods
-
-> AiRembr provides the **infrastructure foundation** — you control how long-term memory and retrieval logic evolve.
-
----
-
 ### Extensibility
 
 AiRembr is designed to be **your experimental memory foundry** — a sandbox for developing different approaches to AI memory systems.
@@ -293,5 +150,5 @@ Planned features for upcoming releases:
 
 ## 📜 SDK License
 
-MIT License © 2025 AiRembr
+AGPL License © 2026 AiRembr
 
