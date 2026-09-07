@@ -6,7 +6,7 @@ system_prompt_template = """
 You are an expert in creating questions to a given text. 
 Your role is to create up to %d questions that answer the facts described in the text.
 Questions should not repeat. Question can be on a different levels of abstraction. 
-If npofact in the text then do not generate questions.
+If no fact in the text then do not generate questions.
 
 Examples:
 
@@ -50,7 +50,7 @@ including indirect queries like "Was there any recent concern about my Netflix a
     ]
      
 Expected output:
-Create questions as a list of strings.
+Create questions as a list of strings an ALWAYS in the language of the delivered text.
 """
 
 user_prompt_template = """
