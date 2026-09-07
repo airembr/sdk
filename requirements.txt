@@ -10,6 +10,7 @@ python-multipart # Moze nie byc potrzebne
 lark==1.1.2
 git+https://github.com/Tracardi/dotty_dict@master
 dateparser
+pytz
 pytimeparse
 jsonschema>=4.20.0
 python-dateutil
