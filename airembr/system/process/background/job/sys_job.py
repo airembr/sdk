@@ -32,11 +32,11 @@ async def main():
     async for database, context in load_tenant_database_and_context():
         logger.info(f"Context: {context}, Database: {database}")
         with ServerContext(context):
-            # await asyncio.gather(
-            #     # stitch(context, database),
-            #     # chunk_texts(context),
-            #     # text_questions(context)
-            # )
+            await asyncio.gather(
+                stitch(context, database),
+                chunk_texts(context),
+                text_questions(context)
+            )
 
             # # logger.info("Text summarization...")
             # # await summarize(context)
