@@ -3,6 +3,8 @@ import os
 from asyncio import sleep
 from time import time
 
+from airembr.system.process.ai.embedding.embed import embed
+from airembr.system.process.ai.questions.question_maker import text_questions
 from srd.config import StarRocksConfig
 
 from airembr.model.system.context import ServerContext
@@ -33,30 +35,25 @@ async def main():
             await asyncio.gather(
                 stitch(context, database),
                 chunk_texts(context),
+                text_questions(context)
             )
-
-            # await chunk_texts(context)
 
             # # logger.info("Text summarization...")
             # # await summarize(context)
             # #
-            # # # Embed texts
-            # # logger.info("Text embeddings...")
-            # await embed(context)
-            #
-            # # Stitch entity state
-            # await stitch(context, database)
+
+            # # Embed texts
+            logger.info("Text and property embeddings...")
+
+            # This is used to embed text and property values
+
+            await embed(context)
+
             #
             # # Embed texts
             # # logger.info("Text entities...")
             # await extract_entities(context)
             # #
-            # # # Stitch entity state
-            # # await stitch(context, database)
-            # #
-            # # # Embedd again
-            # # # logger.info("Text embeddings...")
-            # # await embed(context)
 
     await sleep(2)
 
