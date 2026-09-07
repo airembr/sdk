@@ -29,3 +29,5 @@ LLM_TIME_EXTRACTION_MODEL = 'mistralai/ministral-14b-2512'
 
 LLM_PROVIDER = 'open-router'
 LLM_PROVIDER_API_KEY = os.environ.get('OPENROUTER_API_KEY', None)
+
+MAX_QUESTIONS_PER_OBSERVATION = int(os.environ.get('MAX_QUESTIONS_PER_OBSERVATION', 3))

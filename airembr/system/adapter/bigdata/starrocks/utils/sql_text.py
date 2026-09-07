@@ -102,6 +102,40 @@ def count_not_summarized_texts_sql():
     )
 
 
+def count_observations_without_questions_sql():
+    database = current_bd_database_name()
+    sys_text = sys_text_mapping()
+    return (
+            Sql()
+            + "  SELECT COUNT(*) as count"
+            + f"  FROM {database}.{sys_text} root"
+            + f"  LEFT JOIN {database}.{sys_text} q ON q.{sys_text | FlatText.PARENT_ID} = root.{sys_text | FlatText.ID}"
+            + f"                                    AND q.{sys_text | FlatText.ORIGIN} = 4"
+            + f"  WHERE root.{sys_text | FlatText.ORIGIN} = 1"
+            + f"    AND root.{sys_text | FlatText.PARENT_ID} IS NULL"
+            + f"    AND q.{sys_text | FlatText.ID} IS NULL"
+    )
+
+
+def load_observations_without_questions_sql(start: int = 0, limit: int = 100):
+    database = current_bd_database_name()
+    sys_text = sys_text_mapping()
+    return (
+            Sql()
+            + f"  SELECT root.{sys_text | FlatText.ID} as id, root.{sys_text | FlatText.TEXT} as text_string,"
+            + f"         root.{sys_text | FlatText.OBSERVATION_ID} as observation_id"
+            + f"  FROM {database}.{sys_text} root"
+            + f"  LEFT JOIN {database}.{sys_text} q ON q.{sys_text | FlatText.PARENT_ID} = root.{sys_text | FlatText.ID}"
+            + f"                                    AND q.{sys_text | FlatText.ORIGIN} = 4"
+            + f"  WHERE root.{sys_text | FlatText.ORIGIN} = 1"
+            + f"    AND root.{sys_text | FlatText.PARENT_ID} IS NULL"
+            + f"    AND q.{sys_text | FlatText.ID} IS NULL"
+            + f"  ORDER BY root.{sys_text | FlatText.ID}"
+            + f"  LIMIT :start, :limit"
+            + Param({"start": start, "limit": limit})
+    )
+
+
 def count_to_ner_texts_sql():
     database = current_bd_database_name()
     sys_text = sys_text_mapping()

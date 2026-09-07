@@ -11,6 +11,9 @@ from airembr.sdk.service.remote.llm.driver.open_router import OpenRouterProvider
 from airembr.sdk.service.remote.llm.exception import ProviderNotSupportedError
 from airembr.sdk.service.remote.llm.llm_config import LLMConfig
 
+logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("instructor").setLevel(logging.WARNING)
+
 T = TypeVar("T", bound=BaseModel)
 
 class LLMAdapter:
