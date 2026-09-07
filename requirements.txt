@@ -29,6 +29,8 @@ SQLAlchemy==2.0.36
 aiosqlite==0.21.0
 
 # Summarizer AI
+opentelemetry-api==1.39.0  # Must pin to this version otherwise the 1.27.0 pydantic-ai does not work.
+opentelemetry-sdk==1.39.0  # Must pin to this version otherwise the 1.27.0 pydantic-ai does not work.
 pydantic-ai==1.27.0
 
 # Worker requirements
