@@ -137,14 +137,14 @@ def _render_observation_hit_text(observation_id, observations):
     if score:
         lines.append(f"Relevance: {score * 100:.2f}%")
 
-    sorted_hits = sorted(observations.get('_hits', []), key=lambda x: x[0], reverse=True)
+    sorted_hits = sorted(observations.get('_hits', []), key=lambda x: x['score'], reverse=True)
 
     for hit in sorted_hits:
-        create_ts = hit[2]
+        create_ts = hit['ts']
         if create_ts:
             create_ts = parse(str(create_ts)).strftime("%Y-%d-%m %H:%M")
 
-        lines.append(f"[{create_ts}] {hit[1]}")
+        lines.append(f"[{create_ts}] {hit['text']}")
 
     return lines
 

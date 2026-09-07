@@ -283,6 +283,8 @@ def similar_observations_sql1(query_vector: List[float], limit: int = 10, simila
             + f"    t.{sys_text | FlatText.OBSERVATION_ID} AS id,"
             + f"    t.{sys_text | FlatText.TEXT} AS text_string,"
             + f"    t.{sys_text | FlatText.TS} AS ts,"
+            + f"    t.{sys_text | FlatText.ORIGIN} AS origin,"
+            + f"    t.{sys_text | FlatText.PARENT_ID} AS parent_id,"
             + f"    approx_cosine_similarity(v.{sys_text_vector | FlatTextVector.VECTOR}, {vector_str}) AS max_similarity"
             + f"  FROM {database}.{sys_text_vector} v"
             + f"  JOIN {database}.{sys_text} t ON v.{sys_text_vector | FlatTextVector.TEXT_ID} = t.{sys_text | FlatText.ID}"
