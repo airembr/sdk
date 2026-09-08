@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic_ai.models.openai import OpenAIModel
+from pydantic_ai.models.openrouter import OpenRouterModel
 from pydantic_ai.settings import ModelSettings
 from pydantic_ai.providers.openrouter import OpenRouterProvider
 from pydantic_ai import Agent
@@ -20,7 +20,7 @@ async def get_summary(text) -> Optional[SummaryOutput]:
         return None
 
     # Prompt
-    model = OpenAIModel(
+    model = OpenRouterModel(
         llm_config.llm_model,
         settings=ModelSettings(temperature=.1),
         provider=provider
