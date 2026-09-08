@@ -75,7 +75,7 @@ pip install airembr_sdk
 
 ### **Step 7: Automate Future Releases (Optional)**
 For easier future releases:
-- Update the version in `setup.py` (e.g., `0.0.2`).
+- Update the version in `_setup.py` (e.g., `0.0.2`).
 - Run the build and upload steps again:
 
 ```sh

@@ -22,7 +22,7 @@ setup(
         'pytz',
         'aiohttp',
         'pytimeparse',
-        'pydantic-ai==1.27.0',
+        'pydantic-ai==2.31.0',
         'user-agents==2.2.0',
         'sqlalchemy',
         'msgpack'
