@@ -1,7 +1,7 @@
 pip>=24.3.1
 setuptools>=75.6.0
 numpy==1.24.4  # Required only because of elasticsearch[async]==7.10.1
-pydantic==2.11.7  # 2.10.3
+pydantic==2.13.5  # 2.11.7, 2.10.3 — bumped: pydantic-ai 2.31.0 requires pydantic>=2.12
 aiohttp
 redis==5.2.1
 aioredis==2.0.1
@@ -29,12 +29,21 @@ SQLAlchemy==2.0.36
 aiosqlite==0.21.0
 
 # Summarizer AI
-opentelemetry-api==1.39.0  # Must pin to this version otherwise the 1.27.0 pydantic-ai does not work.
-opentelemetry-sdk==1.39.0  # Must pin to this version otherwise the 1.27.0 pydantic-ai does not work.
-pydantic-ai==1.27.0
+
+# pydantic-ai 2.32.0+ requires openai>=3.0.0,
+# while instructor currently requires openai<3.0.0.
+# Therefore keep pydantic-ai below 2.32.0 while both packages
+# are installed in the same environment.
+
+instructor==1.16.0 # Pined to this version as next can require other openai version. eg.>2.45.0.
+pydantic-ai==2.31.1
+openai==2.54.0  # must stay <3.0.0 for instructor; pydantic-ai 2.31.0 only needs >=2.45.0
 
 # Worker requirements
 requests>=2.0.0,<3
+
+# License
+cryptography
 
 # System
 durable-dot-dict>=0.0.24
