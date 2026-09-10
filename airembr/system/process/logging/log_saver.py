@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from pararun.model.batcher import BatcherConfig
 from pararun.model.transport_context import TransportContext
@@ -16,7 +16,9 @@ from airembr.system.adapter.bigdata.big_data_adapter import *
 logger = get_installation_logger(__name__)
 
 
-async def batch_save_logs(context: TransportContext, batch: List[dict]):
+async def batch_save_logs(context: TransportContext,
+                          batch: List[dict],
+                          metadata: Optional[List[dict]] = None):
     # Will run or be queued only when logger_guard return True.
     with ServerContext(Context(**context.as_context())):
         await bd_log_adapter.save_logs(batch)
