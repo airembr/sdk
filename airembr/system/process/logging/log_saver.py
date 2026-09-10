@@ -1,5 +1,6 @@
 from typing import List, Optional
 
+from pararun.consumer.batcher import BulkedResult
 from pararun.model.batcher import BatcherConfig
 from pararun.model.transport_context import TransportContext
 from pararun.publisher.deferer import deferred_execution
@@ -29,7 +30,7 @@ def logger_guard(context: TransportContext, logs: List[dict]):
 
 
 def single_log_collector_in_queue(context: TransportContext, logs: List[dict]):
-    return logs
+    return BulkedResult(logs)
 
 
 async def log_saver_worker(logs: list):
