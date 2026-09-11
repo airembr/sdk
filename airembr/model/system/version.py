@@ -8,7 +8,7 @@ from airembr.sdk.ai.config import embedding_host, embedding_api_key, LLM_PROVIDE
 from airembr.system.license.license_verifier import system_license
 
 APP_NAME = 'airembr'
-VERSION = os.environ.get('_DEBUG_VERSION', '0.0.2')
+VERSION = '0.0.3'
 TENANT_NAME = os.environ.get('TENANT_NAME', None)
 PRODUCTION = os.environ.get('PRODUCTION', 'no').lower() == 'yes'
 MULTI_TENANT = get_env_as_bool('MULTI_TENANT', "no")
