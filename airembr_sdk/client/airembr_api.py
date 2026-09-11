@@ -3,6 +3,8 @@ from typing import Optional, Protocol, Dict, Any, Tuple
 
 import requests
 
+from airembr.model.system.header_schema import X_REAL_TIME, X_SKIP, X_TENANT, X_CONTEXT, X_BRIDGE, \
+    X_CONVERSATION_RESPONSE, V_STAGING
 from airembr_sdk.model.interface.i_time_range import IDatetimeRangePayload, IDatePayload
 from airembr_sdk.model.interface.i_response import QueryResponse, QueryEntityResponse
 from airembr_sdk.model.core.value.response_status import QueryStatus
@@ -41,17 +43,17 @@ class AirembrApi:
         self.url = url
         self.token = None
         self.token_type = None
-        self.context = context if context else "staging"
+        self.context = context if context else V_STAGING
         self.tenant = tenant
 
     def get_default_headers(self):
         headers = {
             "Content-Type": "application/json",
-            "x-context": self.context,
+            X_CONTEXT: self.context,
 
         }
         if self.tenant:
-            headers["x-tenant"] = self.tenant
+            headers[X_TENANT] = self.tenant
 
         return headers
 
@@ -69,26 +71,26 @@ class AirembrApi:
         }
 
         if tenant:
-            headers["x-tenant"] = tenant
+            headers[X_TENANT] = tenant
         else:
-            headers["x-tenant"] = self.tenant
+            headers[X_TENANT] = self.tenant
 
         if skip:
-            headers["x-skip"] = skip
+            headers[X_SKIP] = skip
 
         if realtime:
-            headers["x-realtime"] = realtime
+            headers[X_REAL_TIME] = realtime
 
         if response:
-            headers["x-conversation-response"] = "1"
+            headers[X_CONVERSATION_RESPONSE] = "1"
 
         if context:
-            headers["x-context"] = context
+            headers[X_CONTEXT] = context
         else:
-            headers["x-context"] = context if context else "staging"
+            headers[X_CONTEXT] = context if context else V_STAGING
 
         if bridge:
-            headers["x-bridge"] = bridge
+            headers[X_BRIDGE] = bridge
 
         return headers
 

@@ -4,6 +4,7 @@ from user_agents.parsers import UserAgent
 from urllib.parse import urlparse, ParseResult
 
 from airembr.db.languages import language_codes_dict
+from airembr.model.system.header_schema import X_SKIP, X_REAL_TIME, X_TRACE_ID
 
 
 class Headers(dict):
@@ -15,7 +16,7 @@ class Headers(dict):
         self._no_queue = None
 
     def get_trace_id(self) -> Optional[str]:
-        return self.get('x-trace-id', None)
+        return self.get(X_TRACE_ID, None)
 
     def get_ip(self) -> Optional[str]:
         try:
@@ -123,7 +124,7 @@ class Headers(dict):
 
     def _get_skipped(self):
         if self._skips is None:
-            _values = self.get('x-skip', None)
+            _values = self.get(X_SKIP, None)
             if _values is None:
                 self._skips = []
             else:
@@ -135,7 +136,7 @@ class Headers(dict):
 
     def _get_no_queue(self):
         if self._no_queue is None:
-            _values = self.get('x-realtime', None)
+            _values = self.get(X_REAL_TIME, None)
             if _values is None:
                 self._no_queue = []
             else:

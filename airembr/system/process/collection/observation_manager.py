@@ -12,6 +12,7 @@ from pararun_adapter import queue_type
 
 from airembr.model.system.transport_payload import FactTransportPayload, ObsTransportPayload
 from airembr.model.system.headers import Headers
+from airembr.model.system.header_schema import V_OBSERVATION, X_BRIDGE, V_STORE
 from airembr.model.api.request.observation import Observation
 from airembr.model.system.context import ServerContext, Context
 from airembr.system.process.logging.log_handler import get_logger
@@ -45,7 +46,7 @@ async def valid_observations(headers: Headers,
     sources = {observation.source.id for observation in observations}
 
     # Fetch allowed bridges from header x-bridge
-    allowed_bridge = headers.get('x-bridge', 'rest')
+    allowed_bridge = headers.get(X_BRIDGE, 'rest')
     allowed_bridge = allowed_bridge.split(',')
 
     valid_source_ids = [id async for id in valid_sources(headers, sources, allowed_bridges=allowed_bridge)]
@@ -89,8 +90,8 @@ async def observations_in_queue(context: TransportContext,
 async def _store_observations(context,
                               headers: Headers,
                               obs_transport_list: List[ObsTransportPayload]):
-    if headers.should_process(service='store-observation'):
-        if headers.should_queue(service='store-observation'):
+    if headers.should_process(service=V_OBSERVATION):
+        if headers.should_queue(service=V_OBSERVATION):
             # Background worker
             # Save observations - deferred
             await obs_storage_worker(obs_transport_list)
@@ -111,9 +112,9 @@ async def _store_facts(context,
                        headers: Headers,
                        fact_transport_list: List[FactTransportPayload]):
     # Background worker?
-    if headers.should_process(service='store'):
+    if headers.should_process(service=V_STORE):
         # Should be queued
-        if headers.should_queue(service='store'):
+        if headers.should_queue(service=V_STORE):
 
             # Save events - deferred
             await event_storage_worker(fact_transport_list)

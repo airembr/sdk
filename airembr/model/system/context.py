@@ -5,6 +5,7 @@ from typing import Optional, Any, Union, Dict
 from uuid import uuid4
 
 from airembr.model.system.headers import Headers
+from airembr.model.system.header_schema import X_TRACE_ID
 from airembr.model.system.user import User
 from airembr.model.system.version import version as system_version
 from airembr.core.singleton import Singleton
@@ -218,7 +219,7 @@ class ServerContext:
         self.context = context
 
     def _get_trace_id(self, default=None):
-        trace_id = self.context.get_headers().get('x-trace-id', None)
+        trace_id = self.context.get_headers().get(X_TRACE_ID, None)
         if not trace_id:
             trace_id = default
         return trace_id

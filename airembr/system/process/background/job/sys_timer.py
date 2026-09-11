@@ -15,6 +15,8 @@ from airembr.system.process.logging.log_handler import get_logger
 from airembr.system.adapter.bigdata.tenant.tenant_adapter import load_tenant_database_and_context
 from airembr.system.adapter.metadata.mysql.service.task_service import background_log
 from airembr.model.system.headers import Headers
+from airembr.model.system.header_schema import X_API_KEY, X_REAL_TIME, X_CONTEXT, X_TENANT, V_PRODUCTION, V_STAGING, \
+    V_COLLECT, V_PROCESS
 from airembr.system.adapter.bigdata.big_data_adapter import *
 from airembr.model.bigdata.flat_sys_timer import FlatSysTimer
 from airembr.model.system.context import ServerContext, Context
@@ -30,10 +32,10 @@ async def _trigger_timers(context: Context):
     timer_ids = set()
 
     headers = Headers({
-        'x-api-key': 'abc',
-        'x-realtime': 'collect,process',
-        'x-context': 'production' if context.production else 'test',
-        'x-tenant': context.tenant
+        X_API_KEY: 'abc',
+        X_REAL_TIME: ",".join([V_COLLECT, V_PROCESS]),
+        X_CONTEXT: V_PRODUCTION if context.production else V_STAGING,
+        X_TENANT: context.tenant
     })
 
     for timer in result:

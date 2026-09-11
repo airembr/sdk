@@ -20,6 +20,7 @@ from airembr.system.adapter.bigdata.big_data_adapter import bd_text_adapter
 from airembr_sdk.client.airembr_chat import AiRembrChatClient, entity
 from airembr.model.api.request.observation import EntityIdentification
 from airembr_sdk.model.interface.i_observation import IEntityIdentification
+from airembr.model.system.header_schema import V_COLLECT, V_STORE, V_OBSERVATION, V_DESTINATION, V_LOG
 
 logger = get_logger(__name__)
 _sys_text_mapping = sys_text_mapping()
@@ -155,7 +156,7 @@ async def extract_entities(context):
 
             # print(0, observation_id)
             print(observation.remember(
-                realtime="collect,store,store-observation,destination,logs",
+                realtime=",".join([V_COLLECT, V_STORE, V_OBSERVATION, V_DESTINATION, V_LOG]),
                 bridge="imap,rest,ical"
             )
             )

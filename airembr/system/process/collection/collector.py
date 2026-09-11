@@ -2,6 +2,7 @@ from time import time
 from typing import List, Optional, Dict, Tuple
 
 from airembr.model.api.response.conversation_memory import ConversationMemory
+from airembr.model.system.header_schema import V_COLLECT, X_API_KEY
 from pararun.model.status import DispatchStatus
 from pararun_adapter import queue_type
 from pararun.model.transport_context import TransportContext
@@ -68,7 +69,7 @@ class Collector:
 
         self.transport_context = TransportContext.build(context)
 
-        if sys_config.api_key and headers.get('x-api-key', None) != sys_config.api_key:
+        if sys_config.api_key and headers.get(X_API_KEY, None) != sys_config.api_key:
             raise PermissionError("Invalid API KEY.")
 
     def _filter_not_allowed_observations(self):
@@ -111,7 +112,7 @@ class Collector:
             return 0, None
 
         result = no_of_observations
-        if self._headers.should_queue(service='collect'):
+        if self._headers.should_queue(service=V_COLLECT):
             logger.dev_info(f"Queued payload.")
 
             # Chunk so there are not more than 20 observations per queue message

@@ -3,6 +3,7 @@ from airembr_sdk.client.airembr_query import AirembrClient
 from airembr.model.system.entity import Entity
 from airembr.model.api.request.observation import Observation, ObservationRelation, Init, Semantic
 from airembr.model.system.session import Session
+from airembr.model.system.header_schema import V_COLLECT, V_STORE, V_DESTINATION
 
 # Entities
 location = Init('location').identified_by(["address", "code", "city"]).traits(
@@ -85,6 +86,6 @@ client = AirembrClient(
     api="http://localhost:4002",
 )
 # status, response = client.observe(observations=[obs1, obs2])
-status, response = client.observe(observations=[obs1], realtime='collect,store,destination')
+status, response = client.observe(observations=[obs1], realtime=",".join([V_COLLECT, V_STORE, V_DESTINATION]))
 print(status)
 print(response)
