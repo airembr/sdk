@@ -122,7 +122,7 @@ class Headers(dict):
         except KeyError:
             return None
 
-    def _get_skipped(self):
+    def get_skipped(self):
         if self._skips is None:
             _values = self.get(X_SKIP, None)
             if _values is None:
@@ -131,8 +131,11 @@ class Headers(dict):
                 self._skips = [item.strip() for item in _values.split(',')]
         return self._skips
 
+    def add_skipped(self, skipped):
+        self._skips.extend(skipped)
+
     def should_process(self, service) -> bool:
-        return service not in self._get_skipped()
+        return service not in self.get_skipped()
 
     def _get_no_queue(self):
         if self._no_queue is None:
