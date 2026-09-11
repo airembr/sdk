@@ -1,0 +1,26 @@
+# Additive snippet — merge this service into your existing compose stack
+# (the one running collector-api :4002, gui-api :4001, redis, starrocks).
+# Not auto-wired into any file in this checkout, since the real stack's
+# compose file lives outside it.
+#
+# Build/run from this repo's root (airembr/sdk) so the build context can
+# reach the sibling airembr_sdk/airembr/airembr_mcp packages:
+#
+#   docker compose -f airembr_mcp/docker-compose.snippet.yml up --build
+#
+services:
+  airembr-mcp:
+    build:
+      context: ..
+      dockerfile: airembr_mcp/Dockerfile
+    ports:
+      - "8800:8800"
+    environment:
+      AIREMBR_COLLECTOR_URL: http://collector-api:4002
+      AIREMBR_GUI_API_URL: http://gui-api:4001
+      AIREMBR_COLLECTOR_SHARED_SECRET: ${AIREMBR_COLLECTOR_SHARED_SECRET:-}
+      AIREMBR_GUI_USERNAME: ${AIREMBR_GUI_USERNAME:-}
+      AIREMBR_GUI_PASSWORD: ${AIREMBR_GUI_PASSWORD:-}
+      AIREMBR_SOURCE_ID: ${AIREMBR_SOURCE_ID:-claude-code}
+      X_REALTIME: ${X_REALTIME:-}
+      MCP_TRANSPORT: streamable-http
