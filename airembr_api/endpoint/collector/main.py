@@ -5,6 +5,7 @@ from starlette.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Request, Response
 
+from airembr.model.system.header_schema import X_CONTEXT, X_TRACE_ID
 from airembr_api.endpoint.collector.routes import collector_endpoint
 from airembr_api.endpoint.collector.routes import auth_endpoint
 from airembr_api.middleware.context import ContextRequestMiddleware
@@ -65,13 +66,13 @@ async def add_process_time_header(request: Request, call_next):
         # Todo Here throttler
         response = await call_next(request)
 
-        if 'x-context' in request.headers:
-            response.headers["x-context"] = request.headers.get('x-context')
+        if X_CONTEXT in request.headers:
+            response.headers[X_CONTEXT] = request.headers.get(X_CONTEXT)
 
-        if 'x-trace-id' in request.headers:
-            response.headers["x-trace-id"] = request.headers.get('x-trace-id')
+        if X_TRACE_ID in request.headers:
+            response.headers[X_TRACE_ID] = request.headers.get(X_TRACE_ID)
         else:
-            response.headers["x-trace-id"] = get_context().trace_id
+            response.headers[X_TRACE_ID] = get_context().trace_id
 
         # Prometheus metrics
         process_time = time() - start_time
@@ -123,7 +124,7 @@ application.add_middleware(ContextRequestMiddleware)
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run("api.endpoint.collector.main:application",
+    uvicorn.run("airembr_api.endpoint.collector.main:application",
                 host="0.0.0.0",
-                port=9002,
+                port=4002,
                 log_level=server_config.server_logging_level, workers=1)
