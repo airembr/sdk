@@ -5,19 +5,19 @@
     <option name="INTERPRETER_OPTIONS" value="" />
     <option name="PARENT_ENVS" value="true" />
     <envs>
+      <env name="PYTHONUNBUFFERED" value="1" />
       <env name="_STARROCKS_PASSWORD" value="3BoZGE68bC2D" />
       <env name="LICENSE" value="eyJwYXlsb2FkIjogImV5SnBjM04xWldSZllYUWlPaUFpTWpBeU5pMHdOaTB4TVZReE9Eb3lPRG8xTVM0Mk56UXpORFlpTENBaWJYVnNkR2xmZEdWdVlXNTBJam9nZEhKMVpTd2dJbTkzYm1WeUlqb2dJa0ZzYVdObElEeGhiR2xqWlVCbGVHRnRjR3hsTG1OdmJUNGlMQ0FpZG1Gc2FXUmZkVzUwYVd3aU9pQWlNakF5Tnkwd01TMHdNVlF3TURvd01Eb3dNQ0o5IiwgInNpZ25hdHVyZSI6ICJtUTNiUFhHQVdKR2pUOFptWVdFKyt1cVAvSXFlRm1iU2N5MVUyUDJoTWVpekRZNjBSNzJrNlNleGUwV0RYbjQzeFg1UlNkWEdMaW5GUVhsK3pQa2d5V0RXWGFScXVhNFkveWEvSWI3RTFWK05VYmg2RTVPVTNOUEkvWE13TEtTOUl0cGpSSFRLNS9EdjkxRE9hbEVFU1hkYlN3MjhjcEpBcXQ3QXlQS2FHQS9OV0ROVFVpczlaUTc2enNQc1h2NjRTcWtueWYvaTRtSVd5dzVNZVdETHpWNlhtVmRndzlQR2Fnb1RvNVJBTFVMQWJ2TDV0ekZCNHFsbnJxL2ljcFdEWXhJYWQxY3VjYXljS0F2YVA2OGdlUWdSYy9XWUg2Z1p0OStmOGdZek00VVFhRkM0RlFPdk50YjFicUhocXljWmFBMjNYQis5MnlvK1dBbnYvWVF6Q0E9PSJ9" />
       <env name="LOGGING_FORMAT" value="color" />
       <env name="LOGGING_LEVEL" value="debug" />
       <env name="META_DATA_ADAPTER" value="mysql" />
-      <env name="PYTHONUNBUFFERED" value="1" />
       <env name="QUEUE_ENABLED" value="no" />
       <env name="SERVER_LOGGING_LEVEL" value="debug" />
       <env name="EMBEDDING_HOST" value="http://192.168.1.119:5002" />
       <env name="EMBEDDING_API_KEY" value="super-secret-token" />
     </envs>
     <option name="SDK_HOME" value="" />
-    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/airembr_api/endpoint/gui" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../airembr/sdk/airembr_api" />
     <option name="IS_MODULE_SDK" value="true" />
     <option name="ADD_CONTENT_ROOTS" value="true" />
     <option name="ADD_SOURCE_ROOTS" value="true" />
@@ -34,7 +34,7 @@
       </ENTRIES>
     </EXTENSION>
     <option name="RUN_TOOL" value="" />
-    <option name="SCRIPT_NAME" value="$PROJECT_DIR$/airembr_api/endpoint/gui/main.py" />
+    <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../airembr/sdk/airembr_api/endpoint/collector/main.py" />
     <option name="PARAMETERS" value="" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="false" />
