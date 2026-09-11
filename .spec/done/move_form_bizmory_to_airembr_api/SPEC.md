@@ -26,7 +26,9 @@ After moving the endpoint, update any imports, references, paths, or configurati
 
 * Split it into smoller tasks.
 * First move the dependencies like /home/risto/PycharmProjects/dev/bizmory/api/endpoint/gui/auth/...
-* Then check i
+* Then check if all dependencies that were in old API except endpoints are in /home/risto/PycharmProjects/dev/airembr/sdk.
+* Then check if the api runs
+* Then move in phases endpoints.
 
 Finally, verify that:
 
