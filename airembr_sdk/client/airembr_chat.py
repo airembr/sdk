@@ -194,7 +194,7 @@ class AirembrChat:
         if not any(chats):
             return QueryStatus(404), IMemorySessions({})
 
-        transport = AirembrApi(self.client.api)
+        transport = self.client.api
         payload = [observation.model_dump(mode="json") for observation in self._yield_chat_observation()]
 
         return transport.remember(
@@ -303,9 +303,8 @@ class AirembrObservation:
             session_id = str(uuid4())
 
         observation = self._get_observation(session_id)
-        print(333, observation.model_dump(mode="json", exclude_none=True),)
 
-        transport = AirembrApi(self.client.api)
+        transport = self.client.api
         return transport.remember(
             observation.model_dump(mode="json", exclude_none=True),
             realtime,
@@ -332,12 +331,12 @@ class AirembrObservation:
 
 class AiRembrChatClient:
 
-    def __init__(self, api: str):
+    def __init__(self, api: Union[str, AirembrApi]):
         self.observation_id: Optional[str] = None
         self.session_id: Optional[str] = None
         self._observer: Optional[InstanceLink] = None
 
-        self.api = api
+        self.api: AirembrApi = AirembrApi(api) if isinstance(api, str) else api
         self.chat_ttl: Optional[int] = None
         self.chat_id: Optional[str] = None
 

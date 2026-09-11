@@ -1,4 +1,4 @@
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Union
 
 from airembr_sdk.model.interface.i_time_range import IDatePayload
 from airembr_sdk.model.interface.i_response import QueryEntityResponse, QueryResponse
@@ -46,8 +46,8 @@ class AirembrQuery:
 
 class AirembrClient:
 
-    def __init__(self, api):
-        self.transport = AirembrApi(api)
+    def __init__(self, api: Union[str, AirembrApi]):
+        self.transport: AirembrApi = AirembrApi(api) if isinstance(api, str) else api
 
     def observe(self,
                 observations: List[IObservation],

@@ -1,5 +1,6 @@
 import random
-from typing import Optional, Protocol, Dict, Any, Tuple
+from datetime import datetime
+from typing import Optional, Protocol, Dict, Any, Tuple, List, Union
 
 import requests
 
@@ -9,6 +10,7 @@ from airembr_sdk.model.interface.i_time_range import IDatetimeRangePayload, IDat
 from airembr_sdk.model.interface.i_response import QueryResponse, QueryEntityResponse
 from airembr_sdk.model.core.value.response_status import QueryStatus
 from airembr_sdk.model.interface.i_conversation_memory import IConversationMemory, IMemorySessions
+from airembr_sdk.model.interface.i_observation import IObservationEntity
 from airembr_sdk.logging.log_handler import get_logger
 
 logger = get_logger(__name__)
@@ -92,6 +94,9 @@ class AirembrApi:
         if bridge:
             headers[X_BRIDGE] = bridge
 
+        if self.token:
+            headers['Authorization'] = self._get_token()
+
         return headers
 
     def _get_token(self):
@@ -116,6 +121,19 @@ class AirembrApi:
         payload = response.json()
         self.token = payload["access_token"]
         self.token_type = payload["token_type"]
+
+        return QueryStatus(response.status_code), payload
+
+    def authenticate_with_secret(self, secret: str) -> Tuple[QueryStatus, Dict[str, Any]]:
+
+        url = f"{self.url}/auth"
+
+        response = requests.post(url, headers={"Content-Type": "application/json"}, json={"secret": secret})
+        payload = response.json()
+
+        if response.ok:
+            self.token = payload["access_token"]
+            self.token_type = payload.get("token_type", "bearer")
 
         return QueryStatus(response.status_code), payload
 
@@ -144,6 +162,106 @@ class AirembrApi:
 
         return QueryStatus(_response.status_code), IMemorySessions(
             {key: IConversationMemory(**value) for key, value in body.items()} if _response else {})
+
+    def add_entities_to_observation(self,
+                                    observation_id: str,
+                                    observer_type: str,
+                                    observer_id: str,
+                                    entities: List[Union[Dict[str, Any], IObservationEntity]],
+                                    realtime: Optional[str] = None) -> Tuple[
+        QueryStatus, Any]:
+
+        url = f"{self.url}/observation/{observation_id}/entities/observer/{observer_type}/{observer_id}"
+
+        payload = [
+            entity if isinstance(entity, dict) else entity.model_dump(mode="json", exclude_none=True)
+            for entity in entities
+        ]
+
+        response = requests.patch(url, headers=self._get_headers(realtime=realtime), json=payload)
+
+        try:
+            body = response.json()
+        except ValueError:
+            body = {"detail": response.text}
+
+        return QueryStatus(response.status_code), body
+
+    def ask(self,
+            query: str,
+            start: int = 0,
+            limit: int = 1000,
+            unmatched_entities: int = 0,
+            unmatched_traits: int = 0,
+            min_score: float = 0.65,
+            start_date: Optional[datetime] = None,
+            end_date: Optional[datetime] = None) -> Tuple[QueryStatus, Dict[str, Any]]:
+
+        if not self.token:
+            raise Exception("Not authenticated")
+
+        url = f"{self.url}/v2/eql/text"
+        params = {
+            "query": query,
+            "start": start,
+            "limit": limit,
+            "unmatched_entities": unmatched_entities,
+            "unmatched_traits": unmatched_traits,
+            "min_score": min_score,
+        }
+        if start_date is not None:
+            params["start_date"] = start_date.isoformat()
+        if end_date is not None:
+            params["end_date"] = end_date.isoformat()
+
+        headers = self._get_headers()
+        headers['Authorization'] = self._get_token()
+
+        response = requests.get(url, headers=headers, params=params)
+
+        try:
+            body = response.json()
+        except ValueError:
+            body = {"detail": response.text}
+
+        return QueryStatus(response.status_code), body
+
+    def search_observations(self,
+                            query: str,
+                            unmatched_entities: int = 0,
+                            unmatched_traits: int = 0,
+                            start: int = 0,
+                            limit: int = 500,
+                            start_date: Optional[datetime] = None,
+                            end_date: Optional[datetime] = None) -> Tuple[QueryStatus, List[Dict[str, Any]]]:
+
+        if not self.token:
+            raise Exception("Not authenticated")
+
+        url = f"{self.url}/v2/eql/observations"
+        params = {
+            "query": query,
+            "unmatched_entities": unmatched_entities,
+            "unmatched_traits": unmatched_traits,
+            "start": start,
+            "limit": limit,
+        }
+        if start_date is not None:
+            params["start_date"] = start_date.isoformat()
+        if end_date is not None:
+            params["end_date"] = end_date.isoformat()
+
+        headers = self._get_headers()
+        headers['Authorization'] = self._get_token()
+
+        response = requests.get(url, headers=headers, params=params)
+
+        try:
+            body = response.json()
+        except ValueError:
+            body = {"detail": response.text}
+
+        return QueryStatus(response.status_code), body
 
     def query_computed_entity(self, query, entity_type: str = None, page: int = 0, headers=None) -> Tuple[
         QueryStatus, QueryEntityResponse]:

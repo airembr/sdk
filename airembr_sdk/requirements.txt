@@ -1,2 +1,3 @@
 requests
 pydantic
+durable-dot-dict>=0.0.24
