@@ -3,10 +3,10 @@ import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
-from airembr.system.license.license_verifier import system_license
 from pararun_adapter import queue_type
-from api.service import state
 
+from airembr.system.license.license_verifier import system_license
+from airembr_api.service import state
 from airembr.system.adapter.settings.global_settings_service import GlobalSettingsBroadcaster
 from airembr.system.adapter.bigdata.big_data_adapter import *
 from airembr.system.process.bootstrap.boot_redis_db import wait_for_redis_connection
@@ -21,6 +21,7 @@ from airembr.system.process.logging.log_handler import get_logger
 from airembr.system.config.global_config import global_settings
 from airembr.system.adapter.queue.queue_adapter import queue_adapter
 from airembr.sdk.storage.cache.config import redis_config
+
 from bg.job.embedder.config import embedding_host, embedding_api_key
 
 logger = get_logger(__name__)

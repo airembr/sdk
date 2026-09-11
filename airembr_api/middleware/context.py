@@ -9,8 +9,8 @@ from airembr.system.process.logging import extra_info
 from airembr.system.process.logging.log_handler import get_logger
 from airembr.system.process.logging.log_manager import save_logs
 
-from api.middleware.context_tenant import get_tenant_name_from_scope
-from api.endpoint.gui.auth.user_db import token2user
+from airembr_api.middleware.context_tenant import get_tenant_name_from_scope
+from airembr.system.command.auth.token_store import token2user
 
 logger = get_logger(__name__)
 

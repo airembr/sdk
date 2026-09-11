@@ -1,0 +1,5 @@
+uvicorn[standard]   # ==0.34.2
+fastapi[all]>=0.115.12
+sse-starlette
+alembic==1.17.0
+PyJWT
