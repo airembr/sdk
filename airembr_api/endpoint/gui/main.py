@@ -19,8 +19,8 @@ from airembr_api.endpoint.gui.routes import settings_endpoint, metadata_endpoint
     deploy_endpoint, tenant_install_endpoint, embedding_setting_endpoint
 from airembr_api.endpoint.gui.routes import event_reshaping_schema_endpoint, \
     event_validator_endpoint, console_log_endpoint, import_endpoint, resource_endpoint, \
-    dashboard_endpoint, task_endpoint, eql_endpoint, user_account_endpoint, debug_endpoint, user_endpoint, \
-    entity_object_endpoint, timer_endpoint, segment_endpoint, canonical_entity_endpoint, ontology_endpoint
+    dashboard_endpoint, task_endpoint, eql_endpoint, debug_endpoint, user_endpoint, \
+    entity_object_endpoint, segment_endpoint, canonical_entity_endpoint, ontology_endpoint
 from airembr_api.endpoint.gui.routes.mapping import event_mapping_endpoint
 from airembr_api.endpoint.gui.routes.management import configuration_endpoint, info_endpoint, \
     health_endpoint, migration_endpoint
@@ -28,6 +28,27 @@ from airembr_api.endpoint.gui.routes.install import install_endpoint
 from airembr_api.endpoint.gui.routes.outbound import destination_endpoint
 from airembr_api.endpoint.gui.routes.inbound import event_source_endpoint, bridge_endpoint
 from airembr_api.endpoint.gui.routes.gui import setting_endpoint, feed_endpoint
+from airembr_api.endpoint.gui.routes.crud import (
+    canonical_entity_endpoint as crud_canonical_entity_endpoint,
+    embedding_setting_endpoint as crud_embedding_setting_endpoint,
+    entity_object_endpoint as crud_entity_object_endpoint,
+    event_reshaping_schema_endpoint as crud_event_reshaping_schema_endpoint,
+    event_validator_endpoint as crud_event_validator_endpoint,
+    configuration_endpoint as crud_configuration_endpoint,
+    event_mapping_endpoint as crud_event_mapping_endpoint,
+    ontology_endpoint as crud_ontology_endpoint,
+    destination_endpoint as crud_destination_endpoint,
+    resource_endpoint as crud_resource_endpoint,
+    segment_endpoint as crud_segment_endpoint,
+    event_source_endpoint as crud_event_source_endpoint,
+    bridge_endpoint as crud_bridge_endpoint,
+    event_endpoint as crud_event_endpoint,
+    observation_endpoint as crud_observation_endpoint,
+    task_endpoint as crud_task_endpoint,
+    user_endpoint as crud_user_endpoint,
+    timer_endpoint,
+    user_account_endpoint,
+)
 
 from airembr.system.config.sys_config import sys_config
 from airembr.system.process.logging.log_handler import get_logger
@@ -106,13 +127,32 @@ application.include_router(log_endpoint.router)
 application.include_router(entity_object_endpoint.router)
 application.include_router(canonical_entity_endpoint.router)
 application.include_router(ontology_endpoint.router)
-application.include_router(timer_endpoint.router)
 application.include_router(segment_endpoint.router)
 application.include_router(embedding_setting_endpoint.router)
 
 application.include_router(tenant_install_endpoint.router)
 
 application.include_router(observation_endpoint.router)
+
+# CRUD routers (airembr_api/endpoint/gui/routes/crud)
+application.include_router(crud_canonical_entity_endpoint.router)
+application.include_router(crud_embedding_setting_endpoint.router)
+application.include_router(crud_entity_object_endpoint.router)
+application.include_router(crud_event_reshaping_schema_endpoint.router)
+application.include_router(crud_event_validator_endpoint.router)
+application.include_router(crud_configuration_endpoint.router)
+application.include_router(crud_event_mapping_endpoint.router)
+application.include_router(crud_ontology_endpoint.router)
+application.include_router(crud_destination_endpoint.router)
+application.include_router(crud_resource_endpoint.router)
+application.include_router(crud_segment_endpoint.router)
+application.include_router(crud_event_source_endpoint.router)
+application.include_router(crud_bridge_endpoint.router)
+application.include_router(crud_event_endpoint.router)
+application.include_router(crud_observation_endpoint.router)
+application.include_router(crud_task_endpoint.router)
+application.include_router(crud_user_endpoint.router)
+application.include_router(timer_endpoint.router)
 
 _log_format_adapter = log_format_adapter()
 

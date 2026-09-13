@@ -7,7 +7,6 @@ from airembr.system.command.bridge.bridge import (
     reinstall_bridges as reinstall_bridges_cmd,
     get_data_bridges as get_data_bridges_cmd,
     get_data_bridges_meta as get_data_bridges_meta_cmd,
-    get_data_bridge_by_id as get_data_bridge_by_id_cmd,
 )
 
 router = APIRouter(
@@ -35,11 +34,3 @@ async def get_data_bridges_meta():
     Returns list of available data bridges
     """
     return await get_data_bridges_meta_cmd()
-
-@router.get("/v2/bridge/{bridge_id}", tags=["bridge"], include_in_schema=sys_config.expose_gui_api)
-# @router.get("/bridge/{bridge_id}", tags=["bridge"], include_in_schema=sys_config.expose_gui_api)
-async def get_data_bridge_by_id(bridge_id: str):
-    """
-    Returns data bridge
-    """
-    return await get_data_bridge_by_id_cmd(bridge_id)
