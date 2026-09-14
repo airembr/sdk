@@ -4,7 +4,6 @@ import traceback
 from airembr.system.license.license_verifier import system_license
 from airembr_api.endpoint.gui.routes.data import actor_endpoint, log_endpoint, event_endpoint, autocomplete_endpoint, \
     entity_endpoint, observation_endpoint
-from airembr_api.endpoint.gui.routes.pill import pill_endpoint
 from airembr_api.middleware.context import ContextRequestMiddleware
 from airembr_api.service.startup import app_lifespan
 
@@ -32,16 +31,15 @@ from airembr_api.endpoint.gui.routes.crud import (
     canonical_entity_endpoint as crud_canonical_entity_endpoint,
     embedding_setting_endpoint as crud_embedding_setting_endpoint,
     entity_object_endpoint as crud_entity_object_endpoint,
-    event_reshaping_schema_endpoint as crud_event_reshaping_schema_endpoint,
-    event_validator_endpoint as crud_event_validator_endpoint,
+    reshaping_schema_endpoint as crud_event_reshaping_schema_endpoint,
+    validator_endpoint as crud_event_validator_endpoint,
     configuration_endpoint as crud_configuration_endpoint,
-    event_mapping_endpoint as crud_event_mapping_endpoint,
+    payload_mapping_endpoint as crud_event_mapping_endpoint,
     ontology_endpoint as crud_ontology_endpoint,
     destination_endpoint as crud_destination_endpoint,
     resource_endpoint as crud_resource_endpoint,
     segment_endpoint as crud_segment_endpoint,
-    event_source_endpoint as crud_event_source_endpoint,
-    bridge_endpoint as crud_bridge_endpoint,
+    source_endpoint as crud_event_source_endpoint,
     event_endpoint as crud_event_endpoint,
     observation_endpoint as crud_observation_endpoint,
     task_endpoint as crud_task_endpoint,
@@ -49,6 +47,7 @@ from airembr_api.endpoint.gui.routes.crud import (
     timer_endpoint,
     user_account_endpoint,
 )
+from airembr_api.endpoint.gui.v1.routes.meta.bridge import crud_endpoint as crud_bridge_endpoint
 
 from airembr.system.config.sys_config import sys_config
 from airembr.system.process.logging.log_handler import get_logger
@@ -93,7 +92,6 @@ if os.path.exists(uix):
 application.include_router(eql_endpoint.router)
 application.include_router(resource_endpoint.router)
 application.include_router(event_endpoint.router)
-application.include_router(pill_endpoint.router)
 application.include_router(autocomplete_endpoint.router)
 application.include_router(user_endpoint.auth_router)
 application.include_router(health_endpoint.router)
