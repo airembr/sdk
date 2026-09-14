@@ -27,26 +27,24 @@ from airembr_api.endpoint.gui.routes.install import install_endpoint
 from airembr_api.endpoint.gui.routes.outbound import destination_endpoint
 from airembr_api.endpoint.gui.routes.inbound import event_source_endpoint, bridge_endpoint
 from airembr_api.endpoint.gui.routes.gui import feed_endpoint
-from airembr_api.endpoint.gui.routes.crud import (
-    canonical_entity_endpoint as crud_canonical_entity_endpoint,
-    embedding_setting_endpoint as crud_embedding_setting_endpoint,
-    entity_object_endpoint as crud_entity_object_endpoint,
-    reshaping_schema_endpoint as crud_event_reshaping_schema_endpoint,
-    validator_endpoint as crud_event_validator_endpoint,
-    configuration_endpoint as crud_configuration_endpoint,
-    payload_mapping_endpoint as crud_event_mapping_endpoint,
-    ontology_endpoint as crud_ontology_endpoint,
-    destination_endpoint as crud_destination_endpoint,
-    resource_endpoint as crud_resource_endpoint,
-    segment_endpoint as crud_segment_endpoint,
-    source_endpoint as crud_event_source_endpoint,
-    event_endpoint as crud_event_endpoint,
-    observation_endpoint as crud_observation_endpoint,
-    task_endpoint as crud_task_endpoint,
-    user_endpoint as crud_user_endpoint,
-    timer_endpoint,
-    user_account_endpoint,
-)
+from airembr_api.endpoint.gui.v1.routes.meta.canonical_entity import crud_endpoint as crud_canonical_entity_endpoint
+from airembr_api.endpoint.gui.v1.routes.meta.embedding_setting import crud_endpoint as crud_embedding_setting_endpoint
+from airembr_api.endpoint.gui.v1.routes.meta.entity_object import crud_endpoint as crud_entity_object_endpoint
+from airembr_api.endpoint.gui.v1.routes.meta.reshaping_schema import crud_endpoint as crud_event_reshaping_schema_endpoint
+from airembr_api.endpoint.gui.v1.routes.meta.validator import crud_endpoint as crud_event_validator_endpoint
+from airembr_api.endpoint.gui.v1.routes.meta.configuration import crud_endpoint as crud_configuration_endpoint
+from airembr_api.endpoint.gui.v1.routes.meta.payload_mapping import crud_endpoint as crud_event_mapping_endpoint
+from airembr_api.endpoint.gui.v1.routes.meta.ontology import crud_endpoint as crud_ontology_endpoint
+from airembr_api.endpoint.gui.v1.routes.meta.destination import crud_endpoint as crud_destination_endpoint
+from airembr_api.endpoint.gui.v1.routes.meta.resource import crud_endpoint as crud_resource_endpoint
+from airembr_api.endpoint.gui.v1.routes.meta.segment import crud_endpoint as crud_segment_endpoint
+from airembr_api.endpoint.gui.v1.routes.meta.source import crud_endpoint as crud_event_source_endpoint
+from airembr_api.endpoint.gui.v1.routes.data.event import crud_endpoint as crud_event_endpoint
+from airembr_api.endpoint.gui.v1.routes.data.observation import crud_endpoint as crud_observation_endpoint
+from airembr_api.endpoint.gui.v1.routes.meta.task import crud_endpoint as crud_task_endpoint
+from airembr_api.endpoint.gui.v1.routes.meta.user import crud_endpoint as crud_user_endpoint
+from airembr_api.endpoint.gui.v1.routes.meta.timer import crud_endpoint as timer_endpoint
+from airembr_api.endpoint.gui.v1.routes.meta.user_account import crud_endpoint as user_account_endpoint
 from airembr_api.endpoint.gui.v1.routes.meta.bridge import crud_endpoint as crud_bridge_endpoint
 
 from airembr.system.config.sys_config import sys_config
@@ -130,7 +128,7 @@ application.include_router(tenant_install_endpoint.router)
 
 application.include_router(observation_endpoint.router)
 
-# CRUD routers (airembr_api/endpoint/gui/routes/crud)
+# CRUD routers (airembr_api/endpoint/gui/v1/routes/{meta,data}/<domain>/crud_endpoint.py)
 application.include_router(crud_canonical_entity_endpoint.router)
 application.include_router(crud_embedding_setting_endpoint.router)
 application.include_router(crud_entity_object_endpoint.router)
