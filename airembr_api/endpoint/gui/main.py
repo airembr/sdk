@@ -19,7 +19,7 @@ from airembr_api.endpoint.gui.routes import settings_endpoint, metadata_endpoint
     deploy_endpoint, tenant_install_endpoint, embedding_setting_endpoint
 from airembr_api.endpoint.gui.routes import event_reshaping_schema_endpoint, \
     event_validator_endpoint, console_log_endpoint, import_endpoint, resource_endpoint, \
-    dashboard_endpoint, task_endpoint, eql_endpoint, debug_endpoint, user_endpoint, \
+    dashboard_endpoint, task_endpoint, eql_endpoint, user_endpoint, \
     entity_object_endpoint, segment_endpoint, canonical_entity_endpoint, ontology_endpoint
 from airembr_api.endpoint.gui.routes.mapping import event_mapping_endpoint
 from airembr_api.endpoint.gui.routes.management import configuration_endpoint, info_endpoint, \
@@ -27,7 +27,7 @@ from airembr_api.endpoint.gui.routes.management import configuration_endpoint, i
 from airembr_api.endpoint.gui.routes.install import install_endpoint
 from airembr_api.endpoint.gui.routes.outbound import destination_endpoint
 from airembr_api.endpoint.gui.routes.inbound import event_source_endpoint, bridge_endpoint
-from airembr_api.endpoint.gui.routes.gui import setting_endpoint, feed_endpoint
+from airembr_api.endpoint.gui.routes.gui import feed_endpoint
 from airembr_api.endpoint.gui.routes.crud import (
     canonical_entity_endpoint as crud_canonical_entity_endpoint,
     embedding_setting_endpoint as crud_embedding_setting_endpoint,
@@ -102,7 +102,6 @@ application.include_router(settings_endpoint.router)
 application.include_router(info_endpoint.router)
 application.include_router(user_endpoint.router)
 application.include_router(event_source_endpoint.router)
-application.include_router(debug_endpoint.router)
 application.include_router(destination_endpoint.router)
 application.include_router(user_account_endpoint.router)
 application.include_router(install_endpoint.router)
@@ -116,7 +115,6 @@ application.include_router(event_mapping_endpoint.router)
 application.include_router(bridge_endpoint.router)
 application.include_router(entity_endpoint.router)
 
-application.include_router(setting_endpoint.router)
 application.include_router(deploy_endpoint.router)
 application.include_router(configuration_endpoint.router)
 application.include_router(feed_endpoint.router)
