@@ -1,10 +1,8 @@
-# gui-api/canonical-v1-crud Specification
-
 ## Purpose
 
 Gives every GUI API meta-domain (destination, user, segment, etc.) a predictable, versioned single-record CRUD surface at `/v1/<domain-object>`, so clients can rely on one consistent URL and method shape per domain instead of the mixed `/v2/...`/unversioned paths in use today.
 
-## Requirements
+## ADDED Requirements
 
 ### Requirement: Canonical v1 CRUD routes per domain
 For each of the 17 meta domains under `airembr_api/endpoint/gui/v1/routes/meta/` (bridge, canonical_entity, configuration, destination, embedding_setting, entity_object, ontology, payload_mapping, reshaping_schema, resource, segment, source, task, timer, user, user_account, validator), the system SHALL expose, in addition to any existing legacy route(s), a canonical route at `/v1/<domain-object>` using the domain's kebab-case folder name, where:
@@ -46,20 +44,8 @@ Sub-resources whose handlers resolve their parent from authentication context or
 - **THEN** the response is identical to the existing legacy `GET`/`DELETE /v2/canonical/entity/property/{id}`
 
 ### Requirement: Legacy routes remain fully functional
-Legacy routes remain fully functional except where explicitly retired below. For the 13 domains where the console (the only known caller) has been migrated to the canonical `/v1/<domain-object>` path — `bridge`, `configuration`, `destination`, `embedding_setting`, `entity_object`, `segment`, `source`, `timer`, `user` (create/get/edit/delete), `user_account`, `validator`, `payload_mapping`, `reshaping_schema`, `resource` — the legacy route(s) for that domain SHALL be removed once the migration is verified, and only the canonical `/v1/...` route SHALL remain. For every other domain or sub-resource not in that list — `canonical_entity` (including its property sub-resource), `ontology`, the `user` preference sub-resource, and `task` — all existing legacy routes SHALL continue to exist, accept requests, and behave exactly as before, unchanged by this requirement.
-
-#### Scenario: Retired legacy destination routes no longer respond
-- **WHEN** a client calls the former legacy `GET /destination/{destination_id}`, `POST /v2/destination`, or `DELETE /destination/{destination_id}` after this change ships
-- **THEN** the server returns a 404-equivalent not-found response, since only `/v1/destination` remains
-
-#### Scenario: Canonical v1 destination routes remain the sole way to reach the domain
-- **WHEN** a client calls `GET /v1/destination/{destination_id}`, `POST /v1/destination`, or `DELETE /v1/destination/{destination_id}` after this change ships
-- **THEN** each behaves exactly as the retired legacy route did before removal
-
-#### Scenario: Untouched domains keep both routes
-- **WHEN** a client calls the existing legacy `GET /v2/ontology/{id}`, `POST /v2/ontology`, or `DELETE /v2/ontology/{id}` after this change ships
-- **THEN** each responds exactly as it did before this change, since `ontology` is not one of the 13 migrated domains
+All existing routes on every affected domain (whether versioned `/v2/...` or unversioned) SHALL continue to exist, accept requests, and behave exactly as before this change. No legacy route is removed, renamed, or altered in request/response shape as part of adding the canonical v1 routes.
 
 #### Scenario: Legacy destination routes still work after v1 is added
-- **WHEN** a client calls the existing legacy `GET /destination/{destination_id}`, `POST /v2/destination`, or `DELETE /destination/{destination_id}` before the destination-domain legacy removal step of this change has been applied
-- **THEN** each responds exactly as it did before the canonical `/v1/destination` routes were added — this scenario stops holding once `destination`'s legacy decorators are removed, per the "Retired legacy destination routes no longer respond" scenario above
+- **WHEN** a client calls the existing legacy `GET /destination/{destination_id}`, `POST /v2/destination`, or `DELETE /destination/{destination_id}`
+- **THEN** each responds exactly as it did before the canonical `/v1/destination` routes were added

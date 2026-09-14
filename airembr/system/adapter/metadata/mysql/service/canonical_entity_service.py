@@ -7,6 +7,7 @@ from airembr.sdk.storage.metadata.query.table_filtering import (
 from airembr.system.adapter.metadata.mysql.mapping.canonical_entity_mapping import (
     map_to_canonical_entity,
     map_to_canonical_entity_table,
+    map_to_canonical_entity_property,
     map_to_canonical_entity_property_table,
 )
 from airembr.system.adapter.metadata.mysql.schema.table import (
@@ -79,7 +80,9 @@ class CanonicalEntityPropertyService:
         )
 
     async def delete_by_id(self, prop_id: str):
-        return await self.proxy.delete_by_id_in_deployment_mode(CanonicalEntityPropertyTable, primary_id=prop_id)
+        return await self.proxy.delete_by_id_in_deployment_mode(
+            CanonicalEntityPropertyTable, map_to_canonical_entity_property, primary_id=prop_id
+        )
 
     async def delete_by_entity_id(self, entity_id: str):
         where = where_tenant_and_mode_context(

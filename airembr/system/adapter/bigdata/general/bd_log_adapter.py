@@ -85,10 +85,6 @@ class DbLogAdapter(AdapterRouter):
         List[dict], int]:
         return await _load_by(self.adapter, 'flow.id', flow_id, order=sort, limit=limit)
 
-    async def load_logs_by_profile(self, profile_id: str, sort: Optional[str] = "DESC", limit=30) -> Tuple[
-        List[dict], int]:
-        return await _load_by(self.adapter, 'profile.id', profile_id, order=sort, limit=limit)
-
     async def load_logs_by_event(self, event_id: str, sort: List[Dict[str, Dict]] = None, limit=30) -> Tuple[
         List[dict], int]:
         return await _load_by(self.adapter, 'event.id', event_id, order=sort, limit=limit)

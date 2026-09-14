@@ -31,6 +31,7 @@ class BdMetadataAdapter(AdapterRouter):
         result = await self.adapter.exec(sql)
         return result
 
+    # Probably not used
     async def list_table_column_names(self, table_name: str):
         records = await self.list_table_columns(table_name)
         return [
@@ -41,6 +42,7 @@ class BdMetadataAdapter(AdapterRouter):
             for row in records.list()
         ]
 
+    # Probably not used
     async def list_table_names(self):
         records = await self.list_tables()
         result = [

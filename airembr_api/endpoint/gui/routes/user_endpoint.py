@@ -5,16 +5,11 @@ from typing import Optional, Union
 from fastapi.security import OAuth2PasswordRequestForm
 from starlette import status
 
-from airembr.model.metadata.sys_user import User
 from airembr.system.command.auth.errors import AuthError
 from airembr.system.config.sys_config import sys_config
 from airembr.system.adapter.metadata.mysql.mapping.user_mapping import map_to_user
 from airembr.model.system.context import ServerContext, get_context
-from airembr.system.command.v1.list.user.list import (
-    get_all_user_preferences as get_all_user_preferences_cmd,
-)
 from airembr.system.command.user.list_users import list_users as list_users_cmd
-from airembr.system.command.user.list_users_legacy import list_users_legacy as list_users_legacy_cmd
 from airembr_api.endpoint.gui.v1.tools.auth.permissions import Permissions
 from airembr_api.endpoint.gui.v1.tools.auth.authentication import Authentication, get_authentication
 from airembr_api.service.grouping import get_grouped_result
@@ -75,17 +70,6 @@ async def logout(authorization: Union[str, None] = Header(default=None),
     auth.logout(parts[1])
 
 
-@router.get("/user/preferences", tags=["user"], include_in_schema=sys_config.expose_gui_api,
-            response_model=Optional[dict])
-async def gets_all_user_preferences(
-        user: User = Depends(Permissions(["admin", "developer", "marketer", "maintainer"]))):
-    """
-    Returns all user preferences
-    """
-
-    return await get_all_user_preferences_cmd(user)
-
-
 @router.get("/users", tags=["user"], include_in_schema=sys_config.expose_gui_api)
 async def get_users(start: int = 0, limit: int = 500, query: Optional[str] = ""):
     """
@@ -96,12 +80,3 @@ async def get_users(start: int = 0, limit: int = 500, query: Optional[str] = "")
 
     return get_grouped_result("Users", result, map_to_user)
 
-
-# TODO remove in 1.0.0
-@router.get("/users/{start}/{limit}", tags=["user"], include_in_schema=sys_config.expose_gui_api, response_model=list)
-async def get_users_legacy(start: int = 0, limit: int = 500, query: Optional[str] = ""):
-    """
-    Lists users according to given query (str), start (int) and limit (int) parameters
-    """
-
-    return await list_users_legacy_cmd(query, start, limit)

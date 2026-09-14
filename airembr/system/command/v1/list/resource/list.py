@@ -1,23 +1,24 @@
-from airembr.model.enum.type_enum import TypeEnum
+from typing import Optional
+
 from airembr.system.adapter.metadata.mysql.interface import resource_dao
 from airembr.system.preconfig.setup_resources import get_type_of_resources
 
 
-async def get_resource_types_list(type: TypeEnum) -> dict:
-    """
-    Returns a list of source types. Each source requires a source type to define what kind of data is
-    that source holding.
-
-    * Endpoint /resources/type/name will return only names and id.
-    * Endpoint /resources/type/configuration will return all data.
-    """
-
+async def list_resources_by_id() -> dict:
     resources = sorted(list(get_type_of_resources()), key=lambda x: x[0])
 
-    if type.value == 'name':
-        resource_types = {id: value['name'] for id, value in resources}
-    else:
-        resource_types = {id: value for id, value in resources}
+    resource_types = {id: value for id, value in resources}
+
+    return {
+        "total": len(resource_types),
+        "result": resource_types
+    }
+
+
+async def list_resources_metadata() -> dict:
+    resources = sorted(list(get_type_of_resources()), key=lambda x: x[0])
+
+    resource_types = {id: value['name'] for id, value in resources}
 
     return {
         "total": len(resource_types),
@@ -36,9 +37,11 @@ async def list_all_resources():
     return await resource_dao.load_all_resource_entities(limit=250)
 
 
-async def list_resources():
-    return await resource_dao.load_all_resources()
+# async def list_resources():
+#     return await resource_dao.load_all_resources()
 
 
-async def list_resources_by_type(query: str, limit: int):
+async def list_resources(query: Optional[str]=None, limit: Optional[int]=250):
+    if query is None:
+        return await resource_dao.load_all_resource_entities(limit=250)
     return await resource_dao.load_all_resources(search=query, limit=limit)

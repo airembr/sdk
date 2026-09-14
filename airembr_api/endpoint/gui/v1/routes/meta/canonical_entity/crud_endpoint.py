@@ -24,10 +24,7 @@ router = APIRouter(
 )
 
 
-@router.get("/v1/canonical-entity/{id}", tags=["ontology"],
-            response_model=Optional[CanonicalEntity],
-            include_in_schema=sys_config.expose_gui_api)
-@router.get("/v2/canonical/entity/{id}", tags=["ontology"],
+@router.get("/v1/canonical-entity/{id}", tags=["v1/ontology"],
             response_model=Optional[CanonicalEntity],
             include_in_schema=sys_config.expose_gui_api)
 async def get_canonical_entity_by_id(id: str, response: Response):
@@ -38,17 +35,13 @@ async def get_canonical_entity_by_id(id: str, response: Response):
     return record
 
 
-@router.post("/v1/canonical-entity", tags=["ontology"],
-             include_in_schema=sys_config.expose_gui_api)
-@router.post("/v2/canonical/entity", tags=["ontology"],
+@router.post("/v1/canonical-entity", tags=["v1/ontology"],
              include_in_schema=sys_config.expose_gui_api)
 async def save_canonical_entity(entity: CanonicalEntity):
     return await save_canonical_entity_cmd(entity)
 
 
-@router.delete("/v1/canonical-entity/{id}", tags=["ontology"],
-               include_in_schema=sys_config.expose_gui_api)
-@router.delete("/v2/canonical/entity/{id}", tags=["ontology"],
+@router.delete("/v1/canonical-entity/{id}", tags=["v1/ontology"],
                include_in_schema=sys_config.expose_gui_api)
 async def delete_canonical_entity_by_id(id: str):
     return await delete_canonical_entity_cmd(id)
@@ -56,10 +49,7 @@ async def delete_canonical_entity_by_id(id: str):
 
 # --- property endpoints ---
 
-@router.get("/v1/canonical-entity-property/{id}", tags=["ontology"],
-            response_model=Optional[CanonicalEntityProperty],
-            include_in_schema=sys_config.expose_gui_api)
-@router.get("/v2/canonical/entity/property/{id}", tags=["ontology"],
+@router.get("/v1/canonical-entity-property/{id}", tags=["v1/ontology"],
             response_model=Optional[CanonicalEntityProperty],
             include_in_schema=sys_config.expose_gui_api)
 async def get_canonical_entity_property_by_id(id: str, response: Response):
@@ -70,17 +60,13 @@ async def get_canonical_entity_property_by_id(id: str, response: Response):
     return prop
 
 
-@router.post("/v1/canonical-entity/{entity_id}/property", tags=["ontology"],
-             include_in_schema=sys_config.expose_gui_api)
-@router.post("/v2/canonical/entity/{entity_id}/property", tags=["ontology"],
+@router.post("/v1/canonical-entity/{entity_id}/property", tags=["v1/ontology"],
              include_in_schema=sys_config.expose_gui_api)
 async def save_canonical_entity_property(entity_id: str, prop: CanonicalEntityProperty):
     return await save_entity_property_cmd(entity_id, prop)
 
 
-@router.delete("/v1/canonical-entity-property/{id}", tags=["ontology"],
-               include_in_schema=sys_config.expose_gui_api)
-@router.delete("/v2/canonical/entity/property/{id}", tags=["ontology"],
+@router.delete("/v1/canonical-entity-property/{id}", tags=["v1/ontology"],
                include_in_schema=sys_config.expose_gui_api)
 async def delete_canonical_entity_property_by_id(id: str):
     return await delete_entity_property_cmd(id)

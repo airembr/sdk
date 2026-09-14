@@ -22,7 +22,6 @@ class DatabaseService:
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
             await conn.commit()
-        await engine.dispose()
 
     async def _create_database(self):
         os.makedirs(os.path.dirname(sqlite_config.sqlite_host), exist_ok=True)
@@ -31,7 +30,6 @@ class DatabaseService:
             md_database = current_md_database_name()
             await conn.execute(text(f"CREATE DATABASE IF NOT EXISTS `{md_database}`"))
             await conn.commit()
-        await engine.dispose()
 
     async def _create_view(self, sql: str):
         engine = self.client.get_engine()
@@ -40,7 +38,6 @@ class DatabaseService:
             sql = sql.replace('{|database|}', md_database)
             await conn.execute(text(sql))
             await conn.commit()
-        await engine.dispose()
 
     async def exists(self, database_name: str) -> bool:
         # Sqlite Db always exists as it is created on connection

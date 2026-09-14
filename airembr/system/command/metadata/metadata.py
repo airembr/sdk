@@ -55,14 +55,6 @@ async def get_named_event_actors(limit: int, entity_type: str):
     return await get_event_actors(limit, entity_type)
 
 
-async def get_entity_table_columns(table_name: str):
-    return await bd_metadata_adapter.list_table_column_names(table_name)
-
-
-async def get_entity_tables():
-    return await bd_metadata_adapter.list_table_names()
-
-
 async def get_fact_traits_by_type(event_type: str) -> dict:
     if event_type:
         event_type = event_type.lower()

@@ -1,12 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 
-from airembr_api.endpoint.gui.v1.tools.auth.permissions import Permissions
 from airembr.system.config.sys_config import sys_config
 from airembr.system.command.log.errors import LogError
 from airembr.system.command.log.event_logs import get_event_logs as get_event_logs_cmd
 from airembr.system.command.log.node_logs import get_node_logs as get_node_logs_cmd
 from airembr.system.command.log.flow_logs import get_flow_logs as get_flow_logs_cmd
-from airembr.system.command.log.profile_logs import get_profile_logs as get_profile_logs_cmd
 from airembr.system.command.log.log_alerts import get_log_alerts as get_log_alerts_cmd
 
 router = APIRouter()
@@ -50,24 +48,10 @@ async def get_flow_logs(flow_id: str, sort: str = None):
         raise HTTPException(detail=str(e), status_code=e.status_code)
 
 
-@router.get("/profile/logs/{entity_id}", tags=["log"],
-            dependencies=[Depends(Permissions(roles=["admin", "developer", "marketer"]))],
-            include_in_schema=sys_config.expose_gui_api)
-async def get_profile_logs(entity_id: str, sort: str = None):
-    """
-    Gets logs for profile with given ID (str)
-    """
-
-    try:
-        return await get_profile_logs_cmd(entity_id, sort=sort)
-    except LogError as e:
-        raise HTTPException(detail=str(e), status_code=e.status_code)
-
-
 @router.get("/log/alerts", tags=["log"], include_in_schema=sys_config.expose_gui_api)
 async def get_log_alerts():
     """
-    Returns list of all Tracardi API logs counts.
+    Returns list of all API logs counts.
     """
     try:
         return await get_log_alerts_cmd()
