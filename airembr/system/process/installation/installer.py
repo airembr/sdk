@@ -1,3 +1,5 @@
+from typing import Optional
+
 from airembr.model.system.installer.credentials import Credentials
 from airembr.system.license.license_verifier import system_license
 from airembr.system.process.logging.log_handler import get_installation_logger

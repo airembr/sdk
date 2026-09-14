@@ -25,7 +25,7 @@ async def system_installation_status():
 
 
 @router.post("/v1/system/installation", tags=["v1/installation"], include_in_schema=sys_config.expose_gui_api)
-async def system_installation(credentials: Optional[Credentials]):
+async def system_installation(credentials: Credentials):
     try:
         return await install_cmd(credentials)
     except PermissionError as e:
