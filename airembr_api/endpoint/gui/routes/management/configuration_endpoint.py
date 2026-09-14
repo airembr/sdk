@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 
 from airembr_api.service.grouping import get_grouped_result
 from airembr.system.adapter.metadata.mysql.mapping.configuration_mapping import map_to_configuration
-from airembr.system.command.configuration.configuration import (
+from airembr.system.command.v1.meta.configuration.configuration import (
     list_defined_configuration as list_defined_configuration_cmd,
     list_configuration_types as list_configuration_types_cmd,
 )

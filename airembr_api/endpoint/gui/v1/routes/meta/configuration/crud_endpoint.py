@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 
 from airembr.model.metadata.sys_configuration import Configuration
-from airembr.system.command.configuration.errors import ConfigurationError
-from airembr.system.command.configuration.configuration import (
+from airembr.system.command.v1.errors.configuration_errors import ConfigurationError
+from airembr.system.command.v1.meta.configuration.configuration import (
     get_configuration as get_configuration_cmd,
     add_configuration as add_configuration_cmd,
     delete_configuration as delete_configuration_cmd,

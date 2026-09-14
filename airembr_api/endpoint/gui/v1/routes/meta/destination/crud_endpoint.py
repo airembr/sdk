@@ -4,7 +4,7 @@ from airembr_api.endpoint.gui.v1.tools.auth.permissions import Permissions
 
 from airembr.model.metadata.sys_destination import Destination
 from airembr.system.config.sys_config import sys_config
-from airembr.system.command.destination.destination import (
+from airembr.system.command.v1.meta.destination.destination import (
     save_destination as save_destination_cmd,
     get_destination as get_destination_cmd,
     delete_destination_by_id as delete_destination_by_id_cmd,

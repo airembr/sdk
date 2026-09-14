@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends
 from airembr_api.endpoint.gui.v1.tools.auth.permissions import Permissions
 from airembr.system.config.sys_config import sys_config
 from airembr.model.entity_object import EntityObject
-from airembr.system.command.entity_object.entity_object import (
+from airembr.system.command.v1.meta.entity_object.entity_object import (
     save_entity_object as save_entity_object_cmd,
     get_entity_object_payload as get_entity_object_payload_cmd,
     delete_entity_object as delete_entity_object_cmd,

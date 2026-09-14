@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends
 
 from airembr.system.config.sys_config import sys_config
 from airembr.model.metadata.sys_resource import Resource
-from airembr.system.command.resource.resource import (
+from airembr.system.command.v1.meta.resource.resource import (
     get_resource_by_id as get_resource_by_id_cmd,
     upsert_resource as upsert_resource_cmd,
     delete_resource as delete_resource_cmd,

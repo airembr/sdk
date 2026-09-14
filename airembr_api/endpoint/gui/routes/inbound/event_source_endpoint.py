@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends
 from airembr_api.endpoint.gui.v1.tools.auth.permissions import Permissions
 from airembr.system.config.sys_config import sys_config
 from airembr.system.config.memory_cache_config import memory_cache_config
-from airembr.system.command.event_source.event_source import (
+from airembr.system.command.v1.meta.source.event_source import (
     get_event_source_entities as get_event_source_entities_cmd,
     list_event_sources as list_event_sources_cmd,
     list_running_event_sources as list_running_event_sources_cmd,

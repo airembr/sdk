@@ -5,16 +5,16 @@ from typing import Union
 from airembr.model.metadata.sys_user import User
 from airembr.system.config.sys_config import sys_config
 from airembr.model.metadata.user_payload import UserPayload
-from airembr.system.command.user.errors import UserError
-from airembr.system.command.user.preferences import (
+from airembr.system.command.v1.errors.user_errors import UserError
+from airembr.system.command.v1.meta.user.preferences import (
     get_user_preference as get_user_preference_cmd,
     set_user_preference as set_user_preference_cmd,
     delete_user_preference as delete_user_preference_cmd,
 )
-from airembr.system.command.user.add_user import add_user as add_user_cmd
-from airembr.system.command.user.delete_user import delete_user as delete_user_cmd
-from airembr.system.command.user.get_user import get_user as get_user_cmd
-from airembr.system.command.user.edit_user import edit_user as edit_user_cmd
+from airembr.system.command.v1.meta.user.add_user import add_user as add_user_cmd
+from airembr.system.command.v1.meta.user.delete_user import delete_user as delete_user_cmd
+from airembr.system.command.v1.meta.user.get_user import get_user as get_user_cmd
+from airembr.system.command.v1.meta.user.edit_user import edit_user as edit_user_cmd
 from airembr_api.endpoint.gui.v1.tools.auth.permissions import Permissions
 
 router = APIRouter(

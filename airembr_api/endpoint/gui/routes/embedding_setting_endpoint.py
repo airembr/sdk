@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends
 
 from airembr_api.endpoint.gui.v1.tools.auth.permissions import Permissions
 from airembr.system.config.sys_config import sys_config
-from airembr.system.command.embedding.embedding_setting import (
+from airembr.system.command.v1.meta.embedding_setting.embedding_setting import (
     list_embedding_settings as list_embedding_settings_cmd,
 )
 

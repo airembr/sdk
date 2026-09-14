@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 
 from airembr.model.enum.type_enum import TypeEnum
 from airembr.system.config.sys_config import sys_config
-from airembr.system.command.resource.resource import (
+from airembr.system.command.v1.meta.resource.resource import (
     get_resource_types_list as get_resource_types_list_cmd,
     list_resources_names_by_tag as list_resources_names_by_tag_cmd,
     list_all_resources as list_all_resources_cmd,

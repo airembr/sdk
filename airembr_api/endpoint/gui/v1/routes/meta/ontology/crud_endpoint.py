@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, Response
 from airembr_api.endpoint.gui.v1.tools.auth.permissions import Permissions
 from airembr.model.metadata.sys_ontology import Ontology
 from airembr.system.config.sys_config import sys_config
-from airembr.system.command.ontology.ontology import (
+from airembr.system.command.v1.meta.ontology.ontology import (
     get_ontology as get_ontology_cmd,
     save_ontology as save_ontology_cmd,
     delete_ontology as delete_ontology_cmd,

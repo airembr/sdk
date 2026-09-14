@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends
 from airembr_api.endpoint.gui.v1.tools.auth.permissions import Permissions
 from airembr.system.config.sys_config import sys_config
 from airembr.model.metadata.sys_ent_segment import EntitySegment
-from airembr.system.command.segment.segment import (
+from airembr.system.command.v1.meta.segment.segment import (
     save_segment as save_segment_cmd,
     get_segment as get_segment_cmd,
     delete_segment as delete_segment_cmd,

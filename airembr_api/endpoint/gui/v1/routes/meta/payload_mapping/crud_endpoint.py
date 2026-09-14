@@ -6,8 +6,8 @@ from airembr_api.endpoint.gui.v1.tools.auth.permissions import Permissions
 
 from airembr.system.config.sys_config import sys_config
 from airembr.model.metadata.sys_event_mapping import EventTypeMetadata
-from airembr.system.command.event_mapping.errors import EventMappingError
-from airembr.system.command.event_mapping.event_mapping import (
+from airembr.system.command.v1.errors.payload_mapping_errors import EventMappingError
+from airembr.system.command.v1.meta.payload_mapping.event_mapping import (
     add_event_type_mapping as add_event_type_mapping_cmd,
     get_event_mapping_by_id as get_event_mapping_by_id_cmd,
     del_event_type_metadata as del_event_type_metadata_cmd,

@@ -6,7 +6,7 @@ from airembr.model.destination_trigger import DestinationTrigger
 from airembr.model.metadata.sys_resource import Resource
 from airembr.system.config.sys_config import sys_config
 from airembr.system.config.memory_cache_config import memory_cache_config
-from airembr.system.command.destination.destination import (
+from airembr.system.command.v1.meta.destination.destination import (
     get_destinations_type_list as get_destinations_type_list_cmd,
     get_destinations_by_tag as get_destinations_by_tag_cmd,
     get_destinations_meta as get_destinations_meta_cmd,

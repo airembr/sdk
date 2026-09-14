@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 
 from airembr_api.endpoint.gui.v1.tools.auth.permissions import Permissions
 from airembr.system.config.sys_config import sys_config
-from airembr.system.command.timer.get_timer import get_timer as get_timer_cmd
+from airembr.system.command.v1.meta.timer.get_timer import get_timer as get_timer_cmd
 
 router = APIRouter(
     dependencies=[Depends(Permissions(roles=["admin", "developer"]))]

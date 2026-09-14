@@ -5,9 +5,9 @@ from airembr_api.endpoint.gui.v1.tools.auth.permissions import Permissions
 
 from airembr.system.config.sys_config import sys_config
 from airembr.model.metadata.sys_user import User
-from airembr.system.command.user.errors import UserError
-from airembr.system.command.user.get_user_account import get_user_account as get_user_account_cmd
-from airembr.system.command.user.edit_user_account import edit_user_account as edit_user_account_cmd
+from airembr.system.command.v1.errors.user_errors import UserError
+from airembr.system.command.v1.meta.user_account.get_user_account import get_user_account as get_user_account_cmd
+from airembr.system.command.v1.meta.user_account.edit_user_account import edit_user_account as edit_user_account_cmd
 
 router = APIRouter(
     dependencies=[Depends(Permissions(roles=["admin", "marketer", "developer", "maintainer"]))]

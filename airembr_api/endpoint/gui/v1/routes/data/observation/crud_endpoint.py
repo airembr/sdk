@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 
 from airembr.system.config.sys_config import sys_config
-from airembr.system.command.observation.observation import (
+from airembr.system.command.v1.data.observation.observation import (
     get_observation as get_observation_cmd,
     delete_observation as delete_observation_cmd,
 )

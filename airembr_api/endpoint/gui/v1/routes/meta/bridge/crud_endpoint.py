@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends
 from airembr_api.endpoint.gui.v1.tools.auth.permissions import Permissions
 
 from airembr.system.config.sys_config import sys_config
-from airembr.system.command.bridge.bridge import (
+from airembr.system.command.v1.meta.bridge.bridge import (
     get_data_bridge_by_id as get_data_bridge_by_id_cmd,
 )
 

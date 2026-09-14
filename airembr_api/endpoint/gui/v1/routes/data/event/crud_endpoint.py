@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, Response
 from airembr_api.endpoint.gui.v1.tools.auth.permissions import Permissions
 
 from airembr.system.config.sys_config import sys_config
-from airembr.system.command.event.event import (
+from airembr.system.command.v1.data.event.event import (
     get_event as get_event_cmd,
     delete_event as delete_event_cmd,
 )

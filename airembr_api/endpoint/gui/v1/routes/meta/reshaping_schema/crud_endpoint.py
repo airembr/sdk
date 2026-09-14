@@ -4,8 +4,8 @@ from airembr.system.config.sys_config import sys_config
 from fastapi import APIRouter, Depends, HTTPException
 from airembr_api.endpoint.gui.v1.tools.auth.permissions import Permissions
 from airembr.model.metadata.sys_evt_reshaping import EventReshapingSchema
-from airembr.system.command.event_reshaping.errors import EventReshapingError
-from airembr.system.command.event_reshaping.reshaping_schema import (
+from airembr.system.command.v1.errors.reshaping_schema_errors import EventReshapingError
+from airembr.system.command.v1.meta.reshaping_schema.reshaping_schema import (
     add_reshape_schema as add_reshape_schema_cmd,
     delete_reshape_schema as delete_reshape_schema_cmd,
     get_reshape_schema as get_reshape_schema_cmd,

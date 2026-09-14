@@ -6,7 +6,7 @@ from airembr_api.service.grouping import get_result_dict
 
 from airembr_api.endpoint.gui.v1.tools.auth.permissions import Permissions
 from airembr.system.config.sys_config import sys_config
-from airembr.system.command.segment.segment import (
+from airembr.system.command.v1.meta.segment.segment import (
     list_segments as list_segments_cmd,
     list_segments_meta as list_segments_meta_cmd,
 )

@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from airembr.system.config.sys_config import sys_config
 from airembr.model.metadata.sys_evt_validation import EventValidator
-from airembr.system.command.event_validation.errors import EventValidationError
-from airembr.system.command.event_validation.validator import (
+from airembr.system.command.v1.errors.validator_errors import EventValidationError
+from airembr.system.command.v1.meta.validator.validator import (
     add_validator as add_validator_cmd,
     delete_validator as delete_validator_cmd,
     get_validator as get_validator_cmd,

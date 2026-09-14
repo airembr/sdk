@@ -6,12 +6,12 @@ from airembr.system.process.logging.log_handler import get_logger
 from airembr_api.endpoint.gui.v1.tools.auth.permissions import Permissions
 from airembr.model.metadata.sys_canonical_entity import CanonicalEntity, CanonicalEntityProperty
 from airembr.system.config.sys_config import sys_config
-from airembr.system.command.canonical.entities import (
+from airembr.system.command.v1.meta.canonical_entity.entities import (
     get_canonical_entity as get_canonical_entity_cmd,
     save_canonical_entity as save_canonical_entity_cmd,
     delete_canonical_entity as delete_canonical_entity_cmd,
 )
-from airembr.system.command.canonical.properties import (
+from airembr.system.command.v1.meta.canonical_entity.properties import (
     get_entity_property as get_entity_property_cmd,
     save_entity_property as save_entity_property_cmd,
     delete_entity_property as delete_entity_property_cmd,

@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 
 from airembr.model.api.request.time_range import DatetimeRangePayload
 from airembr.system.config.sys_config import sys_config
-from airembr.system.command.observation.observation import (
+from airembr.system.command.v1.data.observation.observation import (
     get_observation_facts as get_observation_facts_cmd,
     get_observers_from_facts as get_observers_from_facts_cmd,
     load_observations as load_observations_cmd,
