@@ -6,8 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Request, Response
 
 from airembr.model.system.header_schema import X_CONTEXT, X_TRACE_ID
-from airembr_api.endpoint.collector.routes import collector_endpoint
-from airembr_api.endpoint.collector.routes import auth_endpoint
+from airembr_api.endpoint.collector.v1.routes import collector_endpoint
+from airembr_api.endpoint.collector.v1.routes import auth_endpoint
 from airembr_api.middleware.context import ContextRequestMiddleware
 from airembr_api.service.startup import app_lifespan
 

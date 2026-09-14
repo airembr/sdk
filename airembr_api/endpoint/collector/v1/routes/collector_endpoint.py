@@ -19,7 +19,7 @@ from airembr.system.adapter.metadata.mysql.service.bridge_service import BridgeS
 from airembr.model.payload.simplified_observation import SimplifiedObservation
 from airembr.system.config.sys_config import sys_config
 
-from airembr_api.endpoint.collector.auth.jwt_auth import JWTAuth
+from airembr_api.endpoint.collector.v1.auth.jwt_auth import JWTAuth
 
 from pararun.protocol.queue_client_protocol import QUEUE_BACK_PRESSURE, MESSAGE_TOO_LARGE, INTERNAL_ERROR
 
