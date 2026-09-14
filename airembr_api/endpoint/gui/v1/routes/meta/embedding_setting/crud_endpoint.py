@@ -14,16 +14,16 @@ router = APIRouter(
 )
 
 
-@router.get("/v2/embedding/{embedding_id}", tags=["v2/ai"], include_in_schema=sys_config.expose_gui_api)
-async def get_segment(embedding_id: str):
+@router.get("/v1/embedding-setting/{embedding_id}", tags=["v2/ai"], include_in_schema=sys_config.expose_gui_api)
+async def get_embedding_setting_by_id(embedding_id: str):
     return await get_embedding_setting_cmd(embedding_id)
 
 
-@router.post("/v2/embedding", tags=["v2/ai"], include_in_schema=sys_config.expose_gui_api)
-async def save_segment(embedding: EmbeddingSetting):
+@router.post("/v1/embedding-setting", tags=["v2/ai"], include_in_schema=sys_config.expose_gui_api)
+async def save_embedding_setting(embedding: EmbeddingSetting):
     await save_embedding_setting_cmd(embedding)
 
 
-@router.delete("/v2/embedding/{embedding_id}", tags=["v2/ai"], include_in_schema=sys_config.expose_gui_api)
-async def delete_segment(embedding_id: str):
+@router.delete("/v1/embedding-setting/{embedding_id}", tags=["v2/ai"], include_in_schema=sys_config.expose_gui_api)
+async def delete_embedding_setting_by_id(embedding_id: str):
     return await delete_embedding_setting_cmd(embedding_id)

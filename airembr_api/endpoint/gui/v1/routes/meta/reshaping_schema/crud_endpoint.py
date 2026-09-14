@@ -16,9 +16,9 @@ router = APIRouter(
 )
 
 
-@router.post("/event-reshape-schema", tags=["reshaping"], include_in_schema=sys_config.expose_gui_api,
+@router.post("/v1/reshaping-schema", tags=["reshaping"], include_in_schema=sys_config.expose_gui_api,
              response_model=dict)
-async def add_reshape_schema(data: EventReshapingSchema):
+async def save_reshaping_schema(data: EventReshapingSchema):
     """
     Adds new event reshaping schema.
     """
@@ -26,18 +26,18 @@ async def add_reshape_schema(data: EventReshapingSchema):
     return {"saved": True}
 
 
-@router.delete("/event-reshape-schema/{id}", tags=["reshaping"], include_in_schema=sys_config.expose_gui_api)
-async def delete_reshape_schema(id: str):
+@router.delete("/v1/reshaping-schema/{id}", tags=["reshaping"], include_in_schema=sys_config.expose_gui_api)
+async def delete_reshaping_schema_by_id(id: str):
     """
     Deletes event reshaping schema.
     """
     return await delete_reshape_schema_cmd(id)
 
 
-@router.get("/event-reshape-schema/{id}", tags=["reshaping"],
+@router.get("/v1/reshaping-schema/{id}", tags=["reshaping"],
             include_in_schema=sys_config.expose_gui_api,
             response_model=Optional[EventReshapingSchema])
-async def get_reshape_schema(id: str):
+async def get_reshaping_schema_by_id(id: str):
     try:
         return await get_reshape_schema_cmd(id)
     except EventReshapingError as e:

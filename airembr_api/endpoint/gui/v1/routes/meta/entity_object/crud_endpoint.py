@@ -14,16 +14,16 @@ router = APIRouter(
 )
 
 
-@router.post("/v2/entity/object", tags=["v2/entity"], include_in_schema=sys_config.expose_gui_api)
+@router.post("/v1/entity-object", tags=["v2/entity"], include_in_schema=sys_config.expose_gui_api)
 async def save_entity_object(entity_object: EntityObject):
     await save_entity_object_cmd(entity_object)
 
 
-@router.get("/v2/entity/object/{entity_type_id}", tags=["v2/entity"], include_in_schema=sys_config.expose_gui_api)
-async def get_entity_object_payload(entity_type_id: str):
+@router.get("/v1/entity-object/{entity_type_id}", tags=["v2/entity"], include_in_schema=sys_config.expose_gui_api)
+async def get_entity_object_by_id(entity_type_id: str):
     return await get_entity_object_payload_cmd(entity_type_id)
 
 
-@router.delete("/v2/entity/object/{entity_type_id}", tags=["v2/entity"], include_in_schema=sys_config.expose_gui_api)
-async def delete_entity_object(entity_type_id: str):
+@router.delete("/v1/entity-object/{entity_type_id}", tags=["v2/entity"], include_in_schema=sys_config.expose_gui_api)
+async def delete_entity_object_by_id(entity_type_id: str):
     return await delete_entity_object_cmd(entity_type_id)

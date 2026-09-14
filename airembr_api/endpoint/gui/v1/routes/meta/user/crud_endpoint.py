@@ -22,10 +22,11 @@ router = APIRouter(
 )
 
 
+@router.get("/v1/user-preference/{key}", tags=["user"], include_in_schema=sys_config.expose_gui_api)
 @router.get("/user/preference/{key}", tags=["user"], include_in_schema=sys_config.expose_gui_api)
-async def get_user_preference(key: str,
-                              response: Response,
-                              user=Depends(Permissions(["admin", "developer", "marketer", "maintainer"]))):
+async def get_user_preference_by_id(key: str,
+                                    response: Response,
+                                    user=Depends(Permissions(["admin", "developer", "marketer", "maintainer"]))):
     """
     Returns user preference
     """
@@ -39,11 +40,14 @@ async def get_user_preference(key: str,
     return pref
 
 
+@router.post("/v1/user-preference/{key}",
+             tags=["user"],
+             include_in_schema=sys_config.expose_gui_api)
 @router.post("/user/preference/{key}",
              tags=["user"],
              include_in_schema=sys_config.expose_gui_api)
-async def set_user_preference(key: str, preference: Union[dict, str, int, float],
-                              user: User = Depends(Permissions(["admin", "developer", "marketer", "maintainer"]))):
+async def save_user_preference(key: str, preference: Union[dict, str, int, float],
+                               user: User = Depends(Permissions(["admin", "developer", "marketer", "maintainer"]))):
     """
     Sets user preference.Uses key to set the preference
     """
@@ -51,9 +55,10 @@ async def set_user_preference(key: str, preference: Union[dict, str, int, float]
     return await set_user_preference_cmd(user, key, preference)
 
 
+@router.delete("/v1/user-preference/{key}", tags=["user"], include_in_schema=sys_config.expose_gui_api)
 @router.delete("/user/preference/{key}", tags=["user"], include_in_schema=sys_config.expose_gui_api)
-async def delete_user_preference(key: str,
-                                 user: User = Depends(Permissions(["admin", "developer", "marketer", "maintainer"]))):
+async def delete_user_preference_by_id(key: str,
+                                       user: User = Depends(Permissions(["admin", "developer", "marketer", "maintainer"]))):
     """
     Deletes user preference
     """
@@ -64,9 +69,9 @@ async def delete_user_preference(key: str,
         raise HTTPException(status_code=e.status_code, detail=str(e))
 
 
-@router.post("/user", tags=["user"],
+@router.post("/v1/user", tags=["user"],
              include_in_schema=sys_config.expose_gui_api)
-async def add_user(user_payload: UserPayload):
+async def save_user(user_payload: UserPayload):
     """
     Creates new user in database
     """
@@ -77,8 +82,8 @@ async def add_user(user_payload: UserPayload):
         raise HTTPException(status_code=e.status_code, detail=str(e))
 
 
-@router.delete("/user/{id}", tags=["user"], include_in_schema=sys_config.expose_gui_api)
-async def delete_user(id: str, user: User = Depends(Permissions(["admin"]))):
+@router.delete("/v1/user/{id}", tags=["user"], include_in_schema=sys_config.expose_gui_api)
+async def delete_user_by_id(id: str, user: User = Depends(Permissions(["admin"]))):
     """
     Deletes user with given ID
     """
@@ -89,8 +94,8 @@ async def delete_user(id: str, user: User = Depends(Permissions(["admin"]))):
         raise HTTPException(status_code=e.status_code, detail=str(e))
 
 
-@router.get("/user/{id}", tags=["user"], include_in_schema=sys_config.expose_gui_api)
-async def get_user(id: str):
+@router.get("/v1/user/{id}", tags=["user"], include_in_schema=sys_config.expose_gui_api)
+async def get_user_by_id(id: str):
     """
     Returns user with given ID
     """
@@ -101,8 +106,8 @@ async def get_user(id: str):
         raise HTTPException(status_code=e.status_code, detail=str(e))
 
 
-@router.post("/user/{id}", tags=["user"], include_in_schema=sys_config.expose_gui_api, response_model=dict)
-async def edit_user(id: str, user_payload: UserPayload, user=Depends(Permissions(["admin"]))):
+@router.post("/v1/user/{id}", tags=["user"], include_in_schema=sys_config.expose_gui_api, response_model=dict)
+async def update_user(id: str, user_payload: UserPayload, user=Depends(Permissions(["admin"]))):
     """
     Edits existing user with given ID
     """

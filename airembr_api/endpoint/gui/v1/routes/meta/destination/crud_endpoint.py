@@ -15,7 +15,7 @@ router = APIRouter(
 )
 
 
-@router.post("/v2/destination", tags=["destination"], include_in_schema=sys_config.expose_gui_api)
+@router.post("/v1/destination", tags=["destination"], include_in_schema=sys_config.expose_gui_api)
 async def save_destination(destination: Destination):
     """
     Upserts destination data.
@@ -23,9 +23,9 @@ async def save_destination(destination: Destination):
     await save_destination_cmd(destination)
 
 
-@router.get("/destination/{destination_id}", tags=["destination"], response_model=Optional[Destination],
+@router.get("/v1/destination/{destination_id}", tags=["destination"], response_model=Optional[Destination],
             include_in_schema=sys_config.expose_gui_api)
-async def get_destination(destination_id: str, response: Response):
+async def get_destination_by_id(destination_id: str, response: Response):
     """
     Returns destination or None if destination does not exist.
     """
@@ -39,7 +39,7 @@ async def get_destination(destination_id: str, response: Response):
     return destination
 
 
-@router.delete("/destination/{destination_id}", tags=["destination"], include_in_schema=sys_config.expose_gui_api)
+@router.delete("/v1/destination/{destination_id}", tags=["destination"], include_in_schema=sys_config.expose_gui_api)
 async def delete_destination_by_id(destination_id: str):
     """
     Deletes destination with given id

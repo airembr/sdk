@@ -16,10 +16,10 @@ router = APIRouter(
 )
 
 
-@router.get("/v2/event-source/{id}", tags=["event-source"],
+@router.get("/v1/source/{id}", tags=["event-source"],
             response_model=Optional[EventSource],
             include_in_schema=sys_config.expose_gui_api)
-async def load_source_by_id(id: str, response: Response):
+async def get_source_by_id(id: str, response: Response):
     """
     Returns event source with given ID (str)
     """
@@ -33,18 +33,18 @@ async def load_source_by_id(id: str, response: Response):
     return record
 
 
-@router.post("/v2/event-source", tags=["event-source"],
+@router.post("/v1/source", tags=["event-source"],
              include_in_schema=sys_config.expose_gui_api)
-async def save_event_source(source: EventSource):
+async def save_source(source: EventSource):
     """
     Adds new event source in database
     """
     return await save_event_source_cmd(source)
 
 
-@router.delete("/v2/event-source/{source_id}", tags=["event-source"],
+@router.delete("/v1/source/{source_id}", tags=["event-source"],
                include_in_schema=sys_config.expose_gui_api)
-async def delete_event_source(source_id: str):
+async def delete_source_by_id(source_id: str):
     """
     Deletes event source with given ID (str).
     Return False if it is available in draft or production. True if all the instances where deleted

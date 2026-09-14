@@ -14,17 +14,16 @@ router = APIRouter(
 )
 
 
-@router.post("/v2/segment", tags=["v2/segment"], include_in_schema=sys_config.expose_gui_api)
+@router.post("/v1/segment", tags=["v2/segment"], include_in_schema=sys_config.expose_gui_api)
 async def save_segment(segment: EntitySegment):
     await save_segment_cmd(segment)
 
 
-@router.get("/v2/segment/{segment_id}", tags=["v2/segment"], include_in_schema=sys_config.expose_gui_api)
-async def get_segment(segment_id: str):
+@router.get("/v1/segment/{segment_id}", tags=["v2/segment"], include_in_schema=sys_config.expose_gui_api)
+async def get_segment_by_id(segment_id: str):
     return await get_segment_cmd(segment_id)
 
 
-# Can  not be /v2/segment/{segment_id} because deply is not refactored
-@router.delete("/segment/{segment_id}", tags=["v2/segment"], include_in_schema=sys_config.expose_gui_api)
-async def delete_segment(segment_id: str):
+@router.delete("/v1/segment/{segment_id}", tags=["v2/segment"], include_in_schema=sys_config.expose_gui_api)
+async def delete_segment_by_id(segment_id: str):
     return await delete_segment_cmd(segment_id)

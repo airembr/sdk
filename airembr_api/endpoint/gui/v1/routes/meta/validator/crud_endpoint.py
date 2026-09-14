@@ -16,20 +16,20 @@ router = APIRouter(
 )
 
 
-@router.post("/v2/event-config", tags=["/v2/event"], include_in_schema=sys_config.expose_gui_api)
-async def add_validator(data: EventValidator):
+@router.post("/v1/validator", tags=["/v2/event"], include_in_schema=sys_config.expose_gui_api)
+async def save_validator(data: EventValidator):
     await add_validator_cmd(data)
     return {"saved": True}
 
 
-@router.delete("/v2/event-config/{id}", tags=["/v2/event"], include_in_schema=sys_config.expose_gui_api)
-async def delete_validator(id: str):
+@router.delete("/v1/validator/{id}", tags=["/v2/event"], include_in_schema=sys_config.expose_gui_api)
+async def delete_validator_by_id(id: str):
     return await delete_validator_cmd(id)
 
 
-@router.get("/v2/event-config/{id}", tags=["/v2/event"], include_in_schema=sys_config.expose_gui_api,
+@router.get("/v1/validator/{id}", tags=["/v2/event"], include_in_schema=sys_config.expose_gui_api,
             response_model=EventValidator)
-async def get_validator(id: str):
+async def get_validator_by_id(id: str):
     try:
         return await get_validator_cmd(id)
     except EventValidationError as e:

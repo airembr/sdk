@@ -9,6 +9,6 @@ router = APIRouter(
 )
 
 
-@router.get("/v2/timer/{timer_id}", tags=["timer"], include_in_schema=sys_config.expose_gui_api)
-async def load_timer_by_id(timer_id: str):
+@router.get("/v1/timer/{timer_id}", tags=["timer"], include_in_schema=sys_config.expose_gui_api)
+async def get_timer_by_id(timer_id: str):
     return await get_timer_cmd(timer_id)

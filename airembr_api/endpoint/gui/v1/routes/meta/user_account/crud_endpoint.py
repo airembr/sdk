@@ -14,7 +14,7 @@ router = APIRouter(
 )
 
 
-@router.get("/user-account", tags=["user"], include_in_schema=sys_config.expose_gui_api, response_model=dict)
+@router.get("/v1/user-account", tags=["user"], include_in_schema=sys_config.expose_gui_api, response_model=dict)
 async def get_user_account(user: User = Depends(Permissions(["admin", "developer", "marketer", "maintainer"]))):
     """
     Returns data of the user who called the endpoint
@@ -22,9 +22,9 @@ async def get_user_account(user: User = Depends(Permissions(["admin", "developer
     return await get_user_account_cmd(user)
 
 
-@router.post("/user-account", tags=["user"], include_in_schema=sys_config.expose_gui_api)
-async def edit_user_account(payload: UserSoftEditPayload,
-                            user: User = Depends(Permissions(["admin", "developer", "marketer", "maintainer"]))):
+@router.post("/v1/user-account", tags=["user"], include_in_schema=sys_config.expose_gui_api)
+async def update_user_account(payload: UserSoftEditPayload,
+                              user: User = Depends(Permissions(["admin", "developer", "marketer", "maintainer"]))):
     """
     Edits currently logged user.
     """

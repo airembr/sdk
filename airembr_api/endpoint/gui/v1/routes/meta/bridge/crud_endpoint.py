@@ -12,8 +12,8 @@ router = APIRouter(
 )
 
 
-@router.get("/v2/bridge/{bridge_id}", tags=["bridge"], include_in_schema=sys_config.expose_gui_api)
-async def get_data_bridge_by_id(bridge_id: str):
+@router.get("/v1/bridge/{bridge_id}", tags=["bridge"], include_in_schema=sys_config.expose_gui_api)
+async def get_bridge_by_id(bridge_id: str):
     """
     Returns data bridge
     """

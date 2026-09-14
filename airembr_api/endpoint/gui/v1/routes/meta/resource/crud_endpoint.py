@@ -15,7 +15,7 @@ router = APIRouter(
 )
 
 
-@router.get("/resource/{id}",
+@router.get("/v1/resource/{id}",
             tags=["resource"],
             response_model=Optional[Resource],
             include_in_schema=sys_config.expose_gui_api)
@@ -27,15 +27,15 @@ async def get_resource_by_id(id: str) -> Optional[Resource]:
     return await get_resource_by_id_cmd(id)
 
 
-@router.post("/resource",
+@router.post("/v1/resource",
              tags=["resource"],
              include_in_schema=sys_config.expose_gui_api)
-async def upsert_resource(resource: Resource):
+async def save_resource(resource: Resource):
     return await upsert_resource_cmd(resource)
 
 
-@router.delete("/resource/{id}",
+@router.delete("/v1/resource/{id}",
                tags=["resource"],
                include_in_schema=sys_config.expose_gui_api)
-async def delete_resource(id: str):
+async def delete_resource_by_id(id: str):
     return await delete_resource_cmd(id)

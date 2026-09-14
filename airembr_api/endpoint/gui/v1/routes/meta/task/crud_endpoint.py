@@ -11,11 +11,13 @@ router = APIRouter(
 )
 
 
+@router.delete("/v1/task/{id}", tags=["task"], include_in_schema=sys_config.expose_gui_api)
 @router.delete("/v2/task/{id}", tags=["task"], include_in_schema=sys_config.expose_gui_api)
-async def delete_task(id: str):
+async def delete_task_by_id(id: str):
     return await delete_task_cmd(id)
 
 
+@router.post("/v1/task", tags=["task"], include_in_schema=sys_config.expose_gui_api)
 @router.post("/v2/task", tags=["task"], include_in_schema=sys_config.expose_gui_api)
-async def upsert_task(task: Task):
+async def save_task(task: Task):
     return await upsert_task_cmd(task)

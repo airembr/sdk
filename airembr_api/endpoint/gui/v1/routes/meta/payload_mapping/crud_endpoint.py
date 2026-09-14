@@ -18,20 +18,27 @@ router = APIRouter(
     prefix="/event-type"
 )
 
+# Unprefixed router for canonical /v1/<domain-object> paths: the router above
+# applies its "/event-type" prefix to every route it owns, so a canonical
+# /v1/payload-mapping path can't be added as a second decorator on it.
+router_v1 = APIRouter(
+    dependencies=[Depends(Permissions(roles=["admin", "developer"]))],
+)
 
-@router.post("/mapping", tags=["event-type"], include_in_schema=sys_config.expose_gui_api)
-async def add_event_type_mapping(event_mapping: EventTypeMetadata):
+
+@router_v1.post("/v1/payload-mapping", tags=["event-type"], include_in_schema=sys_config.expose_gui_api)
+async def save_payload_mapping(event_mapping: EventTypeMetadata):
     """
     Creates new event type mapping in database
     """
     return await add_event_type_mapping_cmd(event_mapping)
 
 
-@router.get("/mapping/{event_type_id}",
-            tags=["event-type"],
-            include_in_schema=sys_config.expose_gui_api,
-            response_model=Optional[EventTypeMetadata])
-async def get_event_mapping_by_id(event_type_id: str):
+@router_v1.get("/v1/payload-mapping/{event_type_id}",
+               tags=["event-type"],
+               include_in_schema=sys_config.expose_gui_api,
+               response_model=Optional[EventTypeMetadata])
+async def get_payload_mapping_by_id(event_type_id: str):
     """
     Return custom event type mapping for given event type
     """
@@ -41,8 +48,8 @@ async def get_event_mapping_by_id(event_type_id: str):
         raise HTTPException(status_code=e.status_code, detail=str(e))
 
 
-@router.delete("/mapping/{event_type_id}", tags=["event-type"], include_in_schema=sys_config.expose_gui_api)
-async def del_event_type_metadata(event_type_id: str):
+@router_v1.delete("/v1/payload-mapping/{event_type_id}", tags=["event-type"], include_in_schema=sys_config.expose_gui_api)
+async def delete_payload_mapping_by_id(event_type_id: str):
     """
     Deletes event type metadata for given event type
     """

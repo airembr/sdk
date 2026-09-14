@@ -16,21 +16,21 @@ router = APIRouter(
 )
 
 
-@router.get("/configuration/{id}", tags=["configuration"], include_in_schema=sys_config.expose_gui_api)
-async def get_configuration(id: str):
+@router.get("/v1/configuration/{id}", tags=["configuration"], include_in_schema=sys_config.expose_gui_api)
+async def get_configuration_by_id(id: str):
     try:
         return await get_configuration_cmd(id)
     except ConfigurationError as e:
         raise HTTPException(status_code=e.status_code, detail=str(e))
 
 
-@router.post("/configuration", tags=["configuration"], include_in_schema=sys_config.expose_gui_api)
-async def add_configuration(config: Configuration):
+@router.post("/v1/configuration", tags=["configuration"], include_in_schema=sys_config.expose_gui_api)
+async def save_configuration(config: Configuration):
     return await add_configuration_cmd(config)
 
 
-@router.delete("/configuration/{id}", tags=["configuration"], include_in_schema=sys_config.expose_gui_api)
-async def delete_configuration(id: str):
+@router.delete("/v1/configuration/{id}", tags=["configuration"], include_in_schema=sys_config.expose_gui_api)
+async def delete_configuration_by_id(id: str):
     """
     Deletes configuration from the database
     """
