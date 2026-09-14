@@ -1,11 +1,18 @@
+# System Folders
+
+## Purpose
+
+Defines where to find system files and separate sub-projects.
+
+## Description
+
 This project consists of several subprojects, located at:
 
 /home/risto/PycharmProjects/dev/bizmory
-  Deployable service layer of "Airembr", an AI memory platform: collects facts (actor-predicate-object triples) from observations into a StarRocks-backed knowledge graph, and serves retrieval via natural language / EQL queries.
-  - api/ : FastAPI servers — retrieval/recall API (port 7000) and enhancer/entity-enrichment API (port 8000).
-  - bg/  : background workers (asyncio scripts) — embedder, event-trigger dispatcher, observation merger, iCal source ingester.
-  Depends directly on airembr/sdk (airembr core + airembr_sdk) and on starrocks-driver (srd) for StarRocks queries.
-
+Deployable service layer of "Airembr", an AI memory platform: collects facts (actor-predicate-object triples) from observations into a StarRocks-backed knowledge graph, and serves retrieval via natural language / EQL queries.
+- api/ : FastAPI servers — retrieval/recall API (port 7000) and enhancer/entity-enrichment API (port 8000).
+- bg/  : background workers (asyncio scripts) — embedder, event-trigger dispatcher, observation merger, iCal source ingester.
+Depends directly on airembr/sdk (airembr core + airembr_sdk) and on starrocks-driver (srd) for StarRocks queries.
 /home/risto/WebstormProjects/console
   React 19 + Vite + MUI + Redux Toolkit GUI ("airembr-gui") — the admin/management console. Talks only over HTTP to the backend management API (bearer token + tenant/context headers); no direct code dependency on any other subproject in this system.
 
