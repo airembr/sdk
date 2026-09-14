@@ -1,13 +1,9 @@
 schema: spec-driven
 
-# Project context (optional)
-# This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: Python, React, Node.js
-#     We use conventional commits
-#     Domain: AI memory platform
+context: |
+  Tech stack: Python, ReactJS for /console project
+  We use conventional commits
+  Domain: AI Memory Platform. Distributed system
 
 # Per-artifact rules (optional)
 # Add custom rules for specific artifacts.
