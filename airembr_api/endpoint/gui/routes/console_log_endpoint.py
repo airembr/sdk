@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 
-from airembr_api.endpoint.gui.v1.auth.permissions import Permissions
+from airembr_api.endpoint.gui.v1.tools.auth.permissions import Permissions
 from airembr.system.config.sys_config import sys_config
 from airembr.system.command.log.errors import LogError
 from airembr.system.command.log.event_logs import get_event_logs as get_event_logs_cmd

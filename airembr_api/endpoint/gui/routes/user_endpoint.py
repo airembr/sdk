@@ -15,8 +15,8 @@ from airembr.system.command.user.preferences import (
 )
 from airembr.system.command.user.list_users import list_users as list_users_cmd
 from airembr.system.command.user.list_users_legacy import list_users_legacy as list_users_legacy_cmd
-from airembr_api.endpoint.gui.v1.auth.permissions import Permissions
-from airembr_api.endpoint.gui.v1.auth.authentication import Authentication, get_authentication
+from airembr_api.endpoint.gui.v1.tools.auth.permissions import Permissions
+from airembr_api.endpoint.gui.v1.tools.auth.authentication import Authentication, get_authentication
 from airembr_api.service.grouping import get_grouped_result
 
 

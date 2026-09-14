@@ -15,7 +15,7 @@ from airembr.system.command.user.add_user import add_user as add_user_cmd
 from airembr.system.command.user.delete_user import delete_user as delete_user_cmd
 from airembr.system.command.user.get_user import get_user as get_user_cmd
 from airembr.system.command.user.edit_user import edit_user as edit_user_cmd
-from airembr_api.endpoint.gui.v1.auth.permissions import Permissions
+from airembr_api.endpoint.gui.v1.tools.auth.permissions import Permissions
 
 router = APIRouter(
     dependencies=[Depends(Permissions(roles=["admin"]))]

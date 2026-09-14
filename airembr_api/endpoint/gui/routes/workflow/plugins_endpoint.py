@@ -6,7 +6,7 @@ from pydantic import ValidationError
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 
-from airembr_api.endpoint.gui.v1.auth.permissions import Permissions
+from airembr_api.endpoint.gui.v1.tools.auth.permissions import Permissions
 from airembr.system.process.logging.log_handler import get_logger
 from airembr.system.config.sys_config import sys_config
 from dagor.domain.config_validation_payload import ConfigValidationPayload

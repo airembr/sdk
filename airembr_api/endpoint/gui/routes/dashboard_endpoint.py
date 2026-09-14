@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 
-from airembr_api.endpoint.gui.v1.auth.permissions import Permissions
+from airembr_api.endpoint.gui.v1.tools.auth.permissions import Permissions
 from airembr.system.config.sys_config import sys_config
 from airembr.system.command.dashboard.dashboard import (
     count_online_resources as count_online_resources_cmd,

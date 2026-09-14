@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 
 from airembr_api.endpoint.gui.routes.user_endpoint import UserSoftEditPayload
-from airembr_api.endpoint.gui.v1.auth.permissions import Permissions
+from airembr_api.endpoint.gui.v1.tools.auth.permissions import Permissions
 
 from airembr.system.config.sys_config import sys_config
 from airembr.model.metadata.sys_user import User

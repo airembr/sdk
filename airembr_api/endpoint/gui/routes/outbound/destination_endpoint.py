@@ -1,6 +1,6 @@
 from typing import Dict
 from fastapi import APIRouter, Depends
-from airembr_api.endpoint.gui.v1.auth.permissions import Permissions
+from airembr_api.endpoint.gui.v1.tools.auth.permissions import Permissions
 
 from airembr.model.destination_trigger import DestinationTrigger
 from airembr.model.metadata.sys_resource import Resource

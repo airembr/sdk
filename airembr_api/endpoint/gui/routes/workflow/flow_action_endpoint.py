@@ -4,7 +4,7 @@ from fastapi import HTTPException, Depends
 
 from airembr.model.system.enum.yes_no import YesNo
 
-from airembr_api.endpoint.gui.v1.auth.permissions import Permissions
+from airembr_api.endpoint.gui.v1.tools.auth.permissions import Permissions
 
 from airembr.system.config.sys_config import sys_config
 from airembr.system.command.plugin.errors import PluginError

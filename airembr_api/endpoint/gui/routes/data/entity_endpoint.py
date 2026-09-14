@@ -17,7 +17,7 @@ from airembr.system.command.entity.entity import (
     list_entity_snapshots as list_entity_snapshots_cmd,
 )
 
-from airembr_api.endpoint.gui.v1.auth.permissions import Permissions
+from airembr_api.endpoint.gui.v1.tools.auth.permissions import Permissions
 from airembr.system.config.sys_config import sys_config
 
 router = APIRouter(

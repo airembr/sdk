@@ -7,7 +7,7 @@
 # from system.query.autocomplete import KQLAutocomplete
 # from tracardi.domain.sql_query import SqlQuery
 # from airembr.model.api.time_range import DatetimeRangePayload
-# from airembr_api.endpoint.gui.v1.auth.permissions import Permissions
+# from airembr_api.endpoint.gui.v1.tools.auth.permissions import Permissions
 # from airembr.system.config.sys_config import sys_config
 #
 # router = APIRouter(
