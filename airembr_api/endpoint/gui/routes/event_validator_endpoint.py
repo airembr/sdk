@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 
 from airembr.system.config.sys_config import sys_config
 from airembr.system.config.memory_cache_config import memory_cache_config
-from airembr.system.command.v1.meta.validator.validator import (
+from airembr.system.command.v1.list.validator.list import (
     load_validators as load_validators_cmd,
 )
 

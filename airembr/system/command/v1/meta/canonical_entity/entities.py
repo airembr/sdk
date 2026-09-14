@@ -1,11 +1,7 @@
-from typing import Optional, Tuple
+from typing import Optional
 
 from airembr.model.metadata.sys_canonical_entity import CanonicalEntity
 from airembr.system.adapter.metadata.mysql.interface import canonical_entity_dao
-
-
-async def list_canonical_entities(query: str, limit: int, start: int, output: str) -> Tuple[list, int]:
-    return await canonical_entity_dao.load_all_canonical_entities(query, limit=limit, start=start, output=output)
 
 
 async def get_canonical_entity(entity_id: str) -> Optional[CanonicalEntity]:

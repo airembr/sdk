@@ -5,7 +5,7 @@ from airembr_api.endpoint.gui.v1.tools.auth.permissions import Permissions
 from airembr.model.api.request.time_range import DatetimeRangePayload
 
 from airembr.system.config.sys_config import sys_config
-from airembr.system.command.v1.data.event.event import (
+from airembr.system.command.v1.list.event.list import (
     load_event_by_query as load_event_by_query_cmd,
     get_event_histogram as get_event_histogram_cmd,
     get_events_for_actor_entity as get_events_for_actor_entity_cmd,

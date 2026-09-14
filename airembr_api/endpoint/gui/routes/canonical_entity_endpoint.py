@@ -3,10 +3,8 @@ from fastapi import APIRouter, Depends
 from airembr.system.process.logging.log_handler import get_logger
 from airembr_api.endpoint.gui.v1.tools.auth.permissions import Permissions
 from airembr.system.config.sys_config import sys_config
-from airembr.system.command.v1.meta.canonical_entity.entities import (
+from airembr.system.command.v1.list.canonical_entity.list import (
     list_canonical_entities as list_canonical_entities_cmd,
-)
-from airembr.system.command.v1.meta.canonical_entity.properties import (
     list_entity_properties as list_entity_properties_cmd,
 )
 

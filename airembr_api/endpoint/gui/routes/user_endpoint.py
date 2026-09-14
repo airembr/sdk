@@ -10,7 +10,7 @@ from airembr.system.command.auth.errors import AuthError
 from airembr.system.config.sys_config import sys_config
 from airembr.system.adapter.metadata.mysql.mapping.user_mapping import map_to_user
 from airembr.model.system.context import ServerContext, get_context
-from airembr.system.command.v1.meta.user.preferences import (
+from airembr.system.command.v1.list.user.list import (
     get_all_user_preferences as get_all_user_preferences_cmd,
 )
 from airembr.system.command.user.list_users import list_users as list_users_cmd

@@ -7,7 +7,7 @@ from airembr_api.endpoint.gui.v1.tools.auth.permissions import Permissions
 from airembr.system.config.sys_config import sys_config
 from airembr.system.config.memory_cache_config import memory_cache_config
 from airembr.system.command.v1.errors.payload_mapping_errors import EventMappingError
-from airembr.system.command.v1.meta.payload_mapping.event_mapping import (
+from airembr.system.command.v1.list.payload_mapping.list import (
     list_event_mappings as list_event_mappings_cmd,
     list_event_type_mappings_by_tag as list_event_type_mappings_by_tag_cmd,
 )

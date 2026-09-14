@@ -33,7 +33,3 @@ async def delete_user_preference(user: User, key: str) -> Any:
     token2user.set(user)
 
     return result
-
-
-async def get_all_user_preferences(user: User) -> dict:
-    return user.preference

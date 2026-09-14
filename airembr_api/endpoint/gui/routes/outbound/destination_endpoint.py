@@ -7,11 +7,13 @@ from airembr.model.metadata.sys_resource import Resource
 from airembr.system.config.sys_config import sys_config
 from airembr.system.config.memory_cache_config import memory_cache_config
 from airembr.system.command.v1.meta.destination.destination import (
+    get_destination_trigger_by_id as get_destination_trigger_by_id_cmd,
+)
+from airembr.system.command.v1.list.destination.list import (
     get_destinations_type_list as get_destinations_type_list_cmd,
     get_destinations_by_tag as get_destinations_by_tag_cmd,
     get_destinations_meta as get_destinations_meta_cmd,
     get_destination_triggers_metadata as get_destination_triggers_metadata_cmd,
-    get_destination_trigger_by_id as get_destination_trigger_by_id_cmd,
     list_destination_resources as list_destination_resources_cmd,
 )
 

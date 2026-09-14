@@ -1,12 +1,6 @@
-from typing import Optional, Tuple
-
 from airembr.model.metadata.sys_evt_validation import EventValidator
 from airembr.system.adapter.metadata.mysql.interface import event_validation_dao
 from airembr.system.command.v1.errors.validator_errors import EventValidationError
-
-
-async def load_validators(limit: int, query: Optional[str]) -> Tuple[list, int]:
-    return await event_validation_dao.load_all(search=query, limit=limit)
 
 
 async def add_validator(data: EventValidator):

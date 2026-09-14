@@ -1,4 +1,4 @@
-from typing import Optional, Tuple
+from typing import Optional
 
 from airembr.model.metadata.sys_embedding_setting import EmbeddingSetting
 from airembr.system.adapter.metadata.mysql.interface import embedding_setting_dao
@@ -6,10 +6,6 @@ from airembr.system.adapter.metadata.mysql.interface import embedding_setting_da
 
 async def get_embedding_setting(embedding_id: str) -> Optional[EmbeddingSetting]:
     return await embedding_setting_dao.load_by_id(embedding_id)
-
-
-async def list_embedding_settings(query: Optional[str], start: int, limit: int) -> Tuple[list, int]:
-    return await embedding_setting_dao.load_all(query, limit, start)
 
 
 async def save_embedding_setting(embedding: EmbeddingSetting):
