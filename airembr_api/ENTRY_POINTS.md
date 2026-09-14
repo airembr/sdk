@@ -1,1 +1,4 @@
-Entry points are in endpoint/collector/main.py i endpoint/gui/main.py
+Entry points are in:
+* endpoint/collector/main.py 
+* endpoint/gui/main.py 
+* endpoint/pill/main.py
