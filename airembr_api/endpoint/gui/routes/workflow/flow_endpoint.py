@@ -3,7 +3,7 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException, Depends, Response
 
 from airembr_api.service.grouping import get_result, get_result_as_group
-from airembr_api.endpoint.gui.auth.permissions import Permissions
+from airembr_api.endpoint.gui.v1.auth.permissions import Permissions
 
 from dagor.domain.flow_graph import FlowGraph
 from dagor.domain.flowdag import FlowDag, FlowRecord

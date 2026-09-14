@@ -2,7 +2,7 @@ from typing import Optional
 
 from airembr.system.config.sys_config import sys_config
 from fastapi import APIRouter, Depends, HTTPException
-from airembr_api.endpoint.gui.auth.permissions import Permissions
+from airembr_api.endpoint.gui.v1.auth.permissions import Permissions
 from airembr.model.metadata.sys_evt_reshaping import EventReshapingSchema
 from airembr.system.command.event_reshaping.errors import EventReshapingError
 from airembr.system.command.event_reshaping.reshaping_schema import (

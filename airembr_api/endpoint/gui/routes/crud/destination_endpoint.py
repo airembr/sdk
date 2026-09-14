@@ -1,6 +1,6 @@
 from typing import Optional
 from fastapi import APIRouter, Response, Depends
-from airembr_api.endpoint.gui.auth.permissions import Permissions
+from airembr_api.endpoint.gui.v1.auth.permissions import Permissions
 
 from airembr.model.metadata.sys_destination import Destination
 from airembr.system.config.sys_config import sys_config

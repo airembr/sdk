@@ -3,7 +3,7 @@ from typing import Optional
 from airembr.system.config.sys_config import sys_config
 from airembr.system.config.memory_cache_config import memory_cache_config
 from fastapi import APIRouter, Depends, HTTPException
-from airembr_api.endpoint.gui.auth.permissions import Permissions
+from airembr_api.endpoint.gui.v1.auth.permissions import Permissions
 from airembr.system.command.event_reshaping.errors import EventReshapingError
 from airembr.system.command.event_reshaping.reshaping_schema import (
     get_reshape_schemas_by_event_type as get_reshape_schemas_by_event_type_cmd,

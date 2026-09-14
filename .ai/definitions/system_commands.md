@@ -6,7 +6,7 @@ and servers as entry point to the system.
 ## What responsibility it has 
 
 * has all system functions
-* seperates functions per object
+* separates functions per object
 * serves as entry point for system operation, no other files can be imported in upper lavers like API, CLI
 
 ## What is does not do

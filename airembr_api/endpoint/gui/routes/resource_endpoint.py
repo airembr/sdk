@@ -9,7 +9,7 @@ from airembr.system.command.resource.resource import (
     list_resources as list_resources_cmd,
     list_resources_by_type as list_resources_by_type_cmd,
 )
-from airembr_api.endpoint.gui.auth.permissions import Permissions
+from airembr_api.endpoint.gui.v1.auth.permissions import Permissions
 
 router = APIRouter()
 

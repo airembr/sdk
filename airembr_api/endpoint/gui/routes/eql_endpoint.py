@@ -13,7 +13,7 @@ from airembr.system.command.eql.search_observations import get_observations as g
 from airembr.system.command.eql.search_entity_types import get_observation_entity_types as \
     get_observation_entity_types_cmd
 from airembr.system.command.eql.autocomplete import autocomplete_eql as autocomplete_eql_cmd
-from airembr_api.endpoint.gui.auth.permissions import Permissions
+from airembr_api.endpoint.gui.v1.auth.permissions import Permissions
 from airembr.system.config.sys_config import sys_config
 
 router = APIRouter(

@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 from airembr.sdk.common.map_to_named_entity import map_to_named_entity
 from airembr_api.service.grouping import get_result_dict
 
-from airembr_api.endpoint.gui.auth.permissions import Permissions
+from airembr_api.endpoint.gui.v1.auth.permissions import Permissions
 from airembr.system.config.sys_config import sys_config
 from airembr.system.command.segment.segment import (
     list_segments as list_segments_cmd,

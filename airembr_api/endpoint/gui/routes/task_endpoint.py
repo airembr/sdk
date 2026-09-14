@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 
 from airembr.system.adapter.metadata.mysql.mapping.task_mapping import map_to_task
-from airembr_api.endpoint.gui.auth.permissions import Permissions
+from airembr_api.endpoint.gui.v1.auth.permissions import Permissions
 from airembr.system.config.sys_config import sys_config
 from airembr_api.service.grouping import get_grouped_result
 from airembr.system.command.task.list_tasks import list_tasks as list_tasks_cmd

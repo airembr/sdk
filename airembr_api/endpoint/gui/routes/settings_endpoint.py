@@ -1,6 +1,6 @@
 from typing import List, Dict, Any, Union
 
-from airembr_api.endpoint.gui.auth.permissions import Permissions
+from airembr_api.endpoint.gui.v1.auth.permissions import Permissions
 from fastapi import APIRouter, Depends
 from airembr.system.config.sys_config import sys_config
 from airembr.model.settings import SystemSettings

@@ -4,7 +4,7 @@ from fastapi import APIRouter
 from fastapi import Depends
 
 from airembr.model.api.request.time_range import DatetimeRangePayload
-from airembr_api.endpoint.gui.auth.permissions import Permissions
+from airembr_api.endpoint.gui.v1.auth.permissions import Permissions
 from airembr.system.config.sys_config import sys_config
 from airembr.system.command.log.log_query import (
     load_logs as load_logs_cmd,

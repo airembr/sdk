@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 
-from airembr_api.endpoint.gui.auth.permissions import Permissions
+from airembr_api.endpoint.gui.v1.auth.permissions import Permissions
 from airembr.system.config.sys_config import sys_config
 from airembr.model.metadata.sys_task import Task
 from airembr.system.command.task.delete_task import delete_task as delete_task_cmd
